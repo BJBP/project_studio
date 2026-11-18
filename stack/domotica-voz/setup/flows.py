@@ -88,13 +88,20 @@ def wait_for_entities(client: HaClient, timeout_s: int = 90) -> list:
 def ensure_pipeline(client: HaClient) -> None:
     states = wait_for_entities(client)
     pipelines = client.ws({"type": "assist_pipeline/pipeline/list"})[0]
-    if any(p["name"] == PIPELINE_NAME for p in pipelines["pipelines"]):
+    existing = next((p for p in pipelines["pipelines"] if p["name"] == PIPELINE_NAME), None)
+    if existing and existing.get("prefer_local_intents"):
         return
+    if existing:  # older setups created it without local intents: switch them on
+        fields = {k: v for k, v in existing.items() if k != "id"}
+        client.ws({"type": "assist_pipeline/pipeline/update", "pipeline_id": existing["id"],
+                   **fields, "prefer_local_intents": True})
+        return
+    # prefer_local_intents: simple orders ("enciende el foco") run in HA itself; the AI answers the rest.
     created = client.ws({
         "type": "assist_pipeline/pipeline/create", "name": PIPELINE_NAME, "language": LANGUAGE,
         "conversation_engine": find_entity(states, "conversation", "ollama"), "conversation_language": LANGUAGE,
         "stt_engine": find_entity(states, "stt"), "stt_language": LANGUAGE,
         "tts_engine": find_entity(states, "tts", "piper"), "tts_language": "es_ES", "tts_voice": None,
-        "wake_word_entity": None, "wake_word_id": None,
+        "wake_word_entity": None, "wake_word_id": None, "prefer_local_intents": True,
     })[0]
     client.ws({"type": "assist_pipeline/pipeline/set_preferred", "pipeline_id": created["id"]})
