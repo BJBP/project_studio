@@ -43,4 +43,4 @@
 - Palabra propia: borrar una palabra importada desde la página (hoy se borran sus dos archivos de `project_studio_data/wake_words/`).
 - Palabra propia en Docker del Estudio: el contenedor no puede reiniciar el detector; avisa de reiniciar el stack de voz.
 - La palabra del ESP32 real va en `firmware/esphome/packages/voice.yaml`: cambiarla desde el Estudio y volver a compilar.
-- Simulador del ESP32: en espera de que ESPHome admita la red de QEMU (OPENETH) en el ESP32-S3. Con cada versión nueva de ESPHome, probar `build_firmware.py circuito_maestro --sim` (`docs/planes/simulador_esp32.md`).
+- Simulador del ESP32 (pendiente): esperar a ESPHome, o probar la alternativa 1 (`external_components`, ~3 h) o la 2 (híbrida); detalle en el plan. Con cada versión nueva de ESPHome, probar `build_firmware.py circuito_maestro --sim` (`docs/planes/simulador_esp32.md`).
