@@ -39,10 +39,13 @@ services:
       - piper_data:/data
 
   # Hears the wake word ("okay nabu") in the audio the browser sends; the same detector as the real ESP32.
+  # Own trained words (.json + .tflite) live in the user's data folder, not in the repo.
   wakeword:
     image: rhasspy/wyoming-microwakeword:latest
     restart: unless-stopped
-    command: --uri tcp://0.0.0.0:10400
+    command: --uri tcp://0.0.0.0:10400 --custom-model-dir /custom
+    volumes:
+      - ${WAKE_WORDS_DIR:-../../../project_studio_data/wake_words}:/custom:ro
 
   # ESPHome dashboard: wireless (OTA) updates and logs of the real ESP32s. Firmware lives in firmware/esphome.
   esphome:

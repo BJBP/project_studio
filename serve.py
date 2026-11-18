@@ -13,8 +13,9 @@ from pathlib import Path
 from serve_ai import public_providers, save_key
 from serve_firmware import build_status, start_build
 from serve_models import list_models, set_model
+from serve_wake import import_word, list_words, set_word
 from studio.presentation.api import PREFIX as STUDIO_PREFIX, route as studio_route
-from studio.presentation.wiring import build_repo
+from studio.presentation.wiring import build_repo, default_data_dir
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
 TTS_PREFIX = "/api/tts_proxy/"  # only path relayed to HA; its links are signed, so no token is added
@@ -22,6 +23,7 @@ SECRETS_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "
 
 
 MAX_SPEAK_CHARS = 600
+WAKE_WORDS_DIR = default_data_dir() / "wake_words"  # own trained words; the voice stack mounts the same folder
 
 
 def speak(text: str) -> tuple[int, dict]:
@@ -66,6 +68,9 @@ class StudioHandler(SimpleHTTPRequestHandler):
         if self.path.startswith(STUDIO_PREFIX):
             self.send_json(*studio_route(self.server.repo, "GET", self.path))
             return
+        if self.path == "/api/wake-words":
+            self.send_json(*list_words(SECRETS_FILE.parent, WAKE_WORDS_DIR))
+            return
         if self.path.startswith("/api/ai-models/"):
             self.send_json(*list_models(SECRETS_FILE.parent, self.path.rsplit("/", 1)[-1]))
             return
@@ -87,6 +92,10 @@ class StudioHandler(SimpleHTTPRequestHandler):
             self.send_json(200 if result["ok"] else 400, result)
         elif self.path == "/api/ai-model":
             self.send_json(*set_model(SECRETS_FILE.parent, str(data.get("provider", "")), str(data.get("model", ""))))
+        elif self.path == "/api/wake-word":
+            self.send_json(*set_word(SECRETS_FILE.parent, WAKE_WORDS_DIR, str(data.get("word", ""))))
+        elif self.path == "/api/wake-word/import":
+            self.send_json(*import_word(WAKE_WORDS_DIR, str(data.get("config", "")), str(data.get("model", ""))))
         elif self.path == "/api/speak":
             self.send_json(*speak(str(data.get("text", ""))[:MAX_SPEAK_CHARS]))
         elif self.path == "/api/firmware/build":

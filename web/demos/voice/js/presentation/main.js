@@ -13,6 +13,8 @@ import { syncAliases } from '../application/sync-aliases.js';
 import { createBrainChoice } from '../application/brain-choice.js';
 import { saveAiKey } from '../infrastructure/ai-keys.js';
 import { fetchModels, saveModel } from '../infrastructure/ai-models.js';
+import { wakeWordsApi } from '../infrastructure/wake-words.js';
+import { createWakeWordChoice } from '../application/wake-word-choice.js';
 import { createDemoBlocks } from './blocks/index.js';
 import { createSimulator } from '../application/simulator.js';
 import { t, localeTable } from './i18n.js';
@@ -100,8 +102,11 @@ async function main() {
   });
   await brainChoice.load().catch((error) => console.warn('voice demo: no se pudieron leer las IAs', error));
 
+  const wakeWords = createWakeWordChoice({ api: wakeWordsApi, onChange: () => live.emit() });
+  wakeWords.load().catch((error) => console.warn('voice demo: no se pudieron leer las palabras', error));
+
   const simulator = virtualDevice ? createSimulator({ catalog, virtualDevice }) : null;
-  const blocks = createDemoBlocks({ live, t, session, speaker, brainChoice, catalog, virtualDevice, simulator, assist });
+  const blocks = createDemoBlocks({ live, t, session, speaker, brainChoice, catalog, virtualDevice, simulator, assist, wakeWords });
 
   mountBlocks(document.getElementById('blocks-root'), {
     blocks,

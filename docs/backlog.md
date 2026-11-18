@@ -38,3 +38,8 @@
 - Elegir modelo: el cambio ejecuta todo `setup_ha.py` (unos segundos); un comando solo para el modelo lo haría más rápido.
 - Elegir modelo en la nube: sin probar con una clave real; añadir la lista de modelos de OpenAI y Gemini en `ai_providers.json`, o pedirla al proveedor.
 - Docker del Estudio: probar guardar una clave o cambiar de modelo desde el contenedor (ejecuta `setup_ha.py` con uv dentro).
+- Palabra propia, fase B: entrenar desde el Estudio (`docs/planes/palabra_propia.md`). Necesita ~40 GB libres (hoy 15 GB) y parar Ollama mientras entrena (GPU de 4 GB).
+- Palabra propia: probar con un `.json` + `.tflite` de un entrenador real (se probó con un modelo de Okay Nabu renombrado).
+- Palabra propia: borrar una palabra importada desde la página (hoy se borran sus dos archivos de `project_studio_data/wake_words/`).
+- Palabra propia en Docker del Estudio: el contenedor no puede reiniciar el detector; avisa de reiniciar el stack de voz.
+- La palabra del ESP32 real va en `firmware/esphome/packages/voice.yaml`: cambiarla desde el Estudio y volver a compilar.
