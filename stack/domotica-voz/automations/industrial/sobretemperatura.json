@@ -1,0 +1,37 @@
+{
+  "id": "studio_sobretemperatura",
+  "alias": "Modo sobretemperatura",
+  "mode": "single",
+  "description": "Motor a más de 85 °C: sirena y aviso.",
+  "triggers": [
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.linea1_temp_motor",
+      "above": 85
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_sobretemperatura",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "switch.turn_on",
+      "target": {
+        "entity_id": "switch.linea1_sirena"
+      }
+    },
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.linea1_estado"
+      },
+      "data": {
+        "value": "PARAR: motor a más de 85 °C"
+      }
+    }
+  ]
+}

@@ -34,7 +34,8 @@ export function createLicensesBlock({ t, store }) {
 }
 
 export function createDocsBlock({ t, api, projectId }) {
-  const FILES = [['licencias.md', 'text/markdown'], ['THIRD_PARTY_NOTICES.md', 'text/markdown'], ['compras.csv', 'text/csv']];
+  const FILES = [['licencias.md', 'text/markdown'], ['THIRD_PARTY_NOTICES.md', 'text/markdown'], ['compras.csv', 'text/csv'],
+    ['inventree_partes.csv', 'text/csv'], ['odoo_productos.csv', 'text/csv']];
   return {
     id: 'docs', title: t('blockDocs'), icon: '📄', defaultVisible: true, defaultColumn: 'side', optionsSchema: [],
     render(container) {

@@ -1,0 +1,24 @@
+{
+  "modes": [
+    {
+      "id": "portero",
+      "icon": "🔔",
+      "name": "Portero",
+      "test": {
+        "device": "portero",
+        "key": "timbre"
+      },
+      "description": "Si tocan el timbre: luz de entrada y aviso en el panel."
+    },
+    {
+      "id": "visita_noche",
+      "icon": "🌙",
+      "name": "Visita detectada",
+      "test": {
+        "device": "portero",
+        "key": "persona"
+      },
+      "description": "Si la cámara ve a una persona: enciende la luz de entrada."
+    }
+  ]
+}

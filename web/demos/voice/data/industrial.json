@@ -1,0 +1,79 @@
+{
+  "base_topic": "studio",
+  "modes": "industrial.modes.json",
+  "blocks": [
+    "devices",
+    "modes",
+    "conversation",
+    "talk"
+  ],
+  "devices": [
+    {
+      "id": "linea1",
+      "name": "Línea 1",
+      "model": "Sensores Modbus (simulados)",
+      "area": "Planta",
+      "entities": [
+        {
+          "key": "temp_motor",
+          "component": "sensor",
+          "name": "Temperatura del motor",
+          "unit": "°C",
+          "device_class": "temperature",
+          "sim": {
+            "type": "drift",
+            "min": 45,
+            "max": 95,
+            "rest": 60,
+            "step": 1.5,
+            "every_s": 5,
+            "test": 88,
+            "pulse_s": 20
+          }
+        },
+        {
+          "key": "potencia",
+          "component": "sensor",
+          "name": "Potencia",
+          "unit": "kW",
+          "device_class": "power",
+          "sim": {
+            "type": "drift",
+            "min": 2,
+            "max": 12,
+            "rest": 6,
+            "step": 0.4,
+            "every_s": 5
+          }
+        },
+        {
+          "key": "vibracion",
+          "component": "sensor",
+          "name": "Vibración",
+          "unit": "mm/s",
+          "sim": {
+            "type": "drift",
+            "min": 0.5,
+            "max": 9,
+            "rest": 2,
+            "step": 0.3,
+            "every_s": 5,
+            "test": 8,
+            "pulse_s": 20
+          }
+        },
+        {
+          "key": "sirena",
+          "component": "switch",
+          "name": "Sirena"
+        },
+        {
+          "key": "estado",
+          "component": "text",
+          "name": "Estado de la línea",
+          "max": 64
+        }
+      ]
+    }
+  ]
+}

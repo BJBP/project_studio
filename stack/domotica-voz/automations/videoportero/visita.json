@@ -1,0 +1,37 @@
+{
+  "id": "studio_visita",
+  "alias": "Modo visita detectada",
+  "mode": "single",
+  "description": "Persona en la puerta: luz.",
+  "triggers": [
+    {
+      "trigger": "state",
+      "entity_id": "binary_sensor.portero_persona",
+      "to": "on"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_visita_noche",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "switch.turn_on",
+      "target": {
+        "entity_id": "switch.portero_luz"
+      }
+    },
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.portero_aviso"
+      },
+      "data": {
+        "value": "Hay una persona en la puerta"
+      }
+    }
+  ]
+}

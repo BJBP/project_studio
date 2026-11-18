@@ -40,3 +40,9 @@ def test_cli_check_fails_on_a_protocol_mismatch(repo, capsys):
     uc.swap_component(repo, "domotica-voz", "hub", "openhab")
     assert main(["check", str(repo.data_dir), "domotica-voz"]) == 1
     assert "E_PROTOCOL_MISMATCH" in capsys.readouterr().out
+
+
+def test_exports_for_inventree_and_odoo(repo):
+    status, docs = route(repo, "GET", "/api/studio/projects/domotica-voz/docs")
+    assert docs["inventree_partes.csv"].startswith("name,description,IPN")
+    assert docs["odoo_productos.csv"].splitlines()[1].split(",")[2] == "consu"

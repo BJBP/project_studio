@@ -160,5 +160,7 @@
       ]
     }
   ],
-  "links": {}
+  "links": {
+    "demo": "/demos/voice/?catalog=videoportero&embed=1"
+  }
 }
