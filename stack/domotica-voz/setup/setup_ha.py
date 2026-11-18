@@ -14,7 +14,7 @@ from pathlib import Path
 
 import httpx
 
-from flows import ensure_integrations, ensure_pipeline
+from flows import ensure_core_config, ensure_integrations, ensure_pipeline
 from ha_client import HaClient, HaError
 
 BASE_URL = os.environ.get("HA_URL", "http://127.0.0.1:8123")
@@ -65,6 +65,7 @@ def main() -> int:
         wait_for_ha()
         data = load_or_create_secrets()
         client = HaClient(BASE_URL, data["token"])
+        ensure_core_config(client)
         ensure_integrations(client)
         ensure_pipeline(client)
     except HaError as err:
