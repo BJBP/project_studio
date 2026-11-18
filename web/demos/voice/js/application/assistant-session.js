@@ -1,5 +1,7 @@
 // Assistant session: links mic, assist and speaker into one talk flow.
-// createAssistantSession({ assist, mic, speaker, handlers }) -> { startTalking, stopTalking, sendText, forwardChunk, setPipeline }.
+// createAssistantSession({ assist, mic, speaker, handlers })
+//   -> { startTalking, stopTalking, startHandsFree, stopHandsFree, isHandsFree, sendText, forwardChunk, setPipeline }.
+// Hands-free: the mic stays open and each run waits for the wake word; after the answer a new run waits again.
 // handlers: { onStatus(key), onHeard(text), onAnswer(text), onLevel(db), onError({ code, message }) }.
 
 export function createAssistantSession({ assist, mic, speaker, handlers = {} } = {}) {
@@ -10,6 +12,8 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
   let status = 'idle';
   let speaking = false;
   let pipelineId = null; // which AI answers; null = HA's preferred assistant
+  let handsFree = false;
+  const restStatus = () => (handsFree ? 'waiting' : 'idle');
 
   function setStatus(next) {
     status = next;
@@ -35,7 +39,7 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
         speaker.play(url).then(finishSpeaking, reportError);
       },
       onDone: () => {
-        if (!speaking) setStatus('idle');
+        if (!speaking) setStatus(restStatus());
       },
       onError: reportError,
     };
@@ -43,11 +47,11 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
 
   function finishSpeaking() {
     speaking = false;
-    setStatus('idle');
+    setStatus(restStatus());
   }
 
   async function startTalking() {
-    if (audio) return;
+    if (audio || handsFree) return; // hands-free already listens
     setStatus('listening');
     try {
       audio = assist.startAudio(pipelineHandlers(), pipelineId);
@@ -65,6 +69,7 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
   }
 
   function stopTalking() {
+    if (handsFree) return;
     mic.stop();
     if (!audio) return;
     audio.end();
@@ -90,10 +95,57 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
     }
   }
 
+  // HA ends each run itself (silence after the order); a timeout while waiting for the word just restarts it.
+  function openWakeRun() {
+    const base = pipelineHandlers();
+    try {
+      audio = assist.startAudio({
+        ...base,
+        onWake: () => setStatus('listening'),
+        onDone: () => { audio = null; base.onDone(); if (handsFree) openWakeRun(); },
+        onError: (error) => {
+          if (WAKE_TIMEOUTS.has(error?.code)) return; // run-end follows and opens the next run
+          stopHandsFree();
+          reportError(error);
+        },
+      }, pipelineId, { wakeWord: true });
+      if (!speaking) setStatus('waiting');
+    } catch (error) {
+      stopHandsFree();
+      reportError(error);
+    }
+  }
+
+  async function startHandsFree() {
+    if (handsFree) return;
+    handsFree = true;
+    openWakeRun();
+    try {
+      await mic.start();
+    } catch (error) {
+      stopHandsFree();
+      reportError(error);
+    }
+  }
+
+  function stopHandsFree() {
+    if (!handsFree) return;
+    handsFree = false;
+    mic.stop();
+    const open = audio;
+    audio = null;
+    try { open?.end(); } catch (error) { console.warn('assistant-session: no se pudo cerrar la escucha', error); }
+    setStatus('idle');
+  }
+
   const setPipeline = (id) => { pipelineId = id || null; };
 
-  return { startTalking, stopTalking, sendText, forwardChunk, setPipeline };
+  const isHandsFree = () => handsFree;
+
+  return { startTalking, stopTalking, startHandsFree, stopHandsFree, isHandsFree, sendText, forwardChunk, setPipeline };
 }
+
+const WAKE_TIMEOUTS = new Set(['wake-word-timeout', 'timeout']);
 
 function normalizeError(error) {
   if (error && typeof error === 'object' && error.code) return error;

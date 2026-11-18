@@ -1,5 +1,6 @@
 // Talk block: push-to-talk button, live level meter, status line and text order input.
 // Hold the button (pointer or Space) to listen; release to send to the assistant.
+// «Activar por voz» keeps the mic open: saying the wake word starts each order, no button needed.
 
 export function createTalkBlock({ live, t, session, speaker }) {
   let unsubscribe = null;
@@ -12,6 +13,7 @@ export function createTalkBlock({ live, t, session, speaker }) {
 
   const statusLabel = (key) => ({
     idle: t('statusIdle'),
+    waiting: t('statusWaiting'),
     listening: t('statusListening'),
     thinking: t('statusThinking'),
     speaking: t('statusSpeaking'),
@@ -68,6 +70,22 @@ export function createTalkBlock({ live, t, session, speaker }) {
       });
       hold.addEventListener('contextmenu', (event) => event.preventDefault());
 
+      const voice = document.createElement('button');
+      voice.type = 'button';
+      voice.className = 'blocks-button talk-voice';
+      const showVoice = () => {
+        const on = Boolean(session?.isHandsFree?.());
+        voice.setAttribute('aria-pressed', String(on));
+        voice.textContent = on ? t('handsFreeOff') : t('handsFreeOn');
+        hold.disabled = on; // while hands-free listens the hold button would start a second run
+      };
+      voice.addEventListener('click', () => {
+        if (session?.isHandsFree?.()) session.stopHandsFree();
+        else session?.startHandsFree?.();
+        showVoice();
+      });
+      showVoice();
+
       const meter = document.createElement('div');
       meter.className = 'talk-meter';
       meter.setAttribute('role', 'meter');
@@ -94,7 +112,7 @@ export function createTalkBlock({ live, t, session, speaker }) {
       const brainText = () => t('brainLine').replace('{label}', live.brain?.label ?? t('brainDefault'));
       brainLine.textContent = brainText();
 
-      container.append(brainLine, hold, meter, statusLine, errorLine);
+      container.append(brainLine, voice, hold, meter, statusLine, errorLine);
 
       if (options.showTextInput !== false) {
         const label = document.createElement('label');
@@ -126,6 +144,7 @@ export function createTalkBlock({ live, t, session, speaker }) {
       unsubscribe = live.subscribe(() => {
         statusLine.textContent = statusLabel(live.status);
         brainLine.textContent = brainText();
+        showVoice(); // an error stops hands-free: the toggle follows
         errorLine.hidden = !live.error;
         errorLine.textContent = live.error ?? '';
       });
