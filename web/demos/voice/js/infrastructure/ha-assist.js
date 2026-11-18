@@ -39,13 +39,14 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     return connectPromise;
   }
 
-  function runText(text, handlers = {}) {
-    return registerPipeline({ start_stage: 'intent', end_stage: 'tts', input: { text } }, handlers);
+  // pipelineId picks the assistant (one per AI); without it HA uses its preferred one.
+  function runText(text, handlers = {}, pipelineId = null) {
+    return registerPipeline({ start_stage: 'intent', end_stage: 'tts', input: { text }, ...pipelineField(pipelineId) }, handlers);
   }
 
-  function startAudio(handlers = {}) {
+  function startAudio(handlers = {}, pipelineId = null) {
     const state = { binaryHandlerId: null, pending: [], ended: false };
-    registerPipeline({ start_stage: 'stt', end_stage: 'tts', input: { sample_rate: 16000 } }, handlers, state);
+    registerPipeline({ start_stage: 'stt', end_stage: 'tts', input: { sample_rate: 16000 }, ...pipelineField(pipelineId) }, handlers, state);
     return {
       sendChunk(int16) {
         if (state.ended || !int16 || !int16.byteLength) return;
@@ -68,6 +69,8 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     ws.send(JSON.stringify({ id, ...command }));
     return new Promise((resolve, reject) => requests.set(id, { resolve, reject }));
   }
+
+  const pipelineField = (pipelineId) => (pipelineId ? { pipeline: pipelineId } : {});
 
   const close = () => { pipelines.clear(); teardown(); };
 

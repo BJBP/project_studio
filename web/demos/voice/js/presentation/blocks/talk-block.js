@@ -89,7 +89,12 @@ export function createTalkBlock({ live, t, session, speaker }) {
       errorLine.hidden = !live.error;
       errorLine.textContent = live.error ?? '';
 
-      container.append(hold, meter, statusLine, errorLine);
+      const brainLine = document.createElement('p');
+      brainLine.className = 'talk-brain';
+      const brainText = () => t('brainLine').replace('{label}', live.brain?.label ?? t('brainDefault'));
+      brainLine.textContent = brainText();
+
+      container.append(brainLine, hold, meter, statusLine, errorLine);
 
       if (options.showTextInput !== false) {
         const label = document.createElement('label');
@@ -120,6 +125,7 @@ export function createTalkBlock({ live, t, session, speaker }) {
       unsubscribeLevel?.();
       unsubscribe = live.subscribe(() => {
         statusLine.textContent = statusLabel(live.status);
+        brainLine.textContent = brainText();
         errorLine.hidden = !live.error;
         errorLine.textContent = live.error ?? '';
       });

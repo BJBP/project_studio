@@ -126,3 +126,18 @@
 @media (min-width: 721px) {
   .blocks-board { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
 }
+
+/* Brain block: one row per AI */
+.brain-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.brain-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px;
+  border: 1px solid var(--blocks-border); border-radius: 8px; }
+.brain-row[data-state="current"] { border-color: var(--blocks-accent); }
+.brain-text { display: grid; flex: 1 1 160px; min-width: 0; }
+.brain-note { font-size: 0.8rem; color: var(--blocks-text-muted); }
+.brain-badge { font-size: 0.8rem; font-weight: 600; color: var(--blocks-accent); }
+.brain-key-form { flex-basis: 100%; display: grid; gap: 6px; }
+.brain-key-label { display: grid; gap: 4px; font-size: 0.85rem; }
+.brain-key-message { margin: 0; font-size: 0.8rem; }
+.brain-key-message[data-state="error"] { color: var(--blocks-danger); }
+.brain-key-help { font-size: 0.8rem; color: var(--blocks-accent); }
+.talk-brain { margin: 0 0 6px; font-size: 0.8rem; color: var(--blocks-text-muted); }

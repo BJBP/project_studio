@@ -1,5 +1,5 @@
 // Wires the local stack (MQTT bus, HA Assist, mic, speaker, virtual device, session).
-// createStack({ catalog, offline, config, live, refreshOled, onIndicator }) -> { virtualDevice, session, speaker, assist|null }.
+// createStack({ catalog, offline, config, live, refreshOled, onIndicator, onAssistError }) -> { virtualDevice, session, speaker, assist|null }.
 // Falls back to a silent bus and an unavailable assist when the stack is down.
 
 import { createMqttBus } from '../infrastructure/mqtt-bus.js';
@@ -18,7 +18,8 @@ const unavailableAssist = {
   close() {},
 };
 
-export async function createStack({ catalog, offline, config, live, refreshOled, onIndicator }) {
+// onAssistError(code) -> true when it switched to another AI (the message then says so).
+export async function createStack({ catalog, offline, config, live, refreshOled, onIndicator, onAssistError }) {
   let bus = nullBus;
   if (!offline && config.mqttUrl) {
     const candidate = createMqttBus({ url: config.mqttUrl, clientId: `studio-voice-${Math.random().toString(16).slice(2, 10)}` });
@@ -59,7 +60,9 @@ export async function createStack({ catalog, offline, config, live, refreshOled,
     },
     onLevel: (db) => { live.level = db; live.emitLevel(); },
     onError: ({ code, message }) => {
-      live.error = message || code;
+      const isAssistFailure = !String(code ?? '').startsWith('E_MIC') && code !== 'E_EMPTY_INPUT';
+      const switched = isAssistFailure && onAssistError?.(code);
+      live.error = switched ? `${message || code} ${t('brainFallback')}` : (message || code);
       live.status = 'idle';
       if (String(code ?? '').startsWith('E_MIC')) onIndicator('mic', false);
       console.warn('voice demo:', code, message);
