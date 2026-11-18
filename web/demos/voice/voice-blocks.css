@@ -48,6 +48,10 @@
 .talk-hold:active,
 .talk-hold:focus-visible { outline: 3px solid color-mix(in srgb, var(--page-accent) 40%, transparent); }
 
+.talk-voice { width: 100%; margin-bottom: 8px; }
+.talk-voice[aria-pressed="true"] { background: var(--page-accent); color: #fff; }
+.talk-hold:disabled { opacity: 0.45; cursor: not-allowed; }
+
 .talk-meter {
   margin: 10px 0 6px;
   height: 10px;

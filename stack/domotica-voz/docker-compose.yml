@@ -12,7 +12,7 @@ services:
       - "127.0.0.1:${HA_PORT:-8123}:8123"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    depends_on: [mosquitto, whisper, piper]
+    depends_on: [mosquitto, whisper, piper, wakeword]
 
   mosquitto:
     image: eclipse-mosquitto:2
@@ -37,6 +37,12 @@ services:
     command: --voice ${PIPER_VOICE:-es_ES-davefx-medium}
     volumes:
       - piper_data:/data
+
+  # Hears the wake word ("okay nabu") in the audio the browser sends; the same detector as the real ESP32.
+  wakeword:
+    image: rhasspy/wyoming-microwakeword:latest
+    restart: unless-stopped
+    command: --uri tcp://0.0.0.0:10400
 
   # ESPHome dashboard: wireless (OTA) updates and logs of the real ESP32s. Firmware lives in firmware/esphome.
   esphome:

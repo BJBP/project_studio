@@ -1,4 +1,4 @@
-# Adds the integrations (MQTT, Wyoming STT/TTS, Ollama) and builds Spanish voice pipelines in Home Assistant.
+# Adds the integrations (MQTT, Wyoming STT/TTS/wake word, Ollama) and builds Spanish voice pipelines in Home Assistant.
 # Receives an authenticated HaClient; idempotent: what already exists is left as it is.
 import os
 import time
@@ -8,12 +8,14 @@ from ha_client import HaClient, HaError
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://host.docker.internal:11434")
 LANGUAGE = os.environ.get("VOICE_LANGUAGE", "es")
 TIME_ZONE = os.environ.get("HA_TIME_ZONE", "UTC")
+WAKE_WORD = os.environ.get("WAKE_WORD", "okay_nabu")
 
 INTEGRATIONS = [
     ("mqtt", {"broker": {"broker": "mosquitto", "port": 1883, "protocol": "5",
                          "other_settings": {"set_client_cert": False, "set_ca_cert": "off", "transport": "tcp"}}}, "mosquitto"),
     ("wyoming", {"user": {"host": "whisper", "port": 10300}}, "whisper"),
     ("wyoming", {"user": {"host": "piper", "port": 10200}}, "piper"),
+    ("wyoming", {"user": {"host": "wakeword", "port": 10400}}, "microWakeWord"),
     ("ollama", {"user": {"url": OLLAMA_URL}}, OLLAMA_URL),
 ]
 
@@ -54,7 +56,7 @@ def find_entity(states: list, domain: str, hint: str = "") -> str:
 
 def wait_for_entities(client: HaClient, timeout_s: int = 90) -> list:
     """New integrations create their entities a few seconds after the flow ends."""
-    needed = ("stt.", "tts.piper")
+    needed = ("stt.", "tts.piper", "wake_word.")
     deadline = time.time() + timeout_s
     while True:
         states = client.get("/api/states")
@@ -64,25 +66,36 @@ def wait_for_entities(client: HaClient, timeout_s: int = 90) -> list:
         time.sleep(3)
 
 
+def wake_word_fields(client: HaClient, states: list) -> dict:
+    """The wake word detector and its word, so the browser can start a run by voice ("okay nabu")."""
+    entity = find_entity(states, "wake_word")
+    words = client.ws({"type": "wake_word/info", "entity_id": entity})[0]["wake_words"]
+    word = next((w["id"] for w in words if w["id"] == WAKE_WORD), None)
+    if not word:
+        raise HaError("E_WAKE_WORD", f"El detector no conoce «{WAKE_WORD}». Disponibles: {', '.join(w['id'] for w in words)}")
+    return {"wake_word_entity": entity, "wake_word_id": word}
+
+
 def ensure_pipeline(client: HaClient, name: str, conversation_engine: str, preferred: bool = False) -> None:
-    """One voice pipeline per AI: Whisper hears, the AI answers, Piper speaks."""
+    """One voice pipeline per AI: the wake word starts it, Whisper hears, the AI answers, Piper speaks."""
     states = wait_for_entities(client)
+    wake = wake_word_fields(client, states)
     pipelines = client.ws({"type": "assist_pipeline/pipeline/list"})[0]
     existing = next((p for p in pipelines["pipelines"] if p["name"] == name), None)
-    if existing and existing.get("prefer_local_intents"):
-        return
-    if existing:  # older setups created it without local intents: switch them on
+    # prefer_local_intents: simple orders ("enciende el foco") run in HA itself; the AI answers the rest.
+    if existing:  # older setups lack local intents or the wake word: update them in place
+        if existing.get("prefer_local_intents") and existing.get("wake_word_id") == wake["wake_word_id"]:
+            return
         fields = {k: v for k, v in existing.items() if k != "id"}
         client.ws({"type": "assist_pipeline/pipeline/update", "pipeline_id": existing["id"],
-                   **fields, "prefer_local_intents": True})
+                   **fields, **wake, "prefer_local_intents": True})
         return
-    # prefer_local_intents: simple orders ("enciende el foco") run in HA itself; the AI answers the rest.
     created = client.ws({
         "type": "assist_pipeline/pipeline/create", "name": name, "language": LANGUAGE,
         "conversation_engine": conversation_engine, "conversation_language": LANGUAGE,
         "stt_engine": find_entity(states, "stt"), "stt_language": LANGUAGE,
         "tts_engine": find_entity(states, "tts", "piper"), "tts_language": "es_ES", "tts_voice": None,
-        "wake_word_entity": None, "wake_word_id": None, "prefer_local_intents": True,
+        **wake, "prefer_local_intents": True,
     })[0]
     if preferred:
         client.ws({"type": "assist_pipeline/pipeline/set_preferred", "pipeline_id": created["id"]})

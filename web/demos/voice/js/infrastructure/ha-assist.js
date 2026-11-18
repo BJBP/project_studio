@@ -2,6 +2,9 @@
 // createAssist({ haUrl, token, WebSocketImpl? }) -> { connect, runText, startAudio, request, close }.
 // request(command) sends any other HA WebSocket command and resolves with its result.
 // Errors surface as { code: 'E_...', message } objects; handlers receive plain data.
+// startAudio(..., { wakeWord: true }) waits for the wake word ("okay nabu") before listening.
+
+const WAKE_WAIT_S = 3600; // a hands-free run waits up to an hour for the word, then the caller starts a new one
 
 export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
   const WS = WebSocketImpl || globalThis.WebSocket;
@@ -44,9 +47,12 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     return registerPipeline({ start_stage: 'intent', end_stage: 'tts', input: { text }, ...pipelineField(pipelineId) }, handlers);
   }
 
-  function startAudio(handlers = {}, pipelineId = null) {
+  function startAudio(handlers = {}, pipelineId = null, { wakeWord = false } = {}) {
     const state = { binaryHandlerId: null, pending: [], ended: false };
-    registerPipeline({ start_stage: 'stt', end_stage: 'tts', input: { sample_rate: 16000 }, ...pipelineField(pipelineId) }, handlers, state);
+    const start = wakeWord
+      ? { start_stage: 'wake_word', input: { sample_rate: 16000, timeout: WAKE_WAIT_S }, timeout: WAKE_WAIT_S + 120 }
+      : { start_stage: 'stt', input: { sample_rate: 16000 } };
+    registerPipeline({ ...start, end_stage: 'tts', ...pipelineField(pipelineId) }, handlers, state);
     return {
       sendChunk(int16) {
         if (state.ended || !int16 || !int16.byteLength) return;
@@ -123,6 +129,7 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     const event = envelope.data || {};
     switch (envelope.type) {
       case 'run-start': return flushAudioStart(pipeline, event);
+      case 'wake_word-end': return h.onWake?.();
       case 'stt-end': return h.onHeard?.(event.stt_output?.text ?? '');
       case 'intent-end': return h.onAnswer?.(event.intent_output?.response?.speech?.plain?.speech ?? '');
       case 'tts-end': return h.onAudio?.(event.tts_output?.url || ''); // relative: serve.py proxies it (same origin)

@@ -47,7 +47,7 @@ export async function createStack({ catalog, offline, config, live, refreshOled,
   const handlers = {
     onStatus: (key) => {
       live.status = key;
-      if (key === 'listening') onIndicator('mic', true);
+      if (key === 'listening' || key === 'waiting') onIndicator('mic', true);
       live.emit();
     },
     onHeard: (text) => live.addMessage('user', text),
