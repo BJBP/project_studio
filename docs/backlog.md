@@ -18,6 +18,12 @@
 - Presentación: exportarla como video.
 - El diagrama ocupa poco en pantallas estrechas: probar en móvil y, si hace falta, hacer zoom y desplazamiento.
 - Recorrido de la Ayuda: probado solo el motor (la Presentación); revisar sus escenas una a una.
-- Fases 3–5 del plan.
+- Cámara: probada solo la lógica de movimiento (pruebas de Node); falta probarla con la cámara USB real y su permiso.
+- Modos Intercomunicador y Acústico: comprobados solo por sus reglas; probarlos en el navegador como Seguridad y Salud.
+- Demo de voz: mientras conecta con Home Assistant la página queda en blanco unos segundos; mostrar «Conectando…».
+- Reorganizaciones propuestas por el análisis de la fase 1 (`.git/analisis_fase1.md`, por decidir): helper común de
+  suscripción para bloques (2–3 h), dividir block-manager.js (4–6 h), puerto `ha-gateway` (3–5 h), helpers de
+  interruptor (1–2 h), lectura común de ai_providers/ai_keys (1–2 h), dividir ha-assist.js (3–4 h).
+- Fases 4 y 5 del plan.
 - `web/engines/blocks/block-manager.js` tiene 500 líneas: dividir en cabecera de bloque, formulario de opciones, arrastrar/teclado y barra.
 - Probar el motor de bloques en modo claro y en pantalla de móvil.

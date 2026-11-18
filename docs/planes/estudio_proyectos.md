@@ -306,3 +306,9 @@ Pendiente de cada fase → `docs/backlog.md`; administrador de bandas movibles e
   Equipos (laptop y mini PC como perfil) y Demo; `python -m studio list|check|export`; Ayuda y «▶ Presentación»
   con el mismo motor de recorridos; Docker del Estudio (`docker compose up -d`). Cambio frente al plan: sin
   FastAPI; la API va en `serve.py` (biblioteca estándar) para no añadir dependencias.
+- **Fase 3 (simulación ampliada): hecha el 2026-11-18.** Aparatos simulados en `devices.example.json` (puerta,
+  timbre, movimiento, temperatura que varía sola, cerradura), cada uno con su forma de simularse (`sim`); bloque
+  «Cámara» (movimiento analizado en el navegador); 5 modos (`modes.example.json`) con interruptor en Home Assistant
+  y automatizaciones en `stack/domotica-voz/automations/`; bloque «Modos» con «Probar». Los aparatos reciben ids
+  estables (`switch.circuito_maestro_foco`). Comprobado: Seguridad (puerta → foco, alarma y aviso en la OLED) y
+  Salud (30 °C → cooler).

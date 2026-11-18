@@ -1,0 +1,48 @@
+{
+  "id": "studio_seguridad",
+  "alias": "Modo seguridad",
+  "mode": "single",
+  "description": "Puerta abierta o movimiento: alarma, foco y aviso.",
+  "triggers": [
+    {
+      "trigger": "state",
+      "entity_id": "binary_sensor.entrada_puerta",
+      "to": "on"
+    },
+    {
+      "trigger": "state",
+      "entity_id": "binary_sensor.entrada_movimiento",
+      "to": "on"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_seguridad",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "switch.turn_on",
+      "target": {
+        "entity_id": "switch.circuito_maestro_foco"
+      }
+    },
+    {
+      "action": "button.press",
+      "target": {
+        "entity_id": "button.circuito_maestro_alarma"
+      }
+    },
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.circuito_maestro_oled"
+      },
+      "data": {
+        "value": "ALERTA: entrada abierta o movimiento"
+      }
+    }
+  ]
+}

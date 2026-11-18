@@ -1,0 +1,15 @@
+{
+  "_help": "Modos del circuito. Cada modo con automatización tiene un interruptor input_boolean.modo_<id> en Home Assistant y sus reglas en stack/domotica-voz/automations/<id>*.json. «test» es lo que simula el botón Probar.",
+  "modes": [
+    { "id": "voz", "icon": "🎙️", "name": "Voz", "builtin": true,
+      "description": "Hablarle al asistente. Siempre activo." },
+    { "id": "seguridad", "icon": "🚨", "name": "Seguridad", "test": { "device": "entrada", "key": "puerta" },
+      "description": "Si se abre la puerta o hay movimiento: alarma, foco encendido y aviso en la pantalla." },
+    { "id": "salud", "icon": "🪑", "name": "Salud", "test": { "device": "entrada", "key": "temperatura" },
+      "description": "Con calor enciende el cooler. Tras un rato de movimiento continuo, recuerda levantarse." },
+    { "id": "intercom", "icon": "📞", "name": "Intercomunicador", "test": { "device": "entrada", "key": "timbre" },
+      "description": "Si suena el timbre: aviso en la pantalla y zumbador." },
+    { "id": "acustico", "icon": "💥", "name": "Acústico", "test": { "device": "circuito_maestro", "key": "mic" },
+      "description": "Si hay un ruido fuerte: aviso, zumbador y foco encendido." }
+  ]
+}

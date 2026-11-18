@@ -12,12 +12,8 @@ import { createStack } from './stack.js';
 import { syncAliases } from '../application/sync-aliases.js';
 import { createBrainChoice } from '../application/brain-choice.js';
 import { saveAiKey } from '../infrastructure/ai-keys.js';
-import { createBrainBlock } from './blocks/brain-block.js';
-import { createCircuitBlock } from './blocks/circuit-block.js';
-import { createOledBlock } from './blocks/oled-block.js';
-import { createTalkBlock } from './blocks/talk-block.js';
-import { createConversationBlock } from './blocks/conversation-block.js';
-import { createDevicesBlock } from './blocks/devices-block.js';
+import { createDemoBlocks } from './blocks/index.js';
+import { createSimulator } from '../application/simulator.js';
 import { t, localeTable } from './i18n.js';
 
 const DISCOVERY_SETTLE_MS = 2000; // HA needs a moment to register freshly announced entities
@@ -99,14 +95,8 @@ async function main() {
   });
   await brainChoice.load().catch((error) => console.warn('voice demo: no se pudieron leer las IAs', error));
 
-  const blocks = [
-    createCircuitBlock({ live, t }),
-    createOledBlock({ live, t }),
-    createTalkBlock({ live, t, session, speaker }),
-    createBrainBlock({ live, t, brainChoice }),
-    createConversationBlock({ live, t }),
-    createDevicesBlock({ live, t, catalog, virtualDevice }),
-  ];
+  const simulator = virtualDevice ? createSimulator({ catalog, virtualDevice }) : null;
+  const blocks = createDemoBlocks({ live, t, session, speaker, brainChoice, catalog, virtualDevice, simulator, assist });
 
   mountBlocks(document.getElementById('blocks-root'), {
     blocks,
@@ -121,13 +111,14 @@ async function main() {
   if (virtualDevice) {
     try {
       await virtualDevice.start();
+      simulator.start();
       if (assist) setTimeout(() => nameEntities(assist, catalog), DISCOVERY_SETTLE_MS);
     } catch (error) {
       console.warn('voice demo: no se pudo publicar el dispositivo virtual', error);
     }
   }
 
-  window.addEventListener('beforeunload', () => virtualDevice?.stop());
+  window.addEventListener('beforeunload', () => { simulator?.stop(); virtualDevice?.stop(); });
   listenToStudio(live, session);
 }
 

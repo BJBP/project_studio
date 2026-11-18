@@ -1,0 +1,74 @@
+{
+  "id": "studio_salud_calor",
+  "alias": "Modo salud: calor",
+  "mode": "single",
+  "description": "Más de 28 °C: cooler encendido; menos de 26 °C: apagado.",
+  "triggers": [
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.entrada_temperatura",
+      "above": 28,
+      "id": "calor"
+    },
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.entrada_temperatura",
+      "below": 26,
+      "id": "fresco"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_salud",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "choose": [
+        {
+          "conditions": [
+            {
+              "condition": "trigger",
+              "id": "calor"
+            }
+          ],
+          "sequence": [
+            {
+              "action": "switch.turn_on",
+              "target": {
+                "entity_id": "switch.circuito_maestro_cooler"
+              }
+            },
+            {
+              "action": "text.set_value",
+              "target": {
+                "entity_id": "text.circuito_maestro_oled"
+              },
+              "data": {
+                "value": "Hace calor: cooler encendido"
+              }
+            }
+          ]
+        },
+        {
+          "conditions": [
+            {
+              "condition": "trigger",
+              "id": "fresco"
+            }
+          ],
+          "sequence": [
+            {
+              "action": "switch.turn_off",
+              "target": {
+                "entity_id": "switch.circuito_maestro_cooler"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

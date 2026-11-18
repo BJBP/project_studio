@@ -1,0 +1,43 @@
+{
+  "id": "studio_acustico",
+  "alias": "Modo acústico",
+  "mode": "single",
+  "description": "Ruido fuerte (más de -15 dB): aviso, zumbador y foco.",
+  "triggers": [
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.circuito_maestro_mic",
+      "above": -15
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_acustico",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "switch.turn_on",
+      "target": {
+        "entity_id": "switch.circuito_maestro_foco"
+      }
+    },
+    {
+      "action": "button.press",
+      "target": {
+        "entity_id": "button.circuito_maestro_alarma"
+      }
+    },
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.circuito_maestro_oled"
+      },
+      "data": {
+        "value": "Ruido fuerte detectado"
+      }
+    }
+  ]
+}

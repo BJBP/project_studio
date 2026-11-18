@@ -16,6 +16,7 @@ import httpx
 
 from agents import ensure_assistants
 from flows import ensure_core_config, ensure_integrations
+from modes import ensure_modes
 from ha_client import HaClient, HaError
 
 BASE_URL = os.environ.get("HA_URL", "http://127.0.0.1:8123")
@@ -69,12 +70,13 @@ def main() -> int:
         ensure_core_config(client)
         ensure_integrations(client)
         assistants, problems = ensure_assistants(client)
+        automations = ensure_modes(client)
     except HaError as err:
         print(err)
         return 1
     for provider_id, problem in problems.items():
         print(f"AVISO {provider_id} {problem}")
-    print(f"OK: Home Assistant listo en {BASE_URL}. Asistentes: {', '.join(assistants)}. Token en {SECRETS_FILE}")
+    print(f"OK: Home Assistant listo en {BASE_URL}. Asistentes: {', '.join(assistants)}. Automatizaciones: {automations}. Token en {SECRETS_FILE}")
     return 0
 
 

@@ -77,11 +77,15 @@ export async function createStack({ catalog, offline, config, live, refreshOled,
   });
   const speaker = createSpeaker({ onLevel: (db) => handlers.onLevel(db) });
 
+  const textKeys = new Set((catalog?.devices ?? []).flatMap((d) => d.entities
+    .filter((e) => e.component === 'text').map((e) => `${d.id}/${e.key}`)));
   const virtualDevice = catalog ? createVirtualDevice({
     catalog,
     bus,
     onChange: (state, event) => {
       live.state = state;
+      // Home Assistant writing the screen (an automation's warning) shows on the OLED like an answer.
+      if (event.type === 'changed' && textKeys.has(`${event.deviceId}/${event.key}`)) live.answer = String(event.value);
       live.lastEvent = event;
       refreshOled();
       live.emit();

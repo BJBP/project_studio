@@ -1,11 +1,14 @@
 // Devices block: lists every entity of every device with its current state and actions.
-// Switches toggle via virtualDevice.command; buttons send a PRESS command.
+// Switches toggle via virtualDevice.command; buttons send a PRESS command; locks open/close; simulated
+// sensors get a «Simular» button (simulator.pulse) that acts like the real thing for a few seconds.
 
-export function createDevicesBlock({ live, t, catalog, virtualDevice }) {
+export function createDevicesBlock({ live, t, catalog, virtualDevice, simulator }) {
   let unsubscribe = null;
 
   const displayState = (entity, value) => {
     if (entity.component === 'switch') return String(value).toUpperCase() === 'ON' ? t('switchOn') : t('switchOff');
+    if (entity.component === 'binary_sensor') return t(`binary.${entity.device_class ?? 'default'}.${value === 'ON' ? 'on' : 'off'}`);
+    if (entity.component === 'lock') return value === 'LOCKED' ? t('lockLocked') : t('lockUnlocked');
     if (value === null || value === undefined || value === '') return t('noReading');
     return entity.unit ? `${value} ${entity.unit}` : String(value);
   };
@@ -28,6 +31,15 @@ export function createDevicesBlock({ live, t, catalog, virtualDevice }) {
 
     row.append(name, valueLabel);
 
+    const action = (label, onClick) => Object.assign(document.createElement('button'), {
+      type: 'button', className: 'blocks-button device-entity-action', textContent: label, onclick: onClick,
+    });
+    if (entity.component === 'lock') {
+      const locked = value === 'LOCKED';
+      row.append(action(locked ? t('lockOpen') : t('lockClose'), () => virtualDevice?.command(device.id, entity.key, locked ? 'UNLOCK' : 'LOCK')));
+    } else if ((entity.sim && entity.sim.type !== 'drift') || entity.sim?.test !== undefined) {
+      row.append(action(t('simulate'), () => simulator?.pulse(device.id, entity.key)));
+    }
     if (entity.component === 'switch' || entity.component === 'button') {
       const action = document.createElement('button');
       action.type = 'button';
