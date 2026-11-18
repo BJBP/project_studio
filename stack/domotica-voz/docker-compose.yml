@@ -1,0 +1,45 @@
+# Voice home-automation stack: Home Assistant + MQTT broker + local speech-to-text and text-to-speech.
+# The LLM runs in Ollama on the host (host.docker.internal:11434). All ports bind to 127.0.0.1 only.
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ha_config:/config
+    ports:
+      - "127.0.0.1:${HA_PORT:-8123}:8123"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: [mosquitto, whisper, piper]
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+    ports:
+      - "127.0.0.1:${MQTT_PORT:-1883}:1883"
+      - "127.0.0.1:${MQTT_WS_PORT:-9001}:9001"
+
+  whisper:
+    image: rhasspy/wyoming-whisper:latest
+    restart: unless-stopped
+    command: --model ${WHISPER_MODEL:-small-int8} --language ${VOICE_LANGUAGE:-es}
+    volumes:
+      - whisper_data:/data
+
+  piper:
+    image: rhasspy/wyoming-piper:latest
+    restart: unless-stopped
+    command: --voice ${PIPER_VOICE:-es_ES-davefx-medium}
+    volumes:
+      - piper_data:/data
+
+volumes:
+  ha_config:
+  mosquitto_data:
+  whisper_data:
+  piper_data:

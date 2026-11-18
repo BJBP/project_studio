@@ -1,0 +1,18 @@
+{
+  "base_topic": "studio",
+  "devices": [
+    {
+      "id": "circuito_maestro",
+      "name": "Circuito maestro",
+      "model": "ESP32-S3 (virtual)",
+      "area": "Taller",
+      "entities": [
+        { "key": "foco",   "component": "switch", "name": "Foco" },
+        { "key": "cooler", "component": "switch", "name": "Cooler" },
+        { "key": "alarma", "component": "button", "name": "Alarma" },
+        { "key": "oled",   "component": "text",   "name": "Pantalla", "max": 64 },
+        { "key": "mic",    "component": "sensor", "name": "Nivel del micrófono", "unit": "dB" }
+      ]
+    }
+  ]
+}
