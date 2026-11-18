@@ -1,8 +1,10 @@
 // Talk block: push-to-talk button, live level meter, status line and text order input.
 // Hold the button (pointer or Space) to listen; release to send to the assistant.
 // «Activar por voz» keeps the mic open: saying the wake word starts each order, no button needed.
+// The wake word is picked (or imported from a trainer) in the same block.
+import { renderWakeWordPicker } from './wake-word-picker.js';
 
-export function createTalkBlock({ live, t, session, speaker }) {
+export function createTalkBlock({ live, t, session, speaker, wakeWords }) {
   let unsubscribe = null;
   let unsubscribeLevel = null;
   const dbToPercent = (db) => {
@@ -13,7 +15,7 @@ export function createTalkBlock({ live, t, session, speaker }) {
 
   const statusLabel = (key) => ({
     idle: t('statusIdle'),
-    waiting: t('statusWaiting'),
+    waiting: t('statusWaiting').replace('{word}', wakeWords?.state.currentName ?? 'okay nabu'),
     listening: t('statusListening'),
     thinking: t('statusThinking'),
     speaking: t('statusSpeaking'),
@@ -112,7 +114,10 @@ export function createTalkBlock({ live, t, session, speaker }) {
       const brainText = () => t('brainLine').replace('{label}', live.brain?.label ?? t('brainDefault'));
       brainLine.textContent = brainText();
 
-      container.append(brainLine, voice, hold, meter, statusLine, errorLine);
+      let picker = wakeWords ? renderWakeWordPicker({ t, wakeWords }) : null;
+      const wakeKey = () => JSON.stringify([wakeWords?.state.words.length, wakeWords?.state.current, wakeWords?.state.busy, wakeWords?.state.message]);
+      let shownWake = wakeKey();
+      container.append(brainLine, ...(picker ? [picker] : []), voice, hold, meter, statusLine, errorLine);
 
       if (options.showTextInput !== false) {
         const label = document.createElement('label');
@@ -145,6 +150,16 @@ export function createTalkBlock({ live, t, session, speaker }) {
         statusLine.textContent = statusLabel(live.status);
         brainLine.textContent = brainText();
         showVoice(); // an error stops hands-free: the toggle follows
+        // Only when the words change: device updates arrive every second and would replace the list under the mouse.
+        if (picker && wakeKey() !== shownWake) {
+          shownWake = wakeKey();
+          const focused = document.activeElement?.tagName;
+          const hadFocus = picker.contains(document.activeElement);
+          const fresh = renderWakeWordPicker({ t, wakeWords });
+          picker.replaceWith(fresh);
+          picker = fresh;
+          if (hadFocus) fresh.querySelector(focused === 'BUTTON' ? 'button' : 'select')?.focus();
+        }
         errorLine.hidden = !live.error;
         errorLine.textContent = live.error ?? '';
       });

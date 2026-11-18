@@ -1,14 +1,22 @@
 # Adds the integrations (MQTT, Wyoming STT/TTS/wake word, Ollama) and builds Spanish voice pipelines in Home Assistant.
 # Receives an authenticated HaClient; idempotent: what already exists is left as it is.
+import json
 import os
 import time
+from pathlib import Path
 
 from ha_client import HaClient, HaError
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://host.docker.internal:11434")
 LANGUAGE = os.environ.get("VOICE_LANGUAGE", "es")
 TIME_ZONE = os.environ.get("HA_TIME_ZONE", "UTC")
-WAKE_WORD = os.environ.get("WAKE_WORD", "okay_nabu")
+VOICE_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio")) / "voice.json"
+
+
+def chosen_wake_word() -> str:
+    """The word picked in the Studio page (voice.json, next to the keys); otherwise WAKE_WORD or okay_nabu."""
+    saved = json.loads(VOICE_FILE.read_text(encoding="utf-8")) if VOICE_FILE.exists() else {}
+    return saved.get("wake_word") or os.environ.get("WAKE_WORD", "okay_nabu")
 
 INTEGRATIONS = [
     ("mqtt", {"broker": {"broker": "mosquitto", "port": 1883, "protocol": "5",
@@ -66,14 +74,35 @@ def wait_for_entities(client: HaClient, timeout_s: int = 90) -> list:
         time.sleep(3)
 
 
+def known_wake_words(client: HaClient, entity: str) -> list:
+    return client.ws({"type": "wake_word/info", "entity_id": entity})[0]["wake_words"]
+
+
+def reload_wake_detector(client: HaClient, entity: str, timeout_s: int = 30) -> list:
+    """A newly imported word is only known after HA reloads the detector's integration."""
+    entry = next(e for e in client.get("/api/config/config_entries/entry")
+                 if e["domain"] == "wyoming" and "microWakeWord" in e["title"])
+    client.post(f"/api/config/config_entries/entry/{entry['entry_id']}/reload")
+    deadline = time.time() + timeout_s
+    while True:
+        try:
+            return known_wake_words(client, entity)
+        except HaError:  # the entity is briefly missing while it reloads
+            if time.time() > deadline:
+                raise
+            time.sleep(2)
+
+
 def wake_word_fields(client: HaClient, states: list) -> dict:
     """The wake word detector and its word, so the browser can start a run by voice ("okay nabu")."""
     entity = find_entity(states, "wake_word")
-    words = client.ws({"type": "wake_word/info", "entity_id": entity})[0]["wake_words"]
-    word = next((w["id"] for w in words if w["id"] == WAKE_WORD), None)
-    if not word:
-        raise HaError("E_WAKE_WORD", f"El detector no conoce «{WAKE_WORD}». Disponibles: {', '.join(w['id'] for w in words)}")
-    return {"wake_word_entity": entity, "wake_word_id": word}
+    wanted = chosen_wake_word()
+    words = known_wake_words(client, entity)
+    if not any(w["id"] == wanted for w in words):
+        words = reload_wake_detector(client, entity)
+    if not any(w["id"] == wanted for w in words):
+        raise HaError("E_WAKE_WORD", f"El detector no conoce «{wanted}». Disponibles: {', '.join(w['id'] for w in words)}")
+    return {"wake_word_entity": entity, "wake_word_id": wanted}
 
 
 def ensure_pipeline(client: HaClient, name: str, conversation_engine: str, preferred: bool = False) -> None:
