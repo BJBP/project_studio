@@ -9,7 +9,9 @@ from flows import ensure_pipeline, run_flow
 from ha_client import HaClient, HaError
 
 PROVIDERS_FILE = Path(__file__).resolve().parent.parent / "ai_providers.json"
-KEYS_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio")) / "ai_keys.json"
+SECRETS_DIR = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio"))
+KEYS_FILE = SECRETS_DIR / "ai_keys.json"
+MODELS_FILE = SECRETS_DIR / "ai_models.json"  # model chosen per AI in the Studio page (serve_models.py)
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3.5:4b")
 PROMPT_END = ("Controlas los aparatos que tienes disponibles. "
               "Responde en español, en una sola frase corta y natural, sin emojis ni formato.")
@@ -27,10 +29,17 @@ def load_keys() -> dict:
     return json.loads(KEYS_FILE.read_text(encoding="utf-8")) if KEYS_FILE.exists() else {}
 
 
-def agent_options(provider: dict) -> dict:
+def load_models() -> dict:
+    return json.loads(MODELS_FILE.read_text(encoding="utf-8")) if MODELS_FILE.exists() else {}
+
+
+def agent_options(provider: dict, model: str | None = None) -> dict:
     if not provider["cloud"]:
-        return {"model": OLLAMA_MODEL, "think": False, "prompt": PROMPT_LOCAL, "llm_hass_api": ["assist"]}
-    return {"recommended": True, "prompt": PROMPT_CLOUD.format(label=provider["label"]), "llm_hass_api": ["assist"]}
+        return {"model": model or OLLAMA_MODEL, "think": False, "prompt": PROMPT_LOCAL, "llm_hass_api": ["assist"]}
+    options = {"recommended": True, "prompt": PROMPT_CLOUD.format(label=provider["label"]), "llm_hass_api": ["assist"]}
+    if model:  # a chosen cloud model turns off the provider's recommended settings
+        options.update({"recommended": False, provider.get("model_option", "chat_model"): model})
+    return options
 
 
 def ensure_entry(client: HaClient, provider: dict, key: str | None) -> dict | None:
@@ -44,11 +53,11 @@ def ensure_entry(client: HaClient, provider: dict, key: str | None) -> dict | No
     return next(e for e in client.get("/api/config/config_entries/entry") if e["domain"] == provider["integration"])
 
 
-def ensure_agent(client: HaClient, entry: dict, provider: dict) -> None:
+def ensure_agent(client: HaClient, entry: dict, provider: dict, model: str | None = None) -> None:
     """Integrations keep their conversation agents as sub-entries: one with our prompt and control of the house."""
     subs = client.ws({"type": "config_entries/subentries/list", "entry_id": entry["entry_id"]})[0]
     current = next((s for s in subs if s.get("subentry_type") == "conversation"), None)
-    options = agent_options(provider)
+    options = agent_options(provider, model)
     start = {"handler": [entry["entry_id"], "conversation"], "show_advanced_options": False}
     if current:
         start.update({"source": "reconfigure", "subentry_id": current["subentry_id"]})
@@ -75,13 +84,13 @@ def conversation_entity(client: HaClient, provider: dict, timeout_s: int = 60) -
 
 def ensure_assistants(client: HaClient) -> tuple[list, dict]:
     """Returns (labels of ready assistants, {provider id: problem}). A cloud AI that fails never blocks the rest."""
-    keys, ready, problems = load_keys(), [], {}
+    keys, models, ready, problems = load_keys(), load_models(), [], {}
     for provider in load_providers():
         try:
             entry = ensure_entry(client, provider, keys.get(provider["id"]))
             if not entry:
                 continue
-            ensure_agent(client, entry, provider)
+            ensure_agent(client, entry, provider, models.get(provider["id"]))
             ensure_pipeline(client, provider["pipeline"], conversation_entity(client, provider),
                             preferred=not provider["cloud"])
             ready.append(provider["label"])

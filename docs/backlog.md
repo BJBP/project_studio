@@ -33,3 +33,8 @@
 - Fase 4b (mini PC): paquete de instalación para Linux y copias de seguridad, cuando se compre.
 - `web/engines/blocks/block-manager.js` tiene 500 líneas: dividir en cabecera de bloque, formulario de opciones, arrastrar/teclado y barra.
 - Probar el motor de bloques en modo claro y en pantalla de móvil.
+- Activar por voz: probar con un micrófono real en Chrome o Edge (el panel de la app bloquea el micrófono; se probó con la voz de Piper como micrófono).
+- Activar por voz: Piper en español no siempre dice bien «Okay Nabu» (con «Okey Nabu» sí); revisar con personas reales y ruido de fondo, y la sensibilidad.
+- Elegir modelo: el cambio ejecuta todo `setup_ha.py` (unos segundos); un comando solo para el modelo lo haría más rápido.
+- Elegir modelo en la nube: sin probar con una clave real; añadir la lista de modelos de OpenAI y Gemini en `ai_providers.json`, o pedirla al proveedor.
+- Docker del Estudio: probar guardar una clave o cambiar de modelo desde el contenedor (ejecuta `setup_ha.py` con uv dentro).

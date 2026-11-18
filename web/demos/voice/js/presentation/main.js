@@ -12,6 +12,7 @@ import { createStack } from './stack.js';
 import { syncAliases } from '../application/sync-aliases.js';
 import { createBrainChoice } from '../application/brain-choice.js';
 import { saveAiKey } from '../infrastructure/ai-keys.js';
+import { fetchModels, saveModel } from '../infrastructure/ai-models.js';
 import { createDemoBlocks } from './blocks/index.js';
 import { createSimulator } from '../application/simulator.js';
 import { t, localeTable } from './i18n.js';
@@ -94,6 +95,7 @@ async function main() {
   });
   brainChoice = createBrainChoice({
     assist, session, providers: config.aiProviders, saveKey: saveAiKey, store: brainStore,
+    modelsApi: { fetch: fetchModels, save: saveModel },
     onChange: ({ current }) => { live.brain = current; live.emit(); },
   });
   await brainChoice.load().catch((error) => console.warn('voice demo: no se pudieron leer las IAs', error));

@@ -3,3 +3,6 @@
 tests
 docs
 .env
+firmware/esphome/.esphome
+firmware/esphome/.device-builder*
+firmware/esphome/secrets.yaml
