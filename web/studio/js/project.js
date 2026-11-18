@@ -1,4 +1,4 @@
-// Project screen: tabs (Arquitectura, Flujo, Compras, Licencias, Equipos, Demo). Each tab is a board of
+// Project screen: tabs (Arquitectura, Flujo, Compras, Licencias, Equipos, Aparatos, Tutorial, Demo). Each tab is a board of
 // movable blocks; all blocks share one store with the project view from the API.
 import { h } from '../../shared/dom.js';
 import { t, localeTable } from '../../shared/i18n.js';
@@ -11,7 +11,7 @@ import { createFlowBlock } from './blocks/flow-block.js';
 import { createShoppingBlock } from './blocks/shopping-block.js';
 import { createLicensesBlock, createDocsBlock } from './blocks/licenses-block.js';
 import { createEquipmentBlock } from './blocks/equipment-block.js';
-import { createDemoBlock } from './blocks/demo-block.js';
+import { createDemoBlock, createTutorialBlock } from './blocks/demo-block.js';
 import { createHardwareBlock } from './blocks/hardware-block.js';
 
 const TABS = [
@@ -21,6 +21,7 @@ const TABS = [
   { id: 'licencias', blocks: (ctx) => [createLicensesBlock(ctx), createDocsBlock(ctx)] },
   { id: 'equipos', blocks: (ctx) => [createEquipmentBlock(ctx)] },
   { id: 'aparatos', when: (view) => view.project.devices?.length, blocks: (ctx) => [createHardwareBlock(ctx)] },
+  { id: 'tutorial', when: (view) => view.project.links?.tutorial, blocks: (ctx) => [createTutorialBlock(ctx)] },
   { id: 'demo', when: (view) => view.project.links?.demo, blocks: (ctx) => [createDemoBlock(ctx)] },
 ];
 
