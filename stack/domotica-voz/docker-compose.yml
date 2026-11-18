@@ -38,6 +38,16 @@ services:
     volumes:
       - piper_data:/data
 
+  # ESPHome dashboard: wireless (OTA) updates and logs of the real ESP32s. Firmware lives in firmware/esphome.
+  esphome:
+    image: ghcr.io/esphome/esphome:stable
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ESPHOME_PORT:-6052}:6052"
+    volumes:
+      - ../../firmware/esphome:/config
+      - ${ESPHOME_SECRETS:-~/.agents/secrets/project_studio/esphome_secrets.yaml}:/config/secrets.yaml:ro
+
 volumes:
   ha_config:
   mosquitto_data:

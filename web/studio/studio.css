@@ -85,3 +85,4 @@ body { margin: 0; background: var(--page-bg); color: var(--page-text); font-fami
 @media print {
   .app-header, .studio-tabs, .blocks-toolbar, .blocks-block-header, .shop-actions, .tour-bar { display: none !important; }
 }
+a.blocks-button { text-decoration: none; display: inline-flex; align-items: center; }

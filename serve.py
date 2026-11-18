@@ -11,6 +11,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from serve_ai import public_providers, save_key
+from serve_firmware import build_status, start_build
 from studio.presentation.api import PREFIX as STUDIO_PREFIX, route as studio_route
 from studio.presentation.wiring import build_repo
 
@@ -64,6 +65,9 @@ class StudioHandler(SimpleHTTPRequestHandler):
         if self.path.startswith(STUDIO_PREFIX):
             self.send_json(*studio_route(self.server.repo, "GET", self.path))
             return
+        if self.path.startswith("/api/firmware/status/"):
+            self.send_json(*build_status(self.path.rsplit("/", 1)[-1]))
+            return
         super().do_GET()
 
     def do_POST(self):
@@ -79,6 +83,8 @@ class StudioHandler(SimpleHTTPRequestHandler):
             self.send_json(200 if result["ok"] else 400, result)
         elif self.path == "/api/speak":
             self.send_json(*speak(str(data.get("text", ""))[:MAX_SPEAK_CHARS]))
+        elif self.path == "/api/firmware/build":
+            self.send_json(*start_build(data.get("name", "")))
         elif self.path.startswith(STUDIO_PREFIX):
             self.send_json(*studio_route(self.server.repo, "POST", self.path, data))
         else:
