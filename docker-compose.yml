@@ -1,0 +1,16 @@
+# Studio web page: docker compose up -d  →  http://127.0.0.1:8765/
+# Data folder and secrets stay on this computer (volumes); the voice stack is stack/domotica-voz.
+services:
+  studio:
+    build: .
+    ports:
+      - "127.0.0.1:${STUDIO_PORT:-8765}:8765"
+    environment:
+      HA_URL: ${HA_URL:-http://host.docker.internal:8123}
+      MQTT_WS_URL: ${MQTT_WS_URL:-ws://127.0.0.1:9001}
+    volumes:
+      - ${STUDIO_DATA_DIR:-../project_studio_data}:/data
+      - ${STUDIO_SECRETS_DIR:-~/.agents/secrets/project_studio}:/secrets
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

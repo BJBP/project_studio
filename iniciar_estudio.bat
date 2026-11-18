@@ -28,6 +28,6 @@ ollama list | findstr /b /c:"%OLLAMA_MODEL%" >nul || (echo Descargando el modelo
 echo Configurando Home Assistant (la primera vez tarda unos minutos)...
 uv run "%STACK%\setup\setup_ha.py" || (pause & exit /b 1)
 
-echo Abriendo el Estudio en http://127.0.0.1:%STUDIO_PORT%/demos/voice/
-start "" "http://127.0.0.1:%STUDIO_PORT%/demos/voice/"
+echo Abriendo el Estudio en http://127.0.0.1:%STUDIO_PORT%/studio/
+start "" "http://127.0.0.1:%STUDIO_PORT%/studio/"
 uv run --no-project python serve.py --port %STUDIO_PORT%

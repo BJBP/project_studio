@@ -11,10 +11,30 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from serve_ai import public_providers, save_key
+from studio.presentation.api import PREFIX as STUDIO_PREFIX, route as studio_route
+from studio.presentation.wiring import build_repo
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
 TTS_PREFIX = "/api/tts_proxy/"  # only path relayed to HA; its links are signed, so no token is added
 SECRETS_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio")) / "ha.json"
+
+
+MAX_SPEAK_CHARS = 600
+
+
+def speak(text: str) -> tuple[int, dict]:
+    """Piper (through Home Assistant) reads a text aloud; returns the relative audio path the page plays."""
+    token = build_config()["haToken"]
+    if not token or not text.strip():
+        return 400, {"code": "E_SPEAK", "message": "Sin texto o sin Home Assistant configurado."}
+    request = urllib.request.Request(os.environ.get("HA_URL", "http://127.0.0.1:8123") + "/api/tts_get_url",
+                                     data=json.dumps({"engine_id": "tts.piper", "message": text}).encode("utf-8"),
+                                     headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(request, timeout=60) as reply:
+            return 200, {"url": json.loads(reply.read())["path"]}
+    except (urllib.error.URLError, OSError, KeyError, ValueError) as err:
+        return 502, {"code": "E_HA_DOWN", "message": f"No se pudo generar la voz ({err})."}
 
 
 def build_config() -> dict:
@@ -41,25 +61,35 @@ class StudioHandler(SimpleHTTPRequestHandler):
         if self.path.startswith(TTS_PREFIX):
             self.proxy_tts()
             return
+        if self.path.startswith(STUDIO_PREFIX):
+            self.send_json(*studio_route(self.server.repo, "GET", self.path))
+            return
         super().do_GET()
 
     def do_POST(self):
-        if self.path != "/api/ai-key":
-            self.send_error(404)
-            return
-        # Only this page may save keys: any website (or a rebound DNS name) could otherwise post to 127.0.0.1.
+        # Only this page may write: any website (or a rebound DNS name) could otherwise post to 127.0.0.1.
         host = self.headers.get("Host", "")
         local_host = host.split(":")[0] in ("127.0.0.1", "localhost")
         if not local_host or self.headers.get("Origin") != f"http://{host}" or "json" not in self.headers.get("Content-Type", ""):
-            self.send_error(403, "E_ORIGIN: solo la página del Estudio puede guardar claves.")
+            self.send_error(403, "E_ORIGIN: solo la página del Estudio puede hacer cambios.")
             return
+        data = self.read_json()
+        if self.path == "/api/ai-key":
+            result = save_key(SECRETS_FILE.parent, data.get("provider", ""), data.get("key", ""))
+            self.send_json(200 if result["ok"] else 400, result)
+        elif self.path == "/api/speak":
+            self.send_json(*speak(str(data.get("text", ""))[:MAX_SPEAK_CHARS]))
+        elif self.path.startswith(STUDIO_PREFIX):
+            self.send_json(*studio_route(self.server.repo, "POST", self.path, data))
+        else:
+            self.send_error(404)
+
+    def read_json(self) -> dict:
         try:
             data = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0)) or 0))
         except (ValueError, json.JSONDecodeError):
-            data = {}
-        data = data if isinstance(data, dict) else {}
-        result = save_key(SECRETS_FILE.parent, data.get("provider", ""), data.get("key", ""))
-        self.send_json(200 if result["ok"] else 400, result)
+            return {}
+        return data if isinstance(data, dict) else {}
 
     def send_json(self, status: int, payload: dict):
         body = json.dumps(payload).encode("utf-8")
@@ -94,7 +124,8 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=int(os.environ.get("STUDIO_PORT", "8765")))
     args = parser.parse_args()
     handler = partial(StudioHandler, directory=str(WEB_DIR))
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), handler)
+    server = ThreadingHTTPServer((os.environ.get("STUDIO_HOST", "127.0.0.1"), args.port), handler)
+    server.repo = build_repo()  # the user's data folder: STUDIO_DATA
     print(f"Estudio en http://127.0.0.1:{args.port}/")
     server.serve_forever()
 
