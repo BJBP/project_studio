@@ -273,7 +273,7 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="../../vendor/three.min.js"></script>
   <script>
   (function() {
     if (typeof THREE === 'undefined') {
@@ -768,6 +768,14 @@
         ctx.fillStyle = '#111827'; ctx.fillRect(8, 8, w - 16, h - 16);
         ctx.fillStyle = '#475569'; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'center';
         ctx.fillText('OLED APAGADA', w/2, 70);
+        oledTex.needsUpdate = true; return;
+      }
+      if (state.oledLines) {
+        // Text sent by the Studio (virtual ESP32): yellow header band + up to 6 blue lines, like the real 128x64 OLED.
+        ctx.textAlign = 'left'; ctx.fillStyle = '#facc15'; ctx.font = 'bold 16px monospace';
+        ctx.fillText(state.oledHeader || '', 6, 22);
+        ctx.fillStyle = '#38bdf8'; ctx.font = '15px monospace';
+        state.oledLines.slice(0, 6).forEach((line, i) => ctx.fillText(line, 6, 47 + i * 16));
         oledTex.needsUpdate = true; return;
       }
       // Zona superior AMARILLA (primeros 32 px de la OLED Yellow-Blue!)
@@ -2101,8 +2109,9 @@
       relayLedMat.emissiveIntensity = state.relayOn ? 2.8 : 0.1;
 
       const power12Active = state.relayOn && state.dc12Connected;
-      const bulbOn = power12Active && (state.load12Mode === 'bulb' || state.load12Mode === 'both');
-      const fanOn  = power12Active && (state.load12Mode === 'fan'  || state.load12Mode === 'both');
+      const studioMode = state.studioFoco !== undefined || state.studioCooler !== undefined;
+      const bulbOn = power12Active && (studioMode ? Boolean(state.studioFoco) : (state.load12Mode === 'bulb' || state.load12Mode === 'both'));
+      const fanOn  = power12Active && (studioMode ? Boolean(state.studioCooler) : (state.load12Mode === 'fan'  || state.load12Mode === 'both'));
 
       bulbMat.emissiveIntensity = bulbOn ? 3.2 : 0.0;
       bulbLight.intensity = bulbOn ? 2.4 : 0.0;
@@ -2144,6 +2153,29 @@
     window.addEventListener('resize', handleResize);
     rebuildWires();
     goToStep(0);
+
+    // Studio bridge: the demo page sends the virtual ESP32 state with postMessage (same origin only).
+    // Message: { type: 'studio-device', foco?, cooler?, alarma?, oledHeader?, oledLines? }
+    function applyStudioMessage(e) {
+      if (e.origin !== location.origin || !e.data || e.data.type !== 'studio-device') return;
+      const d = e.data;
+      if ('foco' in d) state.studioFoco = d.foco;
+      if ('cooler' in d) state.studioCooler = d.cooler;
+      if ('foco' in d || 'cooler' in d) {
+        state.relayOn = Boolean(state.studioFoco || state.studioCooler);
+      }
+      if (d.alarma) { state.buzzerOn = true; playBeep(); setTimeout(() => { state.buzzerOn = false; drawOledScreen(); }, 650); }
+      if ('oledLines' in d) { state.oledHeader = d.oledHeader; state.oledLines = d.oledLines; }
+      drawOledScreen(); updateLaptopScreen();
+    }
+    window.addEventListener('message', applyStudioMessage);
+    if (new URLSearchParams(location.search).has('embed')) {
+      document.body.classList.add('studio-embed');
+      const style = document.createElement('style');
+      style.textContent = '.studio-embed .topbar, .studio-embed .steps-index, .studio-embed .tutor-dock { display: none !important; }';
+      document.head.appendChild(style);
+    }
+    if (document.body.classList.contains('studio-embed')) goToStep(12);
     setViewMode('iso');
     animate();
   })();
