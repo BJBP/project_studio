@@ -38,4 +38,6 @@ Assistant. Emulador: QEMU de Espressif (GPL-2.0, local, en Docker). Se descartó
 `stack/domotica-voz/setup/esphome_device.py`.
 
 ## Estado
-Prueba hecha. `build_firmware.py --sim` aún genera la variante para el S3 (no compila): cambia con la opción 1.
+Prueba hecha. **Decisión del usuario (2026-11-18): esperar a que ESPHome admita OPENETH en el ESP32-S3.**
+Para retomarlo: con cada versión nueva de ESPHome, ejecutar `build_firmware.py circuito_maestro --sim`; si compila,
+seguir con `firmware/simulator/run_sim.sh`, `setup/esphome_device.py` y la pestaña del mockup.
