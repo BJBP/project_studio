@@ -10,6 +10,9 @@ import { createStorage } from '../../../../engines/blocks/storage.js';
 import { createLiveStore } from './live.js';
 import { createStack } from './stack.js';
 import { syncAliases } from '../application/sync-aliases.js';
+import { createBrainChoice } from '../application/brain-choice.js';
+import { saveAiKey } from '../infrastructure/ai-keys.js';
+import { createBrainBlock } from './blocks/brain-block.js';
 import { createCircuitBlock } from './blocks/circuit-block.js';
 import { createOledBlock } from './blocks/oled-block.js';
 import { createTalkBlock } from './blocks/talk-block.js';
@@ -18,6 +21,13 @@ import { createDevicesBlock } from './blocks/devices-block.js';
 import { t, localeTable } from './i18n.js';
 
 const DISCOVERY_SETTLE_MS = 2000; // HA needs a moment to register freshly announced entities
+const BRAIN_STORAGE_KEY = 'studio.voice.brain';
+
+// Remembers the chosen AI in this browser; private windows may block storage, the page still works.
+const brainStore = {
+  get() { try { return localStorage.getItem(BRAIN_STORAGE_KEY); } catch (err) { console.warn('voice demo: sin almacenamiento local', err); return null; } },
+  set(id) { try { localStorage.setItem(BRAIN_STORAGE_KEY, id); } catch (err) { console.warn('voice demo: sin almacenamiento local', err); } },
+};
 
 const setIndicator = (id, up) => {
   const element = document.getElementById(`indicator-${id}`);
@@ -78,14 +88,22 @@ async function main() {
   live.oled = oledFromState(live.state, '');
   const refreshOled = () => { live.oled = oledFromState(live.state, live.answer); };
 
+  let brainChoice = null;
   const { virtualDevice, session, speaker, assist } = await createStack({
     catalog, offline, config, live, refreshOled, onIndicator: setIndicator,
+    onAssistError: () => brainChoice?.fallBackToLocal() ?? false,
   });
+  brainChoice = createBrainChoice({
+    assist, session, providers: config.aiProviders, saveKey: saveAiKey, store: brainStore,
+    onChange: ({ current }) => { live.brain = current; live.emit(); },
+  });
+  await brainChoice.load().catch((error) => console.warn('voice demo: no se pudieron leer las IAs', error));
 
   const blocks = [
     createCircuitBlock({ live, t }),
     createOledBlock({ live, t }),
     createTalkBlock({ live, t, session, speaker }),
+    createBrainBlock({ live, t, brainChoice }),
     createConversationBlock({ live, t }),
     createDevicesBlock({ live, t, catalog, virtualDevice }),
   ];

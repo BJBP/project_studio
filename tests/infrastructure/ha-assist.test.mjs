@@ -183,3 +183,12 @@ test('request() resolves with the result and rejects on failure', async () => {
   await assert.rejects(bad, { code: 'E_HA_REQUEST', message: 'no' });
   assist.close();
 });
+
+test('runText() sends the chosen pipeline only when one is given', async () => {
+  const { assist, ws } = await connectedAssist();
+  assist.runText('hola', {}, 'p2');
+  assert.equal(ws.sentJson(ws.sent.length - 1).pipeline, 'p2');
+  assist.runText('hola', {});
+  assert.equal('pipeline' in ws.sentJson(ws.sent.length - 1), false);
+  assist.close();
+});

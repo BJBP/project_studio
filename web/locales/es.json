@@ -10,7 +10,6 @@
   "configWarningTitle": "Modo sin conexión",
   "catalogError": "No se pudo validar el catálogo de aparatos:",
   "offlineHint": "La página sigue funcionando, pero sin Home Assistant ni MQTT. Revisa la configuración y recarga.",
-
   "columnMain": "Principal",
   "columnSide": "Lateral",
   "addBlock": "+ Añadir bloque",
@@ -23,13 +22,11 @@
   "noHiddenBlocks": "No hay bloques ocultos",
   "noOptions": "Este bloque no tiene opciones.",
   "optionInvalid": "Valor no válido.",
-
   "blockCircuit": "Circuito 3D",
   "blockOled": "Pantalla OLED",
   "blockTalk": "Hablar",
   "blockConversation": "Conversación",
   "blockDevices": "Aparatos",
-
   "optHeight": "Altura",
   "optScale": "Escala",
   "optScale1x": "1x",
@@ -37,7 +34,6 @@
   "optShowTextInput": "Mostrar campo de texto",
   "optVolume": "Volumen",
   "optMaxMessages": "Mensajes máximos",
-
   "holdToTalk": "Mantén para hablar",
   "statusIdle": "Listo",
   "statusListening": "Escuchando…",
@@ -47,17 +43,33 @@
   "send": "Enviar",
   "emptyCommand": "Escribe una orden primero",
   "levelLabel": "Nivel de voz",
-
   "you": "Tú",
   "assistant": "Asistente",
   "conversationEmpty": "Aún no hay mensajes. Mantén «Mantén para hablar» o escribe una orden.",
-
   "switchOn": "Encendido",
   "switchOff": "Apagado",
   "turnOn": "Encender",
   "turnOff": "Apagar",
   "testButton": "Probar",
   "noReading": "Sin datos",
-
-  "stackDown": "No conecta con el stack. ¿Está arrancado?"
+  "stackDown": "No conecta con el stack. ¿Está arrancado?",
+  "blockBrain": "Cerebro (IA)",
+  "brainLocalNote": "Sin internet · gratis · privado",
+  "brainCloudNote": "En la nube · de pago · ⚠ lo que digas sale del equipo",
+  "brainInUse": "En uso",
+  "brainUse": "Usar",
+  "brainNotReady": "No disponible: abre iniciar_estudio.bat otra vez",
+  "brainNone": "No hay IAs configuradas. Revisa ai_providers.json.",
+  "brainLine": "IA: {label}",
+  "brainDefault": "la de Home Assistant",
+  "brainFallback": "La próxima orden la responde la IA local.",
+  "keyAdd": "Añadir clave",
+  "keyLabel": "Clave de {label}",
+  "keySave": "Guardar",
+  "keySaving": "Configurando…",
+  "keySavingHint": "Home Assistant está probando la clave. Puede tardar un minuto.",
+  "keyHelp": "Cómo conseguir la clave",
+  "keyRejected": "La clave no funciona. Revisa que esté bien copiada y que la cuenta tenga saldo.",
+  "keyFormat": "La clave está vacía o tiene espacios. Cópiala otra vez.",
+  "studioDown": "No responde el servidor del Estudio. ¿Sigue abierto iniciar_estudio.bat?"
 }

@@ -1,5 +1,5 @@
 // Assistant session: links mic, assist and speaker into one talk flow.
-// createAssistantSession({ assist, mic, speaker, handlers }) -> { startTalking, stopTalking, sendText, forwardChunk }.
+// createAssistantSession({ assist, mic, speaker, handlers }) -> { startTalking, stopTalking, sendText, forwardChunk, setPipeline }.
 // handlers: { onStatus(key), onHeard(text), onAnswer(text), onLevel(db), onError({ code, message }) }.
 
 export function createAssistantSession({ assist, mic, speaker, handlers = {} } = {}) {
@@ -9,6 +9,7 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
   let audio = null;
   let status = 'idle';
   let speaking = false;
+  let pipelineId = null; // which AI answers; null = HA's preferred assistant
 
   function setStatus(next) {
     status = next;
@@ -49,7 +50,7 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
     if (audio) return;
     setStatus('listening');
     try {
-      audio = assist.startAudio(pipelineHandlers());
+      audio = assist.startAudio(pipelineHandlers(), pipelineId);
     } catch (error) {
       reportError(error);
       return;
@@ -83,13 +84,15 @@ export function createAssistantSession({ assist, mic, speaker, handlers = {} } =
     }
     setStatus('thinking');
     try {
-      assist.runText(clean, pipelineHandlers());
+      assist.runText(clean, pipelineHandlers(), pipelineId);
     } catch (error) {
       reportError(error);
     }
   }
 
-  return { startTalking, stopTalking, sendText, forwardChunk };
+  const setPipeline = (id) => { pipelineId = id || null; };
+
+  return { startTalking, stopTalking, sendText, forwardChunk, setPipeline };
 }
 
 function normalizeError(error) {

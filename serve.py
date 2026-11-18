@@ -10,6 +10,8 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from serve_ai import public_providers, save_key
+
 WEB_DIR = Path(__file__).resolve().parent / "web"
 TTS_PREFIX = "/api/tts_proxy/"  # only path relayed to HA; its links are signed, so no token is added
 SECRETS_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio")) / "ha.json"
@@ -22,6 +24,7 @@ def build_config() -> dict:
         "mqttUrl": os.environ.get("MQTT_WS_URL", "ws://127.0.0.1:9001"),
         "haToken": None,
         "error": None,
+        "aiProviders": public_providers(SECRETS_FILE.parent),
     }
     if SECRETS_FILE.exists():
         config["haToken"] = json.loads(SECRETS_FILE.read_text(encoding="utf-8")).get("token")
@@ -33,18 +36,38 @@ def build_config() -> dict:
 class StudioHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.split("?")[0] == "/config.json":
-            body = json.dumps(build_config()).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Cache-Control", "no-store")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+            self.send_json(200, build_config())
             return
         if self.path.startswith(TTS_PREFIX):
             self.proxy_tts()
             return
         super().do_GET()
+
+    def do_POST(self):
+        if self.path != "/api/ai-key":
+            self.send_error(404)
+            return
+        # Only this page may save keys: any website (or a rebound DNS name) could otherwise post to 127.0.0.1.
+        host = self.headers.get("Host", "")
+        local_host = host.split(":")[0] in ("127.0.0.1", "localhost")
+        if not local_host or self.headers.get("Origin") != f"http://{host}" or "json" not in self.headers.get("Content-Type", ""):
+            self.send_error(403, "E_ORIGIN: solo la página del Estudio puede guardar claves.")
+            return
+        try:
+            data = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0)) or 0))
+        except (ValueError, json.JSONDecodeError):
+            data = {}
+        data = data if isinstance(data, dict) else {}
+        result = save_key(SECRETS_FILE.parent, data.get("provider", ""), data.get("key", ""))
+        self.send_json(200 if result["ok"] else 400, result)
+
+    def send_json(self, status: int, payload: dict):
+        body = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
     def proxy_tts(self):
         """Relays HA's spoken answers so the page plays them same-origin (HA sends no CORS headers)."""

@@ -2,9 +2,9 @@
 # requires-python = ">=3.11"
 # dependencies = ["httpx>=0.27", "websockets>=12"]
 # ///
-# Configures a fresh Home Assistant for the voice demo: test user, MQTT, Whisper, Piper, Ollama, voice pipeline.
+# Configures a fresh Home Assistant for the voice demo: test user, MQTT, Whisper, Piper and one voice assistant per AI.
 # Receives settings from environment variables; writes the access token to the secrets folder (outside the repo).
-# Exit code 0 = ready; otherwise prints "<CODE>: <what to do>".
+# Exit code 0 = ready; otherwise prints "<CODE>: <what to do>". A cloud AI that fails prints "AVISO <id> <CODE>: ...".
 import json
 import os
 import secrets
@@ -14,7 +14,8 @@ from pathlib import Path
 
 import httpx
 
-from flows import ensure_core_config, ensure_integrations, ensure_pipeline
+from agents import ensure_assistants
+from flows import ensure_core_config, ensure_integrations
 from ha_client import HaClient, HaError
 
 BASE_URL = os.environ.get("HA_URL", "http://127.0.0.1:8123")
@@ -67,11 +68,13 @@ def main() -> int:
         client = HaClient(BASE_URL, data["token"])
         ensure_core_config(client)
         ensure_integrations(client)
-        ensure_pipeline(client)
+        assistants, problems = ensure_assistants(client)
     except HaError as err:
         print(err)
         return 1
-    print(f"OK: Home Assistant listo en {BASE_URL}. Token en {SECRETS_FILE}")
+    for provider_id, problem in problems.items():
+        print(f"AVISO {provider_id} {problem}")
+    print(f"OK: Home Assistant listo en {BASE_URL}. Asistentes: {', '.join(assistants)}. Token en {SECRETS_FILE}")
     return 0
 
 

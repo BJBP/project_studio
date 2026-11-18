@@ -1,5 +1,5 @@
 // Loads the page config served at /config.json (see serve.py).
-// Returns { haUrl, mqttUrl, haToken, error }; on any failure `error` carries an E_... code.
+// Returns { haUrl, mqttUrl, haToken, aiProviders, error }; on any failure `error` carries an E_... code.
 export async function loadConfig() {
   try {
     const res = await fetch('/config.json');
@@ -11,6 +11,7 @@ export async function loadConfig() {
       haUrl: data.haUrl ?? null,
       mqttUrl: data.mqttUrl ?? null,
       haToken: data.haToken ?? null,
+      aiProviders: Array.isArray(data.aiProviders) ? data.aiProviders : [],
       error: data.error ?? null,
     };
   } catch (err) {
@@ -19,5 +20,5 @@ export async function loadConfig() {
 }
 
 function emptyConfig(error) {
-  return { haUrl: null, mqttUrl: null, haToken: null, error };
+  return { haUrl: null, mqttUrl: null, haToken: null, aiProviders: [], error };
 }

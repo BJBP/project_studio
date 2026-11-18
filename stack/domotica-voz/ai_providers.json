@@ -1,0 +1,39 @@
+{
+  "_help": "IAs que el Estudio ofrece. Añadir una = añadir una entrada con una integración de conversación de Home Assistant. Las claves NO van aquí: se guardan fuera del repositorio.",
+  "providers": [
+    {
+      "id": "local",
+      "label": "Local (Ollama)",
+      "integration": "ollama",
+      "cloud": false,
+      "pipeline": "Asistente local"
+    },
+    {
+      "id": "claude",
+      "label": "Claude",
+      "integration": "anthropic",
+      "cloud": true,
+      "key_step": "user",
+      "key_url": "https://console.anthropic.com/settings/keys",
+      "pipeline": "Asistente Claude"
+    },
+    {
+      "id": "openai",
+      "label": "OpenAI",
+      "integration": "openai_conversation",
+      "cloud": true,
+      "key_step": "user",
+      "key_url": "https://platform.openai.com/api-keys",
+      "pipeline": "Asistente OpenAI"
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini",
+      "integration": "google_generative_ai_conversation",
+      "cloud": true,
+      "key_step": "api",
+      "key_url": "https://aistudio.google.com/app/apikey",
+      "pipeline": "Asistente Gemini"
+    }
+  ]
+}

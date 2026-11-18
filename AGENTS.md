@@ -14,15 +14,18 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 | Zona | Archivos |
 |---|---|
 | Stack de voz (Docker) | `stack/domotica-voz/docker-compose.yml`, `mosquitto/mosquitto.conf`, `.env.example` |
-| Configuración automática de Home Assistant | `stack/domotica-voz/setup/{setup_ha,flows,ha_client}.py` |
+| Configuración automática de Home Assistant | `stack/domotica-voz/setup/{setup_ha,flows,agents,ha_client}.py` |
+| IAs disponibles (local y nube) | `stack/domotica-voz/ai_providers.json` (añadir una = añadir una entrada); claves en `~/.agents/secrets/project_studio/ai_keys.json` |
+| Servidor del Estudio | `serve.py` (página, `/config.json`, audio), `serve_ai.py` (lista de IAs y guardar clave) |
 | Tutorial 3D (copia del original) | `web/tutorials/circuito_3d/index.html` |
 | Motor de bloques | `web/engines/blocks/` |
 | Demo de voz (capas) | `web/demos/voice/js/{domain,application,infrastructure,presentation}/` |
-| Pruebas | `tests/` |
+| Pruebas | `tests/`: `node --test tests/*/*.test.mjs`; `uv run --no-project --with pytest pytest tests/server -q`; e2e en `tests/e2e/` |
 
 ## Códigos de error de setup_ha.py
 `E_HA_DOWN`, `E_HA_HTTP`, `E_HA_AUTH`, `E_HA_WS`, `E_HA_ONBOARDED`, `E_FLOW_STEP`, `E_FLOW_ABORT`,
-`E_OLLAMA_AGENT`, `E_ENTITY_MISSING`.
+`E_AGENT`, `E_FLOW_INVALID` (clave rechazada), `E_ENTITY_MISSING`. Una IA de la nube que falla escribe
+`AVISO <id> <CÓDIGO>: ...` y no detiene el resto. `serve_ai.py` añade `E_PROVIDER`, `E_KEY_FORMAT`, `E_SETUP`.
 
 ## Reglas del proyecto
 - Código en inglés; textos de interfaz en `web/locales/es.json`.
