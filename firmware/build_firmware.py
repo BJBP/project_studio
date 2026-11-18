@@ -30,7 +30,7 @@ def fail(code: str, message: str, output: str = "") -> int:
 
 def publish(name: str, friendly: str) -> Path:
     host = name.replace("_", "-")  # the device hostname in the YAML uses dashes
-    build = CONFIG_DIR / ".esphome" / "build" / host / ".pioenvs" / host / "firmware.factory.bin"
+    build = CONFIG_DIR / ".esphome" / "build" / host / "build" / "firmware.factory.bin"  # ESPHome 2026 + ESP-IDF layout
     target = WEB_FIRMWARE / name
     target.mkdir(parents=True, exist_ok=True)
     shutil.copy2(build, target / "firmware.factory.bin")

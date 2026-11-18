@@ -29,6 +29,7 @@
 - Fase 4: el panel de ESPHome guarda su estado (`.device-builder*`) dentro de `firmware/esphome/`; está ignorado por git, pero mejor montarlo en la carpeta de datos.
 - Fase 5: revisar los nombres de columna de `inventree_partes.csv` y `odoo_productos.csv` importándolos en una instancia real.
 - Fase 5: modos de videoportero e industrial probados de uno en uno («Portero», «Sobretemperatura»); faltan «Visita detectada» y «Vibración alta» en el navegador.
+- Fase 4: la primera compilación tarda más de 1 h porque `.esphome/` (ESP-IDF y la compilación) está en una carpeta de Windows montada en Docker; usar un volumen de Docker para `.esphome/`.
 - Fase 4b (mini PC): paquete de instalación para Linux y copias de seguridad, cuando se compre.
 - `web/engines/blocks/block-manager.js` tiene 500 líneas: dividir en cabecera de bloque, formulario de opciones, arrastrar/teclado y barra.
 - Probar el motor de bloques en modo claro y en pantalla de móvil.
