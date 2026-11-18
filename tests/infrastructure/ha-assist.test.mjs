@@ -108,7 +108,8 @@ test('runText() sends intent pipeline and dispatches stt/intent/tts/run-end even
 
   assert.deepEqual(heard, ['enciende el foco']);
   assert.deepEqual(answers, ['Hecho.']);
-  assert.deepEqual(audioUrls, ['http://ha.test:8124/api/tts_proxy/abc.mp3']);
+  // Relative TTS paths stay relative: the Studio server proxies them (same origin keeps the level meter).
+  assert.deepEqual(audioUrls, ['/api/tts_proxy/abc.mp3']);
   assert.equal(done, true);
   assist.close();
 });
@@ -167,5 +168,18 @@ test('error events are routed to onError with code and message', async () => {
   const { id } = ws.sentJson(ws.sent.length - 1);
   ws.receive({ id, type: 'event', event: { type: 'error', data: { code: 'stt-no-text', message: 'No se entendió.' } } });
   assert.deepEqual(errors, [{ code: 'stt-no-text', message: 'No se entendió.' }]);
+  assist.close();
+});
+
+test('request() resolves with the result and rejects on failure', async () => {
+  const { assist, ws } = await connectedAssist();
+  const ok = assist.request({ type: 'config/entity_registry/list' });
+  const okId = ws.sentJson(ws.sent.length - 1).id;
+  const bad = assist.request({ type: 'config/entity_registry/update', entity_id: 'x' });
+  const badId = ws.sentJson(ws.sent.length - 1).id;
+  ws.receive({ id: okId, type: 'result', success: true, result: [{ entity_id: 'switch.a' }] });
+  ws.receive({ id: badId, type: 'result', success: false, error: { message: 'no' } });
+  assert.deepEqual(await ok, [{ entity_id: 'switch.a' }]);
+  await assert.rejects(bad, { code: 'E_HA_REQUEST', message: 'no' });
   assist.close();
 });

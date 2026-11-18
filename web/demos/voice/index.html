@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estudio · Domótica con voz local</title>
+  <link rel="stylesheet" href="../../engines/blocks/blocks.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="voice-blocks.css">
+  <script src="../../vendor/mqtt.min.js" defer></script>
+  <script type="module" src="js/presentation/main.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-brand">
+        <span class="app-brand-mark" aria-hidden="true">🎙️</span>
+        <div>
+          <h1 class="app-title">Project Studio</h1>
+          <p class="app-subtitle">Domótica con voz local</p>
+        </div>
+      </div>
+      <ul class="app-indicators" aria-label="Estado de la conexión">
+        <li class="indicator" id="indicator-ha" data-state="down">
+          <span class="indicator-dot" aria-hidden="true"></span>
+          <span class="indicator-label" data-role="label">Home Assistant</span>
+          <span class="indicator-status" data-role="status">Sin conexión</span>
+        </li>
+        <li class="indicator" id="indicator-mqtt" data-state="down">
+          <span class="indicator-dot" aria-hidden="true"></span>
+          <span class="indicator-label" data-role="label">MQTT</span>
+          <span class="indicator-status" data-role="status">Sin conexión</span>
+        </li>
+        <li class="indicator" id="indicator-mic" data-state="down">
+          <span class="indicator-dot" aria-hidden="true"></span>
+          <span class="indicator-label" data-role="label">Micrófono</span>
+          <span class="indicator-status" data-role="status">Sin conexión</span>
+        </li>
+      </ul>
+    </div>
+    <div class="config-warning" id="config-warning" hidden role="alert"></div>
+  </header>
+  <main class="app-main">
+    <div id="blocks-root"></div>
+  </main>
+</body>
+</html>

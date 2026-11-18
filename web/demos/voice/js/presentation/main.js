@@ -1,0 +1,122 @@
+// Entry point of the voice demo: loads config + catalog, wires the stack and mounts blocks.
+// On any failure the page still works in offline mode (local state only, no HA/MQTT).
+
+import { loadConfig } from '../infrastructure/config.js';
+import { oledFromState } from '../application/oled-text.js';
+import { validateCatalog } from '../domain/catalog.js';
+import { initialState } from '../domain/device-state.js';
+import { mountBlocks } from '../../../../engines/blocks/block-manager.js';
+import { createStorage } from '../../../../engines/blocks/storage.js';
+import { createLiveStore } from './live.js';
+import { createStack } from './stack.js';
+import { syncAliases } from '../application/sync-aliases.js';
+import { createCircuitBlock } from './blocks/circuit-block.js';
+import { createOledBlock } from './blocks/oled-block.js';
+import { createTalkBlock } from './blocks/talk-block.js';
+import { createConversationBlock } from './blocks/conversation-block.js';
+import { createDevicesBlock } from './blocks/devices-block.js';
+import { t, localeTable } from './i18n.js';
+
+const DISCOVERY_SETTLE_MS = 2000; // HA needs a moment to register freshly announced entities
+
+const setIndicator = (id, up) => {
+  const element = document.getElementById(`indicator-${id}`);
+  if (!element) return;
+  element.dataset.state = up ? 'up' : 'down';
+  const status = element.querySelector('[data-role="status"]');
+  if (status) status.textContent = up ? t('statusConnected') : t('statusDisconnected');
+};
+
+function applyStaticTexts() {
+  document.title = t('appTitle');
+  document.querySelector('.app-title').textContent = t('appName');
+  document.querySelector('.app-subtitle').textContent = t('projectName');
+  document.querySelector('.app-indicators')?.setAttribute('aria-label', t('projectName'));
+  for (const [id, key] of [['ha', 'indicatorHA'], ['mqtt', 'indicatorMQTT'], ['mic', 'indicatorMic']]) {
+    const label = document.getElementById(`indicator-${id}`)?.querySelector('[data-role="label"]');
+    if (label) label.textContent = t(key);
+  }
+}
+
+function showWarning(detail) {
+  const warning = document.getElementById('config-warning');
+  warning.textContent = '';
+  const title = document.createElement('strong');
+  title.textContent = `${t('configWarningTitle')}. `;
+  const body = document.createElement('span');
+  body.textContent = `${detail} ${t('offlineHint')}`;
+  warning.append(title, body);
+  warning.hidden = false;
+}
+
+async function loadCatalog() {
+  try {
+    const response = await fetch('data/devices.example.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const result = validateCatalog(data);
+    if (!result.ok) {
+      showWarning(`${t('catalogError')} ${result.errors.map((e) => e.message).join(' · ')}`);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    showWarning(`${t('catalogError')} ${error?.message ?? error}`);
+    return null;
+  }
+}
+
+async function main() {
+  applyStaticTexts();
+
+  const config = await loadConfig();
+  const offline = Boolean(config.error);
+  if (offline) showWarning(config.error);
+
+  const catalog = await loadCatalog();
+  const live = createLiveStore(catalog ? initialState(catalog) : {});
+  live.oled = oledFromState(live.state, '');
+  const refreshOled = () => { live.oled = oledFromState(live.state, live.answer); };
+
+  const { virtualDevice, session, speaker, assist } = await createStack({
+    catalog, offline, config, live, refreshOled, onIndicator: setIndicator,
+  });
+
+  const blocks = [
+    createCircuitBlock({ live, t }),
+    createOledBlock({ live, t }),
+    createTalkBlock({ live, t, session, speaker }),
+    createConversationBlock({ live, t }),
+    createDevicesBlock({ live, t, catalog, virtualDevice }),
+  ];
+
+  mountBlocks(document.getElementById('blocks-root'), {
+    blocks,
+    columns: [
+      { id: 'main', title: t('columnMain') },
+      { id: 'side', title: t('columnSide') },
+    ],
+    storage: createStorage('studio.voice.layout'),
+    t: localeTable,
+  });
+
+  if (virtualDevice) {
+    try {
+      await virtualDevice.start();
+      if (assist) setTimeout(() => nameEntities(assist, catalog), DISCOVERY_SETTLE_MS);
+    } catch (error) {
+      console.warn('voice demo: no se pudo publicar el dispositivo virtual', error);
+    }
+  }
+
+  window.addEventListener('beforeunload', () => virtualDevice?.stop());
+}
+
+function nameEntities(assist, catalog) {
+  syncAliases({ assist, catalog }).catch((error) => console.warn('voice demo: no se pudieron poner los nombres cortos', error));
+}
+
+main().catch((error) => {
+  console.error('voice demo: fallo al arrancar', error);
+  showWarning(error?.message ?? String(error));
+});
