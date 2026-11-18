@@ -1,9 +1,10 @@
 // Virtual device: publishes MQTT discovery, availability and state; applies commands.
-// createVirtualDevice({ catalog, bus, onChange }) -> { start, command, getState, stop }.
+// createVirtualDevice({ catalog, bus, onChange }) -> { start, command, report, getState, stop }.
+// report(deviceId, key, value) is a simulated physical reading (sensor, door, motion).
 
 import { buildDiscovery } from '../domain/discovery.js';
 import { stateTopic, availabilityTopic } from '../domain/topics.js';
-import { initialState, parseCommandTopic, applyCommand } from '../domain/device-state.js';
+import { initialState, parseCommandTopic, applyCommand, applyReading } from '../domain/device-state.js';
 
 export function createVirtualDevice({ catalog, bus, onChange } = {}) {
   if (!catalog || !bus) {
@@ -28,8 +29,8 @@ export function createVirtualDevice({ catalog, bus, onChange } = {}) {
 
   function publishInitialState(device) {
     for (const entity of device.entities) {
-      if (entity.component !== 'switch' && entity.component !== 'text') continue;
-      const value = state[device.id]?.[entity.key] ?? '';
+      const value = state[device.id]?.[entity.key];
+      if (entity.component === 'button' || value === null || value === undefined) continue;
       bus.publish(stateTopic(base, device.id, entity.key), String(value), { retain: true });
     }
   }
@@ -44,8 +45,15 @@ export function createVirtualDevice({ catalog, bus, onChange } = {}) {
     return applyAndPublish(deviceId, key, payload);
   }
 
+  function report(deviceId, key, value) {
+    return publishResult(deviceId, key, applyReading(state, catalog, deviceId, key, value));
+  }
+
   function applyAndPublish(deviceId, key, payload) {
-    const result = applyCommand(state, catalog, deviceId, key, payload);
+    return publishResult(deviceId, key, applyCommand(state, catalog, deviceId, key, payload));
+  }
+
+  function publishResult(deviceId, key, result) {
     state = result.state;
     const event = result.event ?? { type: 'error', deviceId, key, code: 'E_UNKNOWN' };
     if (event.type === 'changed') {
@@ -68,5 +76,5 @@ export function createVirtualDevice({ catalog, bus, onChange } = {}) {
     started = false;
   }
 
-  return { start, command, getState, stop };
+  return { start, command, report, getState, stop };
 }

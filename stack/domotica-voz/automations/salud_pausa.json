@@ -1,0 +1,40 @@
+{
+  "id": "studio_salud_pausa",
+  "alias": "Modo salud: pausa activa",
+  "mode": "single",
+  "description": "Movimiento continuo frente a la cámara durante un rato: recordar levantarse.",
+  "triggers": [
+    {
+      "trigger": "state",
+      "entity_id": "binary_sensor.entrada_movimiento",
+      "to": "on",
+      "for": {
+        "minutes": 2
+      }
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_salud",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "button.press",
+      "target": {
+        "entity_id": "button.circuito_maestro_alarma"
+      }
+    },
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.circuito_maestro_oled"
+      },
+      "data": {
+        "value": "Hora de levantarse y estirar"
+      }
+    }
+  ]
+}

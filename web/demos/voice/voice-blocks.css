@@ -144,3 +144,6 @@
 
 /* Inside the Studio the page header is the Studio's own. */
 .is-embedded .app-header { display: none; }
+
+/* Camera block */
+.camera-video { width: 100%; max-height: 240px; background: #000; border-radius: 8px; object-fit: cover; }

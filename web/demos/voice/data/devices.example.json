@@ -11,7 +11,22 @@
         { "key": "cooler", "component": "switch", "name": "Cooler" },
         { "key": "alarma", "component": "button", "name": "Alarma" },
         { "key": "oled",   "component": "text",   "name": "Pantalla", "max": 64 },
-        { "key": "mic",    "component": "sensor", "name": "Nivel del micrófono", "unit": "dB" }
+        { "key": "mic",    "component": "sensor", "name": "Nivel del micrófono", "unit": "dB",
+          "device_class": "sound_pressure", "sim": { "type": "manual", "rest": -50, "test": -5, "pulse_s": 3 } }
+      ]
+    },
+    {
+      "id": "entrada",
+      "name": "Entrada",
+      "model": "ESP32-S3 (simulado)",
+      "area": "Entrada",
+      "entities": [
+        { "key": "puerta",      "component": "binary_sensor", "name": "Puerta", "device_class": "door", "sim": { "type": "manual", "pulse_s": 6 } },
+        { "key": "timbre",      "component": "binary_sensor", "name": "Timbre", "device_class": "sound", "sim": { "type": "manual", "pulse_s": 2 } },
+        { "key": "movimiento",  "component": "binary_sensor", "name": "Movimiento", "device_class": "motion", "sim": { "type": "camera", "pulse_s": 10 } },
+        { "key": "temperatura", "component": "sensor", "name": "Temperatura", "unit": "°C", "device_class": "temperature",
+          "sim": { "type": "drift", "min": 20, "max": 31, "rest": 24, "step": 0.4, "every_s": 15, "test": 30, "pulse_s": 30 } },
+        { "key": "cerradura",   "component": "lock", "name": "Cerradura" }
       ]
     }
   ]

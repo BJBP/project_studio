@@ -1,0 +1,37 @@
+{
+  "id": "studio_intercom",
+  "alias": "Modo intercomunicador",
+  "mode": "single",
+  "description": "Timbre: aviso y zumbador.",
+  "triggers": [
+    {
+      "trigger": "state",
+      "entity_id": "binary_sensor.entrada_timbre",
+      "to": "on"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_intercom",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "button.press",
+      "target": {
+        "entity_id": "button.circuito_maestro_alarma"
+      }
+    },
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.circuito_maestro_oled"
+      },
+      "data": {
+        "value": "Llaman a la puerta"
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 // Validates a voice-demo device catalog. Receives parsed JSON data, returns
 // { ok: true } or { ok: false, errors: [{ code, path, message }] }.
 const ID_RE = /^[a-z0-9_]+$/;
-const COMPONENTS = new Set(["switch", "button", "text", "sensor"]);
+const COMPONENTS = new Set(["switch", "button", "text", "sensor", "binary_sensor", "lock"]);
 
 export function validateCatalog(data) {
   const errors = [];
@@ -35,7 +35,7 @@ export function validateCatalog(data) {
         err("E_ENTITY_KEY", `${path}.key`, "Entity key is missing or is not [a-z0-9_]+");
       }
       if (!entity || !COMPONENTS.has(entity.component)) {
-        err("E_COMPONENT", `${path}.component`, "Component must be switch|button|text|sensor");
+        err("E_COMPONENT", `${path}.component`, "Component must be switch|button|text|sensor|binary_sensor|lock");
       }
       if (!entity || typeof entity.name !== "string" || entity.name.trim() === "") {
         err("E_NAME", `${path}.name`, "Entity name is missing");

@@ -8,7 +8,9 @@ export function initialState(catalog) {
     for (const entity of device.entities ?? []) {
       if (entity.component === "switch") values[entity.key] = "OFF";
       else if (entity.component === "text") values[entity.key] = "";
-      else if (entity.component === "sensor") values[entity.key] = null;
+      else if (entity.component === "sensor") values[entity.key] = entity.sim?.rest ?? null;
+      else if (entity.component === "binary_sensor") values[entity.key] = "OFF";
+      else if (entity.component === "lock") values[entity.key] = "LOCKED";
       // Buttons carry no state.
     }
     state[device.id] = values;
@@ -59,8 +61,25 @@ export function applyCommand(state, catalog, deviceId, key, payload) {
       event: { type: "changed", deviceId, key, value },
     };
   }
+  if (entity.component === "lock") {
+    const next = { LOCK: "LOCKED", UNLOCK: "UNLOCKED" }[payload];
+    if (!next) return { state, event: { type: "error", code: "E_BAD_PAYLOAD" } };
+    return { state: setValue(state, deviceId, key, next), event: { type: "changed", deviceId, key, value: next } };
+  }
   // Sensors are read-only from the command side.
   return { state, event: { type: "error", code: "E_UNKNOWN_ENTITY" } };
+}
+
+// A simulated physical reading (door opened, temperature, motion): only sensors and binary sensors take one.
+export function applyReading(state, catalog, deviceId, key, value) {
+  const entity = findEntity(catalog, deviceId, key);
+  if (!entity || (entity.component !== "sensor" && entity.component !== "binary_sensor")) {
+    return { state, event: { type: "error", code: "E_NOT_A_SENSOR" } };
+  }
+  if (entity.component === "binary_sensor" && value !== "ON" && value !== "OFF") {
+    return { state, event: { type: "error", code: "E_BAD_PAYLOAD" } };
+  }
+  return { state: setValue(state, deviceId, key, value), event: { type: "changed", deviceId, key, value } };
 }
 
 function setValue(state, deviceId, key, value) {
