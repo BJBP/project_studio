@@ -1,0 +1,36 @@
+# Base of every Studio ESP32-S3 (16 MB flash, 8 MB PSRAM): Wi-Fi set over USB (Improv), Home Assistant API, OTA.
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+  project:
+    name: project_studio.${name}
+    version: "1.0"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# No Wi-Fi name in the firmware: it is typed once in the browser and sent over the USB cable (Improv Serial).
+wifi:
+  ap: {}
+
+captive_portal:
+
+improv_serial:

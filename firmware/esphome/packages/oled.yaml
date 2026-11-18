@@ -1,0 +1,28 @@
+# OLED 0.96" 128x64 SSD1306 on I2C (SDA GPIO8, SCL GPIO9). "Pantalla" is a text Home Assistant can write
+# (automations' warnings); the top yellow band shows the relay states.
+i2c:
+  sda: GPIO8
+  scl: GPIO9
+
+font:
+  - file: "gfonts://Roboto Mono"
+    id: font_small
+    size: 11
+
+text:
+  - platform: template
+    name: "Pantalla"
+    id: oled_text
+    mode: text
+    optimistic: true
+    max_length: 64
+    initial_value: "Listo. Di una orden"
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    update_interval: 500ms
+    lambda: |-
+      it.printf(0, 0, id(font_small), "FOCO:%s  FAN:%s", id(foco).state ? "ON" : "OFF", ${fan_state});
+      it.print(0, 18, id(font_small), id(oled_text).state.c_str());

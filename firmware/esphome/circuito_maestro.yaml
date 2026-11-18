@@ -1,0 +1,14 @@
+# The tutorial circuit: ESP32-S3 + INMP441 + MAX98357A + OLED + relay (bulb) + buzzer.
+# Entity names match the virtual device, so phrases and automations work the same with the real one.
+# Build: docker run --rm -v "$PWD":/config ghcr.io/esphome/esphome:stable compile circuito_maestro.yaml
+substitutions:
+  name: circuito-maestro   # hostname: no underscores; HA ids come from friendly_name (switch.circuito_maestro_foco)
+  friendly_name: Circuito maestro
+  fan_state: '"OFF"'   # with relay2.yaml: 'id(cooler).state ? "ON" : "OFF"'
+
+packages:
+  base: !include packages/base.yaml
+  oled: !include packages/oled.yaml
+  relay: !include packages/relay.yaml
+  buzzer: !include packages/buzzer.yaml
+  voice: !include packages/voice.yaml

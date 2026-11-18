@@ -1,0 +1,13 @@
+# Active buzzer on GPIO2. "Alarma" beeps for half a second, like the virtual one.
+output:
+  - platform: gpio
+    pin: GPIO2
+    id: buzzer_out
+
+button:
+  - platform: template
+    name: "Alarma"
+    on_press:
+      - output.turn_on: buzzer_out
+      - delay: 500ms
+      - output.turn_off: buzzer_out
