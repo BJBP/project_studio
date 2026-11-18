@@ -1,0 +1,12 @@
+{
+  "id": "mic-i2s",
+  "name": "Micrófono digital I2S",
+  "kind": "hardware",
+  "slots": [
+    "mic"
+  ],
+  "protocols": [
+    "i2s"
+  ],
+  "spec": "Micrófono MEMS I2S, 3,3 V, omnidireccional."
+}

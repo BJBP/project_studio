@@ -1,0 +1,12 @@
+{
+  "id": "amp-i2s",
+  "name": "Amplificador I2S clase D",
+  "kind": "hardware",
+  "slots": [
+    "amp"
+  ],
+  "protocols": [
+    "i2s"
+  ],
+  "spec": "Amplificador I2S de 3 W, 5 V."
+}

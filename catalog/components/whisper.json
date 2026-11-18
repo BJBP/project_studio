@@ -1,0 +1,48 @@
+{
+  "id": "whisper",
+  "name": "Whisper (faster-whisper)",
+  "kind": "software",
+  "slots": [
+    "stt"
+  ],
+  "protocols": [
+    "wyoming"
+  ],
+  "license": {
+    "spdx": "MIT",
+    "commercial": "yes",
+    "notes": "Modelo y programa MIT."
+  },
+  "needs": {
+    "ram_gb": 1,
+    "cpu_cores": 2,
+    "gpu": "optional"
+  },
+  "docs": "https://github.com/rhasspy/wyoming-faster-whisper",
+  "variants": [
+    {
+      "id": "small-int8",
+      "label": "small-int8 (mejor)",
+      "needs": {
+        "ram_gb": 1.5,
+        "gpu": "optional"
+      },
+      "speed": {
+        "gpu": "~1 s",
+        "cpu": "~4 s"
+      }
+    },
+    {
+      "id": "base-int8",
+      "label": "base-int8 (ligero)",
+      "needs": {
+        "ram_gb": 0.8,
+        "gpu": "none"
+      },
+      "speed": {
+        "gpu": "~0,5 s",
+        "cpu": "~2 s"
+      }
+    }
+  ]
+}

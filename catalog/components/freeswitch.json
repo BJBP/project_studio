@@ -1,0 +1,22 @@
+{
+  "id": "freeswitch",
+  "name": "FreeSWITCH",
+  "kind": "software",
+  "slots": [
+    "sip"
+  ],
+  "protocols": [
+    "sip"
+  ],
+  "license": {
+    "spdx": "MPL-1.1",
+    "commercial": "conditions",
+    "notes": "Los cambios a sus archivos se publican."
+  },
+  "needs": {
+    "ram_gb": 0.5,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://signalwire.com/freeswitch"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "esp32-s3",
+  "name": "ESP32-S3 con 8 MB de PSRAM",
+  "kind": "hardware",
+  "slots": [
+    "controller"
+  ],
+  "protocols": [
+    "wifi",
+    "i2s",
+    "i2c",
+    "gpio",
+    "esphome-api",
+    "mqtt"
+  ],
+  "spec": "ESP32-S3, 16 MB flash, 8 MB PSRAM (la voz necesita PSRAM). Un ESP32 clásico no sirve para voz."
+}

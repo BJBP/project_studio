@@ -1,0 +1,23 @@
+{
+  "id": "tasmota",
+  "name": "Tasmota",
+  "kind": "software",
+  "slots": [
+    "firmware"
+  ],
+  "protocols": [
+    "mqtt",
+    "http"
+  ],
+  "license": {
+    "spdx": "GPL-3.0",
+    "commercial": "conditions",
+    "notes": "Firmware GPLv3: al entregar el aparato se entrega su código."
+  },
+  "needs": {
+    "ram_gb": 0,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://tasmota.github.io/"
+}

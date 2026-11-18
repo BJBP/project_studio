@@ -1,0 +1,12 @@
+{
+  "id": "buzzer",
+  "name": "Zumbador activo",
+  "kind": "hardware",
+  "slots": [
+    "buzzer"
+  ],
+  "protocols": [
+    "gpio"
+  ],
+  "spec": "Zumbador activo de 3,3–5 V."
+}

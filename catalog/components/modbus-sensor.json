@@ -1,0 +1,12 @@
+{
+  "id": "modbus-sensor",
+  "name": "Sensor Modbus RTU/TCP",
+  "kind": "hardware",
+  "slots": [
+    "sensor"
+  ],
+  "protocols": [
+    "modbus"
+  ],
+  "spec": "Sensor de temperatura o energía con Modbus."
+}

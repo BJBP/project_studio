@@ -1,0 +1,11 @@
+{
+  "id": "mini-pc",
+  "name": "Mini PC del cliente",
+  "icon": "🖥️",
+  "ram_gb": 16,
+  "cpu_cores": 4,
+  "gpu_vram_gb": 0,
+  "always_on": true,
+  "role": "Todo corre aquí: sigue funcionando sin internet y sin la laptop.",
+  "part": "mini-pc"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "oled-i2c",
+  "name": "Pantalla OLED 128×64 I2C",
+  "kind": "hardware",
+  "slots": [
+    "display"
+  ],
+  "protocols": [
+    "i2c"
+  ],
+  "spec": "OLED 0,96 pulgadas, 128×64, controlador SSD1306, I2C, 3,3 V."
+}

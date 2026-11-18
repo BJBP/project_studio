@@ -1,0 +1,22 @@
+{
+  "id": "cloud-llm",
+  "name": "IA en la nube (con clave)",
+  "kind": "software",
+  "slots": [
+    "llm"
+  ],
+  "protocols": [
+    "http"
+  ],
+  "license": {
+    "spdx": "Servicio",
+    "commercial": "conditions",
+    "notes": "Términos del servicio; lo que se dice sale del equipo; de pago por uso."
+  },
+  "needs": {
+    "ram_gb": 0,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": ""
+}

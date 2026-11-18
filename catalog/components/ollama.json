@@ -1,0 +1,48 @@
+{
+  "id": "ollama",
+  "name": "Ollama (IA local)",
+  "kind": "software",
+  "slots": [
+    "llm"
+  ],
+  "protocols": [
+    "http"
+  ],
+  "license": {
+    "spdx": "MIT",
+    "commercial": "yes",
+    "notes": "Cada modelo tiene su licencia: Qwen3 Apache 2.0 sí; Qwen2.5-3B no comercial."
+  },
+  "needs": {
+    "ram_gb": 6,
+    "cpu_cores": 4,
+    "gpu": "optional"
+  },
+  "docs": "https://ollama.com/",
+  "variants": [
+    {
+      "id": "qwen3.5:4b",
+      "label": "qwen3.5:4b (mejor)",
+      "needs": {
+        "ram_gb": 6,
+        "gpu": "optional"
+      },
+      "speed": {
+        "gpu": "~2 s",
+        "cpu": "~8 s"
+      }
+    },
+    {
+      "id": "qwen3:1.7b",
+      "label": "qwen3:1.7b (ligero)",
+      "needs": {
+        "ram_gb": 3,
+        "gpu": "none"
+      },
+      "speed": {
+        "gpu": "~1 s",
+        "cpu": "~3 s"
+      }
+    }
+  ]
+}

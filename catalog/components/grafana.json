@@ -1,0 +1,22 @@
+{
+  "id": "grafana",
+  "name": "Grafana",
+  "kind": "software",
+  "slots": [
+    "dashboard"
+  ],
+  "protocols": [
+    "http"
+  ],
+  "license": {
+    "spdx": "AGPL-3.0",
+    "commercial": "conditions",
+    "notes": "Si se modifica y se ofrece por red, se publica el cambio. Sin modificar, se puede usar."
+  },
+  "needs": {
+    "ram_gb": 0.5,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://grafana.com/"
+}

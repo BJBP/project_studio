@@ -1,0 +1,25 @@
+{
+  "id": "home-assistant",
+  "name": "Home Assistant",
+  "kind": "software",
+  "slots": [
+    "hub"
+  ],
+  "protocols": [
+    "mqtt",
+    "wyoming",
+    "http",
+    "esphome-api"
+  ],
+  "license": {
+    "spdx": "Apache-2.0",
+    "commercial": "yes",
+    "notes": "Se conserva el aviso de licencia. El nombre se usa como «basado en», no como marca propia."
+  },
+  "needs": {
+    "ram_gb": 2,
+    "cpu_cores": 2,
+    "gpu": "none"
+  },
+  "docs": "https://www.home-assistant.io/"
+}

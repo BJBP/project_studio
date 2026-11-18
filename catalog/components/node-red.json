@@ -1,0 +1,26 @@
+{
+  "id": "node-red",
+  "name": "Node-RED",
+  "kind": "software",
+  "slots": [
+    "hub",
+    "flows"
+  ],
+  "protocols": [
+    "mqtt",
+    "http",
+    "modbus",
+    "opc-ua"
+  ],
+  "license": {
+    "spdx": "Apache-2.0",
+    "commercial": "yes",
+    "notes": "Se conserva el aviso de licencia."
+  },
+  "needs": {
+    "ram_gb": 0.5,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://nodered.org/"
+}

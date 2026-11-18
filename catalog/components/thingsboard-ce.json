@@ -1,0 +1,24 @@
+{
+  "id": "thingsboard-ce",
+  "name": "ThingsBoard CE",
+  "kind": "software",
+  "slots": [
+    "hub",
+    "dashboard"
+  ],
+  "protocols": [
+    "mqtt",
+    "http"
+  ],
+  "license": {
+    "spdx": "Apache-2.0",
+    "commercial": "yes",
+    "notes": "Edición comunitaria; la edición profesional es de pago."
+  },
+  "needs": {
+    "ram_gb": 4,
+    "cpu_cores": 2,
+    "gpu": "none"
+  },
+  "docs": "https://thingsboard.io/"
+}

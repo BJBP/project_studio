@@ -1,0 +1,12 @@
+{
+  "id": "psu-12v",
+  "name": "Fuente 12 V 2 A",
+  "kind": "hardware",
+  "slots": [
+    "power"
+  ],
+  "protocols": [
+    "power"
+  ],
+  "spec": "Fuente de 12 V y 2 A con salida a bornera."
+}

@@ -1,0 +1,22 @@
+{
+  "id": "piper",
+  "name": "Piper",
+  "kind": "software",
+  "slots": [
+    "tts"
+  ],
+  "protocols": [
+    "wyoming"
+  ],
+  "license": {
+    "spdx": "GPL-3.0",
+    "commercial": "conditions",
+    "notes": "Al entregarlo se entrega su código. Cada voz tiene su propia licencia: revisarla."
+  },
+  "needs": {
+    "ram_gb": 0.5,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://github.com/OHF-Voice/piper1-gpl"
+}

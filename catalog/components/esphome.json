@@ -1,0 +1,23 @@
+{
+  "id": "esphome",
+  "name": "ESPHome",
+  "kind": "software",
+  "slots": [
+    "firmware"
+  ],
+  "protocols": [
+    "esphome-api",
+    "mqtt"
+  ],
+  "license": {
+    "spdx": "GPL-3.0",
+    "commercial": "conditions",
+    "notes": "Firmware GPLv3: al entregar el aparato se entrega su código."
+  },
+  "needs": {
+    "ram_gb": 0,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://esphome.io/"
+}

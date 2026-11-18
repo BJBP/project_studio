@@ -1,0 +1,23 @@
+{
+  "id": "frigate",
+  "name": "Frigate",
+  "kind": "software",
+  "slots": [
+    "video"
+  ],
+  "protocols": [
+    "rtsp",
+    "mqtt"
+  ],
+  "license": {
+    "spdx": "MIT",
+    "commercial": "yes",
+    "notes": "Detección de personas en video, en local."
+  },
+  "needs": {
+    "ram_gb": 2,
+    "cpu_cores": 2,
+    "gpu": "optional"
+  },
+  "docs": "https://frigate.video/"
+}

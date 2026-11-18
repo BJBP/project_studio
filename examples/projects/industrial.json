@@ -1,0 +1,160 @@
+{
+  "id": "industrial",
+  "name": "Monitoreo industrial",
+  "icon": "🏭",
+  "sector": "Industria",
+  "status": "simulated",
+  "summary": "Sensores Modbus con historial y paneles, sin licencias por puesto.",
+  "slots": {
+    "sensor": {
+      "component": "modbus-sensor",
+      "pos": [
+        0,
+        1
+      ]
+    },
+    "flows": {
+      "component": "node-red",
+      "pos": [
+        1,
+        1
+      ]
+    },
+    "broker": {
+      "component": "mosquitto",
+      "pos": [
+        2,
+        0
+      ]
+    },
+    "historian": {
+      "component": "influxdb",
+      "pos": [
+        2,
+        2
+      ]
+    },
+    "dashboard": {
+      "component": "grafana",
+      "pos": [
+        3,
+        2
+      ]
+    }
+  },
+  "connections": [
+    {
+      "from": "sensor",
+      "to": "flows",
+      "protocol": "modbus"
+    },
+    {
+      "from": "flows",
+      "to": "broker",
+      "protocol": "mqtt"
+    },
+    {
+      "from": "flows",
+      "to": "historian",
+      "protocol": "http"
+    },
+    {
+      "from": "historian",
+      "to": "dashboard",
+      "protocol": "http"
+    }
+  ],
+  "hardware": [
+    {
+      "part": "modbus-sensor",
+      "qty": 4
+    },
+    {
+      "part": "mini-pc",
+      "qty": 1
+    }
+  ],
+  "equipment": [
+    "laptop-demo",
+    "mini-pc"
+  ],
+  "stages": [
+    {
+      "id": "comprar",
+      "name": "Comprar",
+      "source": "hardware"
+    },
+    {
+      "id": "armar",
+      "name": "Armar",
+      "items": [
+        {
+          "id": "cableado",
+          "text": "Cablear el bus RS-485"
+        }
+      ]
+    },
+    {
+      "id": "probar",
+      "name": "Probar",
+      "items": [
+        {
+          "id": "lectura",
+          "text": "Pruébalo: llegan lecturas cada minuto"
+        }
+      ]
+    },
+    {
+      "id": "instalar",
+      "name": "Instalar",
+      "items": [
+        {
+          "id": "equipo",
+          "text": "Preparar el equipo del cliente (Docker y el stack)"
+        },
+        {
+          "id": "red",
+          "text": "Conectar a la red del cliente y probar sin internet"
+        },
+        {
+          "id": "copia",
+          "text": "Programar la copia de seguridad"
+        }
+      ]
+    },
+    {
+      "id": "entregar",
+      "name": "Entregar",
+      "items": [
+        {
+          "id": "licencias",
+          "text": "Entregar licencias.md y THIRD_PARTY_NOTICES.md",
+          "download": "licenses"
+        },
+        {
+          "id": "manual",
+          "text": "Entregar el manual de uso"
+        },
+        {
+          "id": "codigo",
+          "text": "Entregar el código del firmware (GPL)"
+        }
+      ]
+    },
+    {
+      "id": "soporte",
+      "name": "Soporte",
+      "items": [
+        {
+          "id": "actualizar",
+          "text": "Revisar actualizaciones cada mes"
+        },
+        {
+          "id": "visita",
+          "text": "Visita de revisión a los 3 meses"
+        }
+      ]
+    }
+  ],
+  "links": {}
+}

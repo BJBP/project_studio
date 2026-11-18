@@ -1,0 +1,13 @@
+{
+  "id": "ip-camera",
+  "name": "Cámara IP con RTSP",
+  "kind": "hardware",
+  "slots": [
+    "camera"
+  ],
+  "protocols": [
+    "rtsp",
+    "sip"
+  ],
+  "spec": "Cámara IP con flujo RTSP y, para portero, SIP."
+}

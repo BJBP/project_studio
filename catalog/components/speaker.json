@@ -1,0 +1,12 @@
+{
+  "id": "speaker",
+  "name": "Parlante 4–8 Ω 3 W",
+  "kind": "hardware",
+  "slots": [
+    "speaker"
+  ],
+  "protocols": [
+    "analog"
+  ],
+  "spec": "Parlante pequeño de 4 a 8 ohmios, 3 W."
+}
