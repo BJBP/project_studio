@@ -8,6 +8,8 @@ substitutions:
 
 packages:
   base: !include packages/base.yaml
+  wifi: !include packages/wifi.yaml
+  psram: !include packages/psram.yaml
   oled: !include packages/oled.yaml
   relay: !include packages/relay.yaml
   buzzer: !include packages/buzzer.yaml

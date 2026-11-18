@@ -29,7 +29,7 @@
 - Fase 4: el panel de ESPHome guarda su estado (`.device-builder*`) dentro de `firmware/esphome/`; está ignorado por git, pero mejor montarlo en la carpeta de datos.
 - Fase 5: revisar los nombres de columna de `inventree_partes.csv` y `odoo_productos.csv` importándolos en una instancia real.
 - Fase 5: modos de videoportero e industrial probados de uno en uno («Portero», «Sobretemperatura»); faltan «Visita detectada» y «Vibración alta» en el navegador.
-- Fase 4: la primera compilación tarda más de 1 h porque `.esphome/` (ESP-IDF y la compilación) está en una carpeta de Windows montada en Docker; usar un volumen de Docker para `.esphome/`.
+- Fase 4: `build_firmware.py` ya compila en un volumen de Docker (unos 5 min); el panel de ESPHome (OTA) sigue usando la carpeta de Windows.
 - Fase 4b (mini PC): paquete de instalación para Linux y copias de seguridad, cuando se compre.
 - `web/engines/blocks/block-manager.js` tiene 500 líneas: dividir en cabecera de bloque, formulario de opciones, arrastrar/teclado y barra.
 - Probar el motor de bloques en modo claro y en pantalla de móvil.
@@ -43,3 +43,4 @@
 - Palabra propia: borrar una palabra importada desde la página (hoy se borran sus dos archivos de `project_studio_data/wake_words/`).
 - Palabra propia en Docker del Estudio: el contenedor no puede reiniciar el detector; avisa de reiniciar el stack de voz.
 - La palabra del ESP32 real va en `firmware/esphome/packages/voice.yaml`: cambiarla desde el Estudio y volver a compilar.
+- Simulador del ESP32: decidir entre simular con el ESP32 clásico o esperar a ESPHome (`docs/planes/simulador_esp32.md`). Hoy `build_firmware.py --sim` genera la variante S3, que no compila.
