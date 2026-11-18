@@ -1,7 +1,7 @@
 # Project Studio — guía para agentes
 
 Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial). Plan completo y estado:
-`docs/planes/estudio_proyectos.md`. Pendientes: `docs/backlog.md`. Fases 1 y 2 hechas (demo de voz y Estudio completo).
+`docs/planes/estudio_proyectos.md`. Pendientes: `docs/backlog.md`. Fases 1 a 5 hechas; la 4b espera a la mini PC.
 
 ## Flujo de trabajo
 1. Arrancar el stack: `docker compose -f stack/domotica-voz/docker-compose.yml up -d`.
