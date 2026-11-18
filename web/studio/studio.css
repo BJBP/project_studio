@@ -1,0 +1,87 @@
+/* Studio screens: home cards, project tabs, diagram, tables. Colors come from the shared page and blocks tokens. */
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--page-bg); color: var(--page-text); font-family: system-ui, sans-serif; }
+.studio-brand { display: grid; text-decoration: none; color: inherit; }
+.studio-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.studio-main { max-width: 1400px; margin: 0 auto; padding: 16px; }
+.studio-main:focus { outline: none; }
+.studio-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.studio-heading h1 { font-size: 1.4rem; margin: 8px 0; }
+.studio-error { color: var(--page-down); }
+.studio-empty { color: var(--page-text-muted); padding: 24px 0; }
+
+.studio-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
+.studio-card {
+  display: grid; gap: 6px; padding: 16px; border-radius: var(--page-radius); background: var(--page-surface);
+  border: 1px solid var(--page-border); box-shadow: var(--page-shadow); color: inherit; text-decoration: none;
+}
+.studio-card:hover, .studio-card:focus-visible { border-color: var(--page-accent); outline: none; }
+.studio-card-icon { font-size: 2rem; }
+.studio-card-name { font-size: 1.1rem; }
+.studio-card-summary, .studio-card-meta { color: var(--page-text-muted); font-size: 0.9rem; }
+.studio-badge { justify-self: start; font-size: 0.8rem; padding: 2px 10px; border-radius: 999px; background: var(--page-surface-alt); }
+.status-works { background: var(--page-ok-bg); color: var(--page-ok); }
+.status-simulated { background: var(--page-warning-bg); color: var(--page-warning-text); }
+.lic-ok { color: var(--page-ok); }
+.lic-warn { color: var(--page-warning-text); }
+.lic-error { color: var(--page-down); }
+.studio-progress { display: block; height: 6px; border-radius: 3px; background: var(--page-surface-alt); overflow: hidden; }
+.studio-progress > span { display: block; height: 100%; background: var(--page-accent); }
+
+.studio-new { display: grid; gap: 6px; max-width: 420px; margin: 12px 0; padding: 12px; border-radius: var(--page-radius);
+  background: var(--page-surface); border: 1px solid var(--page-border); }
+
+.studio-tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--page-border); margin-bottom: 16px; }
+.studio-tab { padding: 10px 14px; color: var(--page-text-muted); text-decoration: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+.studio-tab[aria-selected="true"] { color: var(--page-text); border-bottom-color: var(--page-accent); font-weight: 600; }
+.studio-tab:focus-visible { outline: 2px solid var(--page-accent); }
+@media (min-width: 721px) {
+  .studio-board[data-columns="2"] .blocks-board { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+}
+
+.diagram { width: 100%; height: auto; max-height: 70vh; }
+.diagram-line line { stroke: var(--page-text-muted); stroke-width: 2; }
+.diagram-line.is-broken line { stroke: var(--page-down); stroke-dasharray: 6 5; }
+.diagram-label-bg { fill: var(--page-surface-alt); }
+.diagram-label { font-size: 11px; fill: var(--page-text); }
+.diagram-line.is-broken .diagram-label { fill: var(--page-down); }
+.diagram-node { cursor: pointer; }
+.diagram-node rect { fill: var(--page-surface); stroke: var(--page-border); stroke-width: 1.5; }
+.diagram-node.has-problem rect { stroke: var(--page-down); stroke-width: 2.5; }
+.diagram-node.is-selected rect { stroke: var(--page-accent); stroke-width: 3; }
+.diagram-node:focus-visible { outline: none; }
+.diagram-node:focus-visible rect { stroke: var(--blocks-focus); stroke-width: 4; }
+.diagram-slot { font-size: 12px; fill: var(--page-text-muted); }
+.diagram-name { font-size: 15px; font-weight: 600; fill: var(--page-text); }
+
+.slot-title { font-weight: 600; margin: 0 0 8px; }
+.slot-license { font-weight: 600; }
+.slot-issues { padding-left: 18px; color: var(--page-down); }
+
+.flow-stages { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.flow-stage { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--page-border); background: var(--page-surface-alt); color: inherit; cursor: pointer; font: inherit; }
+.flow-stage[aria-selected="true"] { border-color: var(--page-accent); font-weight: 600; }
+.flow-stage[data-state="done"] { background: var(--page-ok-bg); color: var(--page-ok); }
+.flow-items { list-style: none; padding: 0; display: grid; gap: 8px; }
+.flow-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.flow-item input { width: 20px; height: 20px; }
+.flow-open { margin-left: auto; }
+
+.studio-table-wrap { max-height: 60vh; overflow: auto; }
+.studio-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.studio-table th { position: sticky; top: 0; background: var(--page-surface-alt); text-align: left; }
+.studio-table th, .studio-table td { padding: 6px 8px; border-bottom: 1px solid var(--page-border); vertical-align: top; }
+.studio-table .num { text-align: right; white-space: nowrap; }
+.shop-head, .shop-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.shop-units { width: 90px; }
+
+.equipment-list { display: grid; gap: 12px; }
+.equipment-card { padding: 12px; border: 1px solid var(--page-border); border-radius: var(--page-radius); }
+.equipment-card h3 { margin: 0 0 4px; font-size: 1rem; }
+.equipment-items { padding-left: 18px; font-size: 0.9rem; }
+
+.studio-demo-frame { width: 100%; border: 0; border-radius: 8px; background: var(--page-bg); }
+
+@media print {
+  .app-header, .studio-tabs, .blocks-toolbar, .blocks-block-header, .shop-actions, .tour-bar { display: none !important; }
+}

@@ -14,6 +14,10 @@
 - IA en la nube: botón para quitar una clave (hoy hay que borrarla de `ai_keys.json` y de Home Assistant).
 - IA en la nube: elegir sola la IA según la pregunta (local para lo simple, nube para lo difícil). Home Assistant no lo trae hecho.
 - Si la IA de la nube falla con una orden de voz, la orden no se repite con la local: solo la siguiente usa la local.
-- Fases 2–5 del plan.
+- Compras: buscar 2–3 mini PC candidatas y completar precios en `project_studio_data/catalog/models.json` (no se inventan).
+- Presentación: exportarla como video.
+- El diagrama ocupa poco en pantallas estrechas: probar en móvil y, si hace falta, hacer zoom y desplazamiento.
+- Recorrido de la Ayuda: probado solo el motor (la Presentación); revisar sus escenas una a una.
+- Fases 3–5 del plan.
 - `web/engines/blocks/block-manager.js` tiene 500 líneas: dividir en cabecera de bloque, formulario de opciones, arrastrar/teclado y barra.
 - Probar el motor de bloques en modo claro y en pantalla de móvil.

@@ -1,0 +1,13 @@
+{
+  "_help": "Recorrido de la Ayuda: enseña dónde está cada cosa sobre la propia pantalla. Mismo formato que jefe.json.",
+  "scenes": [
+    { "route": "#/", "highlight": ".studio-cards", "text": "Aquí están tus proyectos. Abre uno con un clic." },
+    { "route": "#/", "highlight": "#btn-new", "text": "Con «+ Nuevo» copias un ejemplo para un cliente, con otro nombre." },
+    { "route": "#/p/domotica-voz/arquitectura", "highlight": ".studio-tabs", "text": "Cada proyecto tiene pestañas: arquitectura, flujo, compras, licencias, equipos y la demo." },
+    { "route": "#/p/domotica-voz/arquitectura", "highlight": ".diagram", "action": { "type": "select", "slot": "llm" },
+      "text": "Toca una caja del diagrama para ver su pieza." },
+    { "route": "#/p/domotica-voz/arquitectura", "highlight": "#slot-select", "text": "Aquí eliges otra pieza. Si algo deja de encajar, sale el aviso; «Restablecer» deja la original." },
+    { "route": "#/p/domotica-voz/arquitectura", "highlight": ".blocks-toolbar", "text": "Los bloques se mueven, se ocultan y se añaden desde aquí. Cada uno tiene sus ajustes en el engranaje." },
+    { "route": "#/", "highlight": "#btn-present", "text": "Y con «Presentación», el Estudio se presenta solo. Pulsa Escape para salir de cualquier recorrido." }
+  ]
+}

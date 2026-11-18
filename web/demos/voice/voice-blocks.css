@@ -141,3 +141,6 @@
 .brain-key-message[data-state="error"] { color: var(--blocks-danger); }
 .brain-key-help { font-size: 0.8rem; color: var(--blocks-accent); }
 .talk-brain { margin: 0 0 6px; font-size: 0.8rem; color: var(--blocks-text-muted); }
+
+/* Inside the Studio the page header is the Studio's own. */
+.is-embedded .app-header { display: none; }

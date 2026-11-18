@@ -1,0 +1,24 @@
+{
+  "_help": "Guion de la presentación automática. Cada escena: route (pantalla), text (lo que se dice), highlight (qué se resalta), action (qué se hace de verdad), pause_ms (espera al final).",
+  "scenes": [
+    { "route": "#/", "highlight": ".studio-cards",
+      "text": "Este es el Estudio. Cada tarjeta es un proyecto armado solo con piezas abiertas: domótica con voz, videoportero e industria." },
+    { "route": "#/p/domotica-voz/arquitectura", "highlight": ".diagram",
+      "text": "Así está hecho el asistente de voz. Cada caja es una pieza que se puede cambiar, y cada línea dice cómo se comunican." },
+    { "route": "#/p/domotica-voz/arquitectura", "highlight": "[data-slot='hub']",
+      "action": { "type": "swap", "project": "domotica-voz", "slot": "hub", "component": "openhab" },
+      "text": "No estamos atados a nadie. Ahora cambio el centro de control por openHAB.", "pause_ms": 1500 },
+    { "route": "#/p/domotica-voz/arquitectura", "highlight": ".slot-issues",
+      "action": { "type": "reset", "project": "domotica-voz", "slot": "hub" },
+      "text": "El Estudio avisa al momento qué deja de funcionar: openHAB no habla el protocolo de voz. Vuelvo a Home Assistant y todo encaja otra vez." },
+    { "route": "#/p/domotica-voz/demo", "highlight": ".studio-demo-frame",
+      "action": { "type": "order", "text": "enciende el foco" },
+      "text": "Y funciona de verdad, en esta laptop y sin internet. Le pido que encienda el foco.", "pause_ms": 9000 },
+    { "route": "#/p/domotica-voz/licencias", "highlight": ".studio-table",
+      "text": "Cada pieza tiene su licencia. Todas permiten vender la instalación; solo hay que entregar el código del firmware y de la voz." },
+    { "route": "#/p/domotica-voz/compras", "highlight": ".studio-table",
+      "text": "La lista de compras sale sola para las instalaciones que necesitemos, lista para hacer el pedido de una vez." },
+    { "route": "#/p/domotica-voz/flujo", "highlight": ".flow-stages",
+      "text": "Y el flujo completo, de comprar a entregar y dar soporte, con su lista en cada etapa. Sin cuotas por cliente y sin depender de Alexa." }
+  ]
+}

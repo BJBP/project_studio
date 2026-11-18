@@ -13,6 +13,6 @@ docker info >/dev/null 2>&1 || { echo "[E_DOCKER_DOWN] Arranca Docker y repite."
 docker compose -f "$STACK/docker-compose.yml" --env-file "$STACK/.env" up -d
 ollama list | grep -q "^${OLLAMA_MODEL}" || ollama pull "$OLLAMA_MODEL"
 uv run "$STACK/setup/setup_ha.py"
-URL="http://127.0.0.1:${STUDIO_PORT}/demos/voice/"
+URL="http://127.0.0.1:${STUDIO_PORT}/studio/"
 (command -v xdg-open >/dev/null && xdg-open "$URL" || open "$URL") >/dev/null 2>&1 &
 uv run --no-project python serve.py --port "$STUDIO_PORT"

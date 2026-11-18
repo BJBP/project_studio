@@ -128,6 +128,20 @@ async function main() {
   }
 
   window.addEventListener('beforeunload', () => virtualDevice?.stop());
+  listenToStudio(live, session);
+}
+
+// Inside the Studio (?embed): no page header, and the guided tour can give orders like a person typing.
+function listenToStudio(live, session) {
+  if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('is-embedded');
+  window.addEventListener('message', (event) => {
+    if (event.origin !== location.origin || event.data?.type !== 'studio-order') return;
+    const text = String(event.data.text ?? '').trim();
+    if (!text) return;
+    live.addMessage('user', text);
+    session.sendText(text);
+  });
+  window.studioDemoReady = true;
 }
 
 function nameEntities(assist, catalog) {

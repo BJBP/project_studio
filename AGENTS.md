@@ -1,14 +1,19 @@
 # Project Studio — guía para agentes
 
 Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial). Plan completo y estado:
-`docs/planes/estudio_proyectos.md`. Pendientes: `docs/backlog.md`. Fase actual: **1, demo de voz**.
+`docs/planes/estudio_proyectos.md`. Pendientes: `docs/backlog.md`. Fases 1 y 2 hechas (demo de voz y Estudio completo).
 
 ## Flujo de trabajo
 1. Arrancar el stack: `docker compose -f stack/domotica-voz/docker-compose.yml up -d`.
 2. Configurar Home Assistant (solo la primera vez): `uv run stack/domotica-voz/setup/setup_ha.py`.
    Devuelve `OK: ...` o `<CÓDIGO>: qué hacer`. El token queda en `~/.agents/secrets/project_studio/ha.json`
    (fuera del repo; un agente delegado no lo lee).
-3. Abrir el Estudio: `iniciar_estudio.bat` (Windows) o `iniciar_estudio.sh`.
+3. Abrir el Estudio: `iniciar_estudio.bat` (Windows) o `iniciar_estudio.sh`. Con Docker: `docker compose up -d`.
+4. Revisar un proyecto: `uv run --no-project python -m studio check <carpeta de datos> domotica-voz`
+   → `OK: ...` o una línea `<CÓDIGO>: mensaje` por problema (salida 1 si hay errores `E_`).
+   Exportar documentos: `... -m studio export <datos> <proyecto> <carpeta de salida>`.
+5. Añadir una pieza = un JSON en `catalog/components/`; un proyecto = un JSON en `examples/projects/`.
+   La carpeta de datos (`STUDIO_DATA`, por defecto `../project_studio_data`) guarda proyectos, avance y marcas.
 
 ## Mapa del código
 | Zona | Archivos |
@@ -20,6 +25,11 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 | Tutorial 3D (copia del original) | `web/tutorials/circuito_3d/index.html` |
 | Motor de bloques | `web/engines/blocks/` |
 | Demo de voz (capas) | `web/demos/voice/js/{domain,application,infrastructure,presentation}/` |
+| Estudio: reglas y casos de uso (Python, cebolla) | `studio/{domain,application,infrastructure,presentation}/` |
+| Catálogo de piezas y equipos (repo, neutro) | `catalog/components/*.json`, `catalog/equipment/*.json` |
+| Proyectos de ejemplo | `examples/projects/*.json` (se copian a la carpeta de datos la primera vez) |
+| Pantallas del Estudio | `web/studio/` (Inicio, pestañas, bloques en `js/blocks/`), recorridos en `presentations/*.json` |
+| Motores comunes | `web/engines/blocks/` (bloques), `web/engines/tour/` (Ayuda y Presentación), `web/shared/` |
 | Pruebas | `tests/`: `node --test tests/*/*.test.mjs`; `uv run --no-project --with pytest pytest tests/server -q`; e2e en `tests/e2e/` |
 
 ## Códigos de error de setup_ha.py

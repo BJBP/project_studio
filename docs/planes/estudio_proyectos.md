@@ -301,4 +301,8 @@ Pendiente de cada fase → `docs/backlog.md`; administrador de bandas movibles e
   Node, `tests/e2e/voice_pipeline.py` y `tests/e2e/device_control.py`. Lo que falta está en `docs/backlog.md`.
 - Decisiones tomadas durante la fase: las órdenes simples las resuelve Home Assistant sin IA (más rápido y fiable
   con un modelo de 4B); cada aparato recibe su nombre corto como alias; el Estudio reenvía el audio de la respuesta.
-- Siguiente: fase 2 (Estudio completo), se muestra antes de empezar.
+- **Fase 2 (Estudio completo): hecha el 2026-11-18.** Inicio con 3 proyectos, pestañas Arquitectura (cambiar pieza
+  con avisos), Flujo, Compras (marcas en la carpeta de datos, precios «a completar»), Licencias (descargas),
+  Equipos (laptop y mini PC como perfil) y Demo; `python -m studio list|check|export`; Ayuda y «▶ Presentación»
+  con el mismo motor de recorridos; Docker del Estudio (`docker compose up -d`). Cambio frente al plan: sin
+  FastAPI; la API va en `serve.py` (biblioteca estándar) para no añadir dependencias.
