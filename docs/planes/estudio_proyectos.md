@@ -316,7 +316,7 @@ Pendiente de cada fase → `docs/backlog.md`; administrador de bandas movibles e
   (`firmware/esphome/packages/`: base, OLED, relés, buzzer, voz con «okay nabu»), `firmware/build_firmware.py`
   (compila en Docker y publica `web/firmware/<aparato>/`), pestaña «Aparatos» (⚙ Compilar, ⚡ Instalar por USB con
   Wi-Fi por Improv, ✅ Probar, ↻ OTA en el panel de ESPHome, puerto 6052) y 3 pasos nuevos con «✅ Pruébalo» en el
-  tutorial 3D (16 pasos). Comprobado: `esphome config` sin errores, pestaña y tutorial en el navegador. Falta el
+  tutorial 3D (16 pasos). Comprobado: `esphome compile` correcto (firmware de 1,25 MB publicado), botón «Instalar por USB» visible, tutorial en el navegador. Falta el
   flasheo y la voz en el ESP32 real (necesita el USB): backlog.
 - **Fase 4b (mini PC): espera a que se compre.**
 - **Fase 5 (videoportero e industrial): hecha el 2026-11-18.** La demo de voz abre cualquier catálogo
