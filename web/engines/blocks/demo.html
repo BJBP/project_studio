@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Motor de bloques — demo</title>
+  <link rel="stylesheet" href="blocks.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--blocks-bg); }
+    .demo-header { padding: 16px 16px 0; }
+    .demo-header h1 { font-size: 1.2rem; margin: 0 0 4px; }
+    .demo-header p { margin: 0; color: #5b6572; font-size: 0.9rem; }
+    .demo-output { font-size: 2rem; font-weight: 700; margin: 8px 0; }
+    .demo-note { color: #2563eb; font-size: 0.85rem; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+  <header class="demo-header">
+    <h1>Motor de bloques</h1>
+    <p>Demo de prueba. Arrastra los bloques por el asa ⠿, ábreles las opciones con ⚙ y escóndelos con ✕.</p>
+  </header>
+  <main id="app"></main>
+
+  <script type="module">
+    import { mountBlocks } from './block-manager.js';
+    import { createStorage } from './storage.js';
+
+    const t = {
+      addBlock: '+ Añadir bloque',
+      reset: '⟲ Restablecer',
+      resetConfirm: '¿Restablecer la disposición por defecto?',
+      hideBlock: 'Ocultar bloque',
+      showOptions: 'Opciones del bloque',
+      dragHandle: 'Arrastrar bloque',
+      emptyColumn: 'Arrastra un bloque aquí',
+      noHiddenBlocks: 'No hay bloques ocultos',
+      noOptions: 'Este bloque no tiene opciones.',
+      optionInvalid: 'Valor no válido.',
+    };
+
+    const themeLabels = { auto: 'Automático', light: 'Claro', dark: 'Oscuro' };
+
+    const blocks = [
+      {
+        id: 'notes',
+        title: 'Notas',
+        icon: '📝',
+        defaultVisible: true,
+        defaultColumn: 'main',
+        optionsSchema: [
+          { key: 'showHint', label: 'Mostrar ayuda', type: 'boolean', default: true },
+        ],
+        render(container, options) {
+          const text = document.createElement('p');
+          text.textContent = 'Notas de ejemplo para probar el motor de bloques.';
+          container.append(text);
+          if (options.showHint) {
+            const hint = document.createElement('p');
+            hint.className = 'demo-note';
+            hint.textContent = 'La opción «Mostrar ayuda» está activada.';
+            container.append(hint);
+          }
+        },
+      },
+      {
+        id: 'counter',
+        title: 'Contador',
+        icon: '🔢',
+        defaultVisible: true,
+        defaultColumn: 'main',
+        optionsSchema: [
+          { key: 'step', label: 'Paso', type: 'number', default: 1, min: 1, max: 10 },
+        ],
+        render(container, options) {
+          let value = 0;
+          const step = Number(options.step) || 1;
+          const output = document.createElement('p');
+          output.className = 'demo-output';
+          output.textContent = '0';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'blocks-button';
+          button.textContent = `Sumar ${step}`;
+          button.addEventListener('click', () => {
+            value += step;
+            output.textContent = String(value);
+          });
+          container.append(output, button);
+        },
+      },
+      {
+        id: 'mode',
+        title: 'Modo',
+        icon: '🎚️',
+        defaultVisible: true,
+        defaultColumn: 'side',
+        optionsSchema: [
+          {
+            key: 'theme',
+            label: 'Tema',
+            type: 'select',
+            default: 'auto',
+            choices: [
+              { value: 'auto', label: 'Automático' },
+              { value: 'light', label: 'Claro' },
+              { value: 'dark', label: 'Oscuro' },
+            ],
+          },
+        ],
+        render(container, options) {
+          const text = document.createElement('p');
+          text.textContent = `Tema seleccionado: ${themeLabels[options.theme] ?? options.theme}`;
+          container.append(text);
+        },
+      },
+    ];
+
+    const columns = [
+      { id: 'main', title: 'Principal' },
+      { id: 'side', title: 'Lateral' },
+    ];
+
+    mountBlocks(document.getElementById('app'), {
+      blocks,
+      columns,
+      storage: createStorage('blocks.demo'),
+      t,
+    });
+  </script>
+</body>
+</html>

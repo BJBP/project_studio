@@ -1,0 +1,289 @@
+/* Blocks engine — layout styles. Theme via CSS variables; dark mode follows the OS. */
+
+:root {
+  --blocks-bg: #f4f5f7;
+  --blocks-surface: #ffffff;
+  --blocks-surface-alt: #eceef1;
+  --blocks-text: #1c2430;
+  --blocks-text-muted: #5b6572;
+  --blocks-border: #d5dae0;
+  --blocks-accent: #2563eb;
+  --blocks-accent-contrast: #ffffff;
+  --blocks-danger: #b91c1c;
+  --blocks-focus: #2563eb;
+  --blocks-shadow: 0 1px 3px rgb(16 24 40 / 0.12);
+  --blocks-radius: 10px;
+  --blocks-gap: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --blocks-bg: #14181f;
+    --blocks-surface: #1e242e;
+    --blocks-surface-alt: #272e3a;
+    --blocks-text: #e6e9ee;
+    --blocks-text-muted: #9aa5b3;
+    --blocks-border: #333c4a;
+    --blocks-accent: #60a5fa;
+    --blocks-accent-contrast: #0b1220;
+    --blocks-danger: #f87171;
+    --blocks-focus: #93c5fd;
+    --blocks-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+  }
+}
+
+.blocks-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--blocks-gap);
+  padding: var(--blocks-gap);
+  background: var(--blocks-bg);
+  color: var(--blocks-text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Top bar */
+.blocks-toolbar {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.blocks-button {
+  border: 1px solid var(--blocks-border);
+  border-radius: var(--blocks-radius);
+  background: var(--blocks-accent);
+  color: var(--blocks-accent-contrast);
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.blocks-button-secondary {
+  background: var(--blocks-surface);
+  color: var(--blocks-text);
+}
+
+.blocks-button:hover { filter: brightness(1.08); }
+
+.blocks-button:focus-visible,
+.blocks-icon-button:focus-visible,
+.blocks-drag-handle:focus-visible,
+.blocks-add-item:focus-visible,
+.blocks-option-input:focus-visible {
+  outline: 2px solid var(--blocks-focus);
+  outline-offset: 2px;
+}
+
+/* Add-block menu */
+.blocks-add-wrapper { position: relative; }
+
+.blocks-add-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  min-width: 220px;
+  background: var(--blocks-surface);
+  border: 1px solid var(--blocks-border);
+  border-radius: var(--blocks-radius);
+  box-shadow: var(--blocks-shadow);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.blocks-add-menu[hidden] { display: none; }
+
+.blocks-add-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--blocks-text);
+  padding: 8px 10px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.blocks-add-item:hover { background: var(--blocks-surface-alt); }
+
+.blocks-add-empty {
+  margin: 0;
+  padding: 8px 10px;
+  color: var(--blocks-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Board: one CSS grid, one column under 720px */
+.blocks-board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 1fr);
+  align-items: start;
+  gap: var(--blocks-gap);
+}
+
+@media (max-width: 720px) {
+  .blocks-board {
+    grid-auto-flow: row;
+    grid-auto-columns: 1fr;
+    grid-template-columns: 1fr;
+  }
+}
+
+.blocks-column {
+  min-width: 0;
+}
+
+.blocks-column-title {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blocks-text-muted);
+}
+
+.blocks-column-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--blocks-gap);
+  border: 1px dashed transparent;
+  border-radius: var(--blocks-radius);
+  padding: 4px;
+  min-height: 64px;
+}
+
+.blocks-column-list.is-drop-target {
+  border-color: var(--blocks-accent);
+  background: color-mix(in srgb, var(--blocks-accent) 8%, transparent);
+}
+
+.blocks-column-empty {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  color: var(--blocks-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Block card */
+.blocks-block {
+  background: var(--blocks-surface);
+  border: 1px solid var(--blocks-border);
+  border-radius: var(--blocks-radius);
+  box-shadow: var(--blocks-shadow);
+  overflow: hidden;
+}
+
+.blocks-block.is-dragging { opacity: 0.5; }
+
+.blocks-block-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--blocks-border);
+  background: var(--blocks-surface-alt);
+}
+
+.blocks-drag-handle {
+  border: 0;
+  background: transparent;
+  color: var(--blocks-text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.blocks-drag-handle:active { cursor: grabbing; }
+
+.blocks-block-icon { font-size: 1.1rem; }
+
+.blocks-block-title {
+  margin: 0;
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blocks-icon-button {
+  border: 0;
+  background: transparent;
+  color: var(--blocks-text-muted);
+  font-size: 1rem;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.blocks-icon-button:hover { background: var(--blocks-surface); color: var(--blocks-text); }
+
+.blocks-block-body { padding: 12px; }
+
+/* Options form */
+.blocks-options {
+  border-bottom: 1px solid var(--blocks-border);
+  padding: 10px 12px;
+  background: var(--blocks-surface);
+}
+
+.blocks-options-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.blocks-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.blocks-option-row-boolean { justify-content: flex-start; }
+
+.blocks-option-label { color: var(--blocks-text); }
+
+.blocks-option-input {
+  border: 1px solid var(--blocks-border);
+  border-radius: 6px;
+  background: var(--blocks-bg);
+  color: var(--blocks-text);
+  padding: 6px 8px;
+  font: inherit;
+  max-width: 180px;
+}
+
+.blocks-option-input[type="checkbox"] { max-width: none; }
+
+.blocks-options-error {
+  margin: 8px 0 0;
+  color: var(--blocks-danger);
+  font-size: 0.85rem;
+}
+
+.blocks-options-empty {
+  margin: 0;
+  color: var(--blocks-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Drag & drop indicator */
+.blocks-drop-indicator {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--blocks-accent);
+}
