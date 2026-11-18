@@ -1,4 +1,5 @@
-# Base of every Studio ESP32-S3 (16 MB flash, 8 MB PSRAM): Wi-Fi set over USB (Improv), Home Assistant API, OTA.
+# Base of every Studio ESP32-S3 (16 MB flash): name, chip, logs, Home Assistant API and OTA.
+# The network comes from wifi.yaml (real board) or qemu_net.yaml (simulator).
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
@@ -13,10 +14,6 @@ esp32:
   framework:
     type: esp-idf
 
-psram:
-  mode: octal
-  speed: 80MHz
-
 logger:
 
 api:
@@ -26,11 +23,3 @@ api:
 ota:
   - platform: esphome
     password: !secret ota_password
-
-# No Wi-Fi name in the firmware: it is typed once in the browser and sent over the USB cable (Improv Serial).
-wifi:
-  ap: {}
-
-captive_portal:
-
-improv_serial:

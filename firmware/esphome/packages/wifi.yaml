@@ -1,0 +1,8 @@
+# Real board only. No Wi-Fi name in the firmware: it is typed once in the browser and sent over the USB cable
+# (Improv Serial).
+wifi:
+  ap: {}
+
+captive_portal:
+
+improv_serial:

@@ -1,0 +1,3 @@
+# Simulator only: the network card QEMU emulates (OpenCores Ethernet). Replaces wifi.yaml in the simulated build.
+ethernet:
+  type: OPENETH

@@ -1,0 +1,4 @@
+# Real board only: the 8 MB PSRAM of the ESP32-S3-N16R8 (the simulator has none).
+psram:
+  mode: octal
+  speed: 80MHz
