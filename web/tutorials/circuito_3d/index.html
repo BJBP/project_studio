@@ -1489,6 +1489,7 @@
       {
         pill: 'Paso 3B · Micrófono INMP441', sub: '⚠️ ¡Solo 3.3V!',
         title: 'Colocar el Micrófono INMP441 y conectarlo',
+        tryIt: { see: 'Con el firmware instalado, di «Okay Nabu»: la pantalla muestra «Escuchando…».', fix: 'Revisa VDD a 3V3 (nunca 5V), L/R a GND, WS→4, SCK→5, SD→6.' },
         bullets: [
           '1️⃣ Encájalo cruzando el canal central: fila <code>d</code> (<code>L/R, WS, SCK</code>) y fila <code>g</code> (<code>SD, VDD, GND</code>) en cols <code>32–34</code>.',
           '2️⃣ <b>CRÍTICO:</b> <code>VDD</code> (<code>i33</code>) va al primer pin <code>3V3</code> del ESP32 (<code>i25</code>). <b>¡NUNCA a 5V!</b>',
@@ -1502,6 +1503,7 @@
       {
         pill: 'Paso 3C · MAX98357A + Parlante', sub: 'Salida de voz',
         title: 'Colocar el Amplificador y atornillar el Parlante',
+        tryIt: { see: 'Cuando el asistente responde, su voz sale por el parlante.', fix: 'Revisa DIN→17, BCLK→16, LRC→15, VIN a 5V y los dos cables del parlante bien atornillados.' },
         bullets: [
           '1️⃣ Presiona los 7 pines en fila <code>d</code> (cols <code>41–47</code>).',
           '2️⃣ Conecta <code>VIN</code> al <b>Rojo 5V</b>, <code>GND</code> al <b>Azul (−)</b>, <code>LRC→15</code>, <code>BCLK→16</code>, <code>DIN→17</code>. (<code>SD</code> y <code>GAIN</code> vacíos).',
@@ -1515,6 +1517,7 @@
       {
         pill: 'Paso 3D · Buzzer Activo', sub: 'Patita larga (+) vs corta (−)',
         title: 'Colocar el Buzzer Activo en la protoboard',
+        tryIt: { see: 'En Home Assistant o en el Estudio pulsa «Alarma»: suena un pitido corto.', fix: 'La patita larga (+) va al GPIO 2 y la corta al carril azul (GND).' },
         bullets: [
           '1️⃣ Busca la patita <b>más LARGA</b> (signo <code>+</code> arriba) en <code>g50</code>; la corta (<code>−</code>) en <code>g53</code>.',
           '2️⃣ Cable <b>M-H</b> amarillo: de <code>j50 (+)</code> al pin colgante <b>GPIO 2</b>.',
@@ -1528,6 +1531,7 @@
       {
         pill: 'Paso 3E · Pantalla OLED 0.96"', sub: 'Amarillo arriba / Azul abajo',
         title: 'Colocar tu Pantalla OLED I2C de 4 pines',
+        tryIt: { see: 'Al encender, la pantalla muestra «FOCO:OFF  FAN:OFF» y «Listo».', fix: 'Revisa SDA→8, SCL→9 y VCC a 3V3. Si sigue en negro, la dirección puede ser 0x3D en vez de 0x3C.' },
         bullets: [
           '1️⃣ Pincha los 4 pines de la OLED en fila <code>d</code> (cols <code>59, 60, 61, 62</code>). <b>Lee primero el orden impreso</b> en tu placa (aquí: <code>GND, VCC, SCL, SDA</code>).',
           '2️⃣ Conecta <code>GND</code> al <b>Carril Azul (−)</b>, y <code>VCC</code> al <b>segundo pin <code>3V3</code></b> del ESP32 (<code>h24</code>).',
@@ -1541,6 +1545,7 @@
       {
         pill: 'Paso 3F · Relé + Tronic 12V', sub: 'Socket Foquito + Cooler 8025HD',
         title: 'Conectar tu Relé al Cargador Tronic 12V, Foco y Ventilador',
+        tryIt: { see: 'Di «enciende el foco»: se oye el clic del relé y se prende el foco.', fix: 'Revisa IN→GPIO 1, el jumper en H y que los 12 V lleguen a COM.' },
         bullets: [
           '1️⃣ <b>Lado Verde (ESP32):</b> Capuchón rojo en <code>H</code>. Atornilla <code>DC+</code>→Rojo 5V, <code>DC−</code>→Azul (−), <code>IN</code>→<b>GPIO 1</b>.',
           '2️⃣ <b>Lado Azul (12V):</b> Cable rojo desde tornillo <code>(+)</code> del Jack hasta <b><code>COM</code></b>.',
@@ -1575,6 +1580,45 @@
         cam3D:  { theta: 0.40, phi: 0.86, radius: 27.5, target: new THREE.Vector3(1.5, 1.2, -1.5) },
         camIso: { theta: 0.16, phi: 0.44, size: 11.8, target: new THREE.Vector3(1.6, 0.5, -1.5) },
         visualHtml: 'TEST_PANEL'
+      },
+      {
+        pill: 'Paso 5 · Firmware', sub: 'Sin programas aparte',
+        title: 'Instalar ESPHome desde el Estudio',
+        bullets: [
+          '1️⃣ Abre el Estudio → proyecto <b>Domótica con voz</b> → pestaña <b>Aparatos</b>.',
+          '2️⃣ Conecta el USB-C al puerto <code>UART</code> y pulsa <b>⚡ Instalar</b>. Elige el puerto en la ventana del navegador.',
+          '3️⃣ Al terminar, escribe el nombre y la clave de tu Wi-Fi en la misma ventana. Se envían por cable (Improv), no por internet.'
+        ],
+        alertType: 'ok', alertText: '✅ Usa Chrome o Edge: son los navegadores que pueden hablar con el USB.',
+        cam3D:  { theta: 0.40, phi: 0.86, radius: 27.5, target: new THREE.Vector3(1.5, 1.2, -1.5) },
+        camIso: { theta: 0.16, phi: 0.44, size: 11.8, target: new THREE.Vector3(1.6, 0.5, -1.5) },
+        visualHtml: ''
+      },
+      {
+        pill: 'Paso 6 · Home Assistant', sub: 'Aparece solo',
+        title: 'Conectar el ESP32 a Home Assistant',
+        bullets: [
+          '1️⃣ Abre Home Assistant → Ajustes → Dispositivos. Aparece <b>Circuito maestro</b> como descubierto.',
+          '2️⃣ Pulsa <b>Configurar</b> y asígnalo al área <b>Taller</b>.',
+          '3️⃣ Sus aparatos tienen los mismos nombres que en la simulación: las frases y los modos siguen funcionando.'
+        ],
+        alertType: 'ok', alertText: '✅ Las siguientes actualizaciones van por Wi-Fi (OTA) desde el panel de ESPHome.',
+        cam3D:  { theta: 0.40, phi: 0.86, radius: 27.5, target: new THREE.Vector3(1.5, 1.2, -1.5) },
+        camIso: { theta: 0.16, phi: 0.44, size: 11.8, target: new THREE.Vector3(1.6, 0.5, -1.5) },
+        visualHtml: ''
+      },
+      {
+        pill: 'Paso 7 · Voz', sub: 'Tu asistente real',
+        title: 'Hablarle al circuito',
+        bullets: [
+          '1️⃣ Di <b>«Okay Nabu»</b> cerca del micrófono. La pantalla muestra «Escuchando…».',
+          '2️⃣ Di <b>«enciende el foco»</b>. Se oye el clic del relé y el asistente responde por el parlante.',
+          '3️⃣ Prueba los modos desde el Estudio (bloque Modos): seguridad, salud, intercomunicador y acústico.'
+        ],
+        alertType: 'ok', alertText: '🎉 Todo corre en tu laptop o en la mini PC, sin nube ni Alexa.',
+        cam3D:  { theta: 0.40, phi: 0.86, radius: 27.5, target: new THREE.Vector3(1.5, 1.2, -1.5) },
+        camIso: { theta: 0.16, phi: 0.44, size: 11.8, target: new THREE.Vector3(1.6, 0.5, -1.5) },
+        visualHtml: ''
       }
     ];
 
@@ -1849,6 +1893,11 @@
         const style = s.alertType === 'ok' ? 'style="background:rgba(34,197,94,0.14);border-color:rgba(34,197,94,0.45);color:#bbf7d0;"' : '';
         alertDiv.innerHTML = `<div class="${cls}" ${style}>${s.alertText}</div>`;
       } else alertDiv.innerHTML = '';
+      if (s.tryIt) {
+        alertDiv.insertAdjacentHTML('beforeend', `<details class="warn-line" style="margin-top:6px;background:rgba(34,197,94,0.10);border-color:rgba(34,197,94,0.4);color:#dcfce7;">
+          <summary style="cursor:pointer;font-weight:800;">✅ Pruébalo</summary>
+          <div><b>Qué deberías ver:</b> ${s.tryIt.see}</div><div><b>Si no funciona:</b> ${s.tryIt.fix}</div></details>`);
+      }
 
       const visDiv = document.getElementById('step-visual');
       if (s.visualHtml === 'WIRE_LIST') {

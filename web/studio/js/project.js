@@ -12,6 +12,7 @@ import { createShoppingBlock } from './blocks/shopping-block.js';
 import { createLicensesBlock, createDocsBlock } from './blocks/licenses-block.js';
 import { createEquipmentBlock } from './blocks/equipment-block.js';
 import { createDemoBlock } from './blocks/demo-block.js';
+import { createHardwareBlock } from './blocks/hardware-block.js';
 
 const TABS = [
   { id: 'arquitectura', blocks: (ctx) => [createDiagramBlock(ctx), createSlotBlock(ctx)] },
@@ -19,6 +20,7 @@ const TABS = [
   { id: 'compras', blocks: (ctx) => [createShoppingBlock(ctx)] },
   { id: 'licencias', blocks: (ctx) => [createLicensesBlock(ctx), createDocsBlock(ctx)] },
   { id: 'equipos', blocks: (ctx) => [createEquipmentBlock(ctx)] },
+  { id: 'aparatos', when: (view) => view.project.devices?.length, blocks: (ctx) => [createHardwareBlock(ctx)] },
   { id: 'demo', when: (view) => view.project.links?.demo, blocks: (ctx) => [createDemoBlock(ctx)] },
 ];
 

@@ -239,5 +239,21 @@
   "links": {
     "tutorial": "/tutorials/circuito_3d/index.html",
     "demo": "/demos/voice/?embed=1"
-  }
+  },
+  "devices": [
+    {
+      "id": "circuito_maestro",
+      "name": "Circuito maestro",
+      "area": "Taller",
+      "firmware": "circuito_maestro",
+      "pieces": [
+        "ESP32-S3",
+        "OLED",
+        "relé (foco)",
+        "zumbador",
+        "micrófono",
+        "amplificador"
+      ]
+    }
+  ]
 }
