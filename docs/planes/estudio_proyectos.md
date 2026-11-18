@@ -293,3 +293,12 @@ Pendiente de cada fase → `docs/backlog.md`; administrador de bandas movibles e
 - 4 GB de VRAM: respuesta de voz 2–5 s; si va lento, `qwen3:1.7b`.
 - Las licencias del catálogo se escriben a mano: se cita la fuente de cada una y se revisan antes de un contrato
   grande (no es asesoría legal).
+
+## Estado
+- **Fase 1 (demo de voz): hecha el 2026-11-18.** Stack en Docker, Home Assistant configurado solo, pantalla Demo
+  con bloques (Circuito 3D, OLED, Hablar; Conversación y Aparatos en «+ Añadir bloque»). Comprobado en el navegador:
+  «enciende el foco» → Home Assistant → MQTT → ESP32 virtual → OLED «FOCO:ON» y voz de respuesta. Pruebas: 60 de
+  Node, `tests/e2e/voice_pipeline.py` y `tests/e2e/device_control.py`. Lo que falta está en `docs/backlog.md`.
+- Decisiones tomadas durante la fase: las órdenes simples las resuelve Home Assistant sin IA (más rápido y fiable
+  con un modelo de 4B); cada aparato recibe su nombre corto como alias; el Estudio reenvía el audio de la respuesta.
+- Siguiente: fase 2 (Estudio completo), se muestra antes de empezar.

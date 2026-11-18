@@ -1,0 +1,128 @@
+/* Styles for the voice-demo blocks (circuit, OLED, talk, conversation, devices) and engine variable overrides. */
+
+#blocks-root {
+  --blocks-bg: var(--page-bg);
+  --blocks-surface: var(--page-surface);
+  --blocks-surface-alt: var(--page-surface-alt);
+  --blocks-text: var(--page-text);
+  --blocks-text-muted: var(--page-text-muted);
+  --blocks-accent: var(--page-accent);
+  --blocks-accent-contrast: #ffffff;
+  --blocks-danger: #b91c1c;
+  --blocks-focus: #2563eb;
+  --blocks-border: var(--page-border);
+  --blocks-radius: var(--page-radius);
+  --blocks-shadow: var(--page-shadow);
+  --blocks-gap: 12px;
+}
+
+.circuit-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: #000;
+}
+
+.oled-canvas {
+  display: block;
+  background: #000;
+  border-radius: 6px;
+  image-rendering: pixelated;
+}
+
+.talk-hold {
+  width: 100%;
+  padding: 18px 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: 0;
+  border-radius: var(--page-radius);
+  background: var(--page-accent);
+  color: #fff;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+.talk-hold:hover { background: var(--page-accent-strong); }
+.talk-hold:active,
+.talk-hold:focus-visible { outline: 3px solid color-mix(in srgb, var(--page-accent) 40%, transparent); }
+
+.talk-meter {
+  margin: 10px 0 6px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--page-surface-alt);
+  overflow: hidden;
+}
+.talk-meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+  transition: width 80ms linear;
+}
+.talk-status { margin: 4px 0; font-size: 0.9rem; color: var(--page-text-muted); }
+.talk-error { margin: 4px 0; font-size: 0.85rem; color: var(--page-down); }
+
+.talk-input-label {
+  display: block;
+  margin: 10px 0 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--page-text-muted);
+}
+.talk-input-row { display: flex; gap: 8px; }
+.talk-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--page-border);
+  border-radius: 8px;
+  background: var(--page-surface);
+  color: var(--page-text);
+}
+
+.conversation-list {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px;
+}
+.conversation-empty { color: var(--page-text-muted); font-size: 0.9rem; }
+.conversation-msg { max-width: 85%; padding: 6px 10px; border-radius: var(--page-radius); }
+.conversation-msg-user { align-self: flex-end; background: var(--page-accent); color: #fff; }
+.conversation-msg-assistant { align-self: flex-start; background: var(--page-surface-alt); }
+.conversation-who { display: block; font-size: 0.7rem; opacity: 0.8; margin-bottom: 2px; }
+.conversation-text { margin: 0; white-space: pre-wrap; }
+
+.devices-device + .devices-device { margin-top: 12px; }
+.devices-device-name {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  color: var(--page-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.device-entity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-top: 1px solid var(--page-border);
+}
+.device-entity:first-of-type { border-top: 0; }
+.device-entity-name { flex: 1; min-width: 0; }
+.device-entity-value {
+  min-width: 72px;
+  text-align: right;
+  color: var(--page-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.device-entity-action { flex-shrink: 0; }
+
+/* The 3D circuit needs room: main column two thirds, side one third (wide screens only). */
+@media (min-width: 721px) {
+  .blocks-board { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+}

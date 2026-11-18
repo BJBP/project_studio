@@ -1,5 +1,6 @@
 // Home Assistant Assist pipeline client over the HA WebSocket API (/api/websocket).
-// createAssist({ haUrl, token, WebSocketImpl? }) -> { connect, runText, startAudio, close }.
+// createAssist({ haUrl, token, WebSocketImpl? }) -> { connect, runText, startAudio, request, close }.
+// request(command) sends any other HA WebSocket command and resolves with its result.
 // Errors surface as { code: 'E_...', message } objects; handlers receive plain data.
 
 export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
@@ -7,6 +8,7 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
   const base = String(haUrl || '').replace(/\/+$/, '');
   const wsUrl = `${base.replace(/^http/i, 'ws')}/api/websocket`;
   const pipelines = new Map();
+  const requests = new Map();
   let ws = null, nextId = 1, authenticated = false, connectPromise = null, settleConnect = null;
 
   function connect() {
@@ -59,6 +61,14 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     };
   }
 
+  function request(command) {
+    if (!ws) return Promise.reject({ code: 'E_HA_DOWN', message: 'No hay conexión con Home Assistant. Llama a connect() primero.' });
+    const id = nextId;
+    nextId += 1;
+    ws.send(JSON.stringify({ id, ...command }));
+    return new Promise((resolve, reject) => requests.set(id, { resolve, reject }));
+  }
+
   const close = () => { pipelines.clear(); teardown(); };
 
   function registerPipeline(command, handlers, audioState = null) {
@@ -83,10 +93,18 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     if (msg.type === 'auth_ok') { authenticated = true; settleConnect?.(null); return; }
     if (msg.type === 'auth_invalid') return failAuth();
     if (msg.type === 'event' && msg.id != null) return dispatchEvent(msg.id, msg.event || {});
+    if (msg.type === 'result' && requests.has(msg.id)) return settleRequest(msg);
     if (msg.type === 'result' && msg.id != null && !msg.success) {
       pipelines.get(msg.id)?.handlers.onError?.({ code: 'E_ASSIST', message: msg.error?.message || 'Home Assistant rechazó la orden.' });
       pipelines.delete(msg.id);
     }
+  }
+
+  function settleRequest(msg) {
+    const { resolve, reject } = requests.get(msg.id);
+    requests.delete(msg.id);
+    if (msg.success) resolve(msg.result);
+    else reject({ code: 'E_HA_REQUEST', message: msg.error?.message || 'Home Assistant rechazó la petición.' });
   }
 
   function failAuth() {
@@ -104,7 +122,7 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
       case 'run-start': return flushAudioStart(pipeline, event);
       case 'stt-end': return h.onHeard?.(event.stt_output?.text ?? '');
       case 'intent-end': return h.onAnswer?.(event.intent_output?.response?.speech?.plain?.speech ?? '');
-      case 'tts-end': return h.onAudio?.(absolutizeUrl(event.tts_output?.url));
+      case 'tts-end': return h.onAudio?.(event.tts_output?.url || ''); // relative: serve.py proxies it (same origin)
       case 'error': return h.onError?.({ code: event.code ?? 'E_ASSIST', message: event.message ?? 'Falló el pipeline de voz.' });
       case 'run-end': h.onDone?.(); return pipelines.delete(id);
       default: return undefined;
@@ -120,8 +138,6 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     state.pending = [];
     for (const item of pending) sendBinaryFrame(state.binaryHandlerId, item.kind === 'chunk' ? item.int16 : null);
   }
-
-  const absolutizeUrl = (url) => (url && url.startsWith('/')) ? base + url : (url || '');
 
   function sendBinaryFrame(handlerId, int16) {
     const pcm = int16 ? new Uint8Array(int16.buffer, int16.byteOffset, int16.byteLength) : new Uint8Array(0);
@@ -140,7 +156,12 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
     teardown();
   }
 
-  const notifyAll = (error) => { for (const pipeline of pipelines.values()) pipeline.handlers.onError?.(error); pipelines.clear(); };
+  const notifyAll = (error) => {
+    for (const pipeline of pipelines.values()) pipeline.handlers.onError?.(error);
+    for (const pending of requests.values()) pending.reject(error);
+    pipelines.clear();
+    requests.clear();
+  };
 
   function teardown() {
     authenticated = false;
@@ -151,5 +172,5 @@ export function createAssist({ haUrl, token, WebSocketImpl } = {}) {
 
   const downError = () => ({ code: 'E_HA_DOWN', message: `No conecta con Home Assistant en ${base}. ¿Está arrancado el stack?` });
 
-  return { connect, runText, startAudio, close };
+  return { connect, runText, startAudio, request, close };
 }
