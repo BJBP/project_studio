@@ -1,0 +1,4 @@
+secrets.yaml
+.esphome/
+# Estado local del panel de ESPHome (no se sube)
+.device-builder*

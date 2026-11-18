@@ -1,0 +1,7 @@
+# 5 V relay module on GPIO1 drives the 12 V bulb ("Foco"). A second relay for the cooler is optional (relay2.yaml).
+switch:
+  - platform: gpio
+    pin: GPIO1
+    name: "Foco"
+    id: foco
+    restore_mode: ALWAYS_OFF

@@ -1,0 +1,7 @@
+# Optional second relay for the 12 V cooler ("Cooler"). Include it when the circuit has two relays.
+switch:
+  - platform: gpio
+    pin: ${cooler_pin}
+    name: "Cooler"
+    id: cooler
+    restore_mode: ALWAYS_OFF
