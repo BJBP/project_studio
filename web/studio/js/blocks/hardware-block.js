@@ -1,6 +1,6 @@
 // Hardware block: each real ESP32 of the project with its pieces. ⚙ Compilar builds the firmware in Docker,
 // ⚡ Instalar flashes it over USB from the browser and asks for the Wi-Fi (ESP Web Tools + Improv Serial),
-// ✅ Probar opens the tutorial checks, ↻ OTA opens the ESPHome dashboard for wireless updates.
+// ✅ Probar opens the project's Tutorial tab (its «Pruébalo» checks), ↻ OTA opens the ESPHome dashboard for wireless updates.
 import { fill, h } from '../../../shared/dom.js';
 
 const ESP_WEB_TOOLS = 'https://unpkg.com/esp-web-tools@10.0.1/dist/web/install-button.js?module';
@@ -12,7 +12,7 @@ async function postJson(url, body) {
   return response.json();
 }
 
-export function createHardwareBlock({ t, store }) {
+export function createHardwareBlock({ t, store, projectId }) {
   const timers = new Set();
   let toolsLoaded = null;
 
@@ -61,7 +61,7 @@ export function createHardwareBlock({ t, store }) {
       h('p', { class: 'brain-note' }, t('hwPieces', { pieces: device.pieces.join(', ') })),
       status,
       h('div', { class: 'shop-actions' }, build, install,
-        links.tutorial ? h('a', { class: 'blocks-button', href: links.tutorial, target: '_blank', rel: 'noopener' }, t('hwTest')) : null,
+        links.tutorial ? h('a', { class: 'blocks-button', href: `#/p/${encodeURIComponent(projectId)}/tutorial` }, t('hwTest')) : null,
         h('a', { class: 'blocks-button', href: ESPHOME_DASHBOARD, target: '_blank', rel: 'noopener' }, t('hwOta'))));
   }
 
