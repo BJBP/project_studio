@@ -1,0 +1,10 @@
+{
+  "id": "breadboard",
+  "name": "Protoboard 830 puntos",
+  "kind": "hardware",
+  "slots": [
+    "assembly"
+  ],
+  "protocols": [],
+  "spec": "Protoboard de 830 puntos con cables macho-macho."
+}

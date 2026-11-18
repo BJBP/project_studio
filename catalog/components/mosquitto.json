@@ -1,0 +1,22 @@
+{
+  "id": "mosquitto",
+  "name": "Eclipse Mosquitto",
+  "kind": "software",
+  "slots": [
+    "broker"
+  ],
+  "protocols": [
+    "mqtt"
+  ],
+  "license": {
+    "spdx": "EPL-2.0 OR BSD-3-Clause",
+    "commercial": "yes",
+    "notes": "Doble licencia; se elige BSD."
+  },
+  "needs": {
+    "ram_gb": 0.1,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://mosquitto.org/"
+}

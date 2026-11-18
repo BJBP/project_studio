@@ -1,0 +1,23 @@
+{
+  "id": "openremote",
+  "name": "OpenRemote",
+  "kind": "software",
+  "slots": [
+    "hub"
+  ],
+  "protocols": [
+    "mqtt",
+    "http"
+  ],
+  "license": {
+    "spdx": "AGPL-3.0",
+    "commercial": "conditions",
+    "notes": "Si se modifica y se ofrece por red, se publica el cambio."
+  },
+  "needs": {
+    "ram_gb": 2,
+    "cpu_cores": 2,
+    "gpu": "none"
+  },
+  "docs": "https://openremote.io/"
+}

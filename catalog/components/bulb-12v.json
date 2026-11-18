@@ -1,0 +1,12 @@
+{
+  "id": "bulb-12v",
+  "name": "Foco 12 V",
+  "kind": "hardware",
+  "slots": [
+    "load"
+  ],
+  "protocols": [
+    "power"
+  ],
+  "spec": "Foco de 12 V y menos de 1 A, con portalámparas."
+}

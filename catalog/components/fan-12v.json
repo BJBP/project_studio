@@ -1,0 +1,12 @@
+{
+  "id": "fan-12v",
+  "name": "Ventilador 12 V 80 mm",
+  "kind": "hardware",
+  "slots": [
+    "load"
+  ],
+  "protocols": [
+    "power"
+  ],
+  "spec": "Ventilador de 80×80×25 mm, 12 V."
+}

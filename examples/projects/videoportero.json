@@ -1,0 +1,164 @@
+{
+  "id": "videoportero",
+  "name": "Videoportero IP",
+  "icon": "🚪",
+  "sector": "Edificios y oficinas",
+  "status": "simulated",
+  "summary": "Portero con video y llamada al móvil, con centralita abierta.",
+  "slots": {
+    "camera": {
+      "component": "ip-camera",
+      "pos": [
+        0,
+        1
+      ]
+    },
+    "sip": {
+      "component": "asterisk",
+      "pos": [
+        1,
+        0
+      ]
+    },
+    "video": {
+      "component": "frigate",
+      "pos": [
+        1,
+        2
+      ]
+    },
+    "broker": {
+      "component": "mosquitto",
+      "pos": [
+        2,
+        2
+      ]
+    },
+    "hub": {
+      "component": "home-assistant",
+      "pos": [
+        3,
+        1
+      ]
+    }
+  },
+  "connections": [
+    {
+      "from": "camera",
+      "to": "sip",
+      "protocol": "sip"
+    },
+    {
+      "from": "camera",
+      "to": "video",
+      "protocol": "rtsp"
+    },
+    {
+      "from": "video",
+      "to": "broker",
+      "protocol": "mqtt"
+    },
+    {
+      "from": "broker",
+      "to": "hub",
+      "protocol": "mqtt"
+    }
+  ],
+  "hardware": [
+    {
+      "part": "ip-camera",
+      "qty": 1
+    },
+    {
+      "part": "mini-pc",
+      "qty": 1
+    }
+  ],
+  "equipment": [
+    "laptop-demo",
+    "mini-pc"
+  ],
+  "stages": [
+    {
+      "id": "comprar",
+      "name": "Comprar",
+      "source": "hardware"
+    },
+    {
+      "id": "armar",
+      "name": "Armar",
+      "items": [
+        {
+          "id": "montar",
+          "text": "Montar la cámara en la entrada"
+        }
+      ]
+    },
+    {
+      "id": "probar",
+      "name": "Probar",
+      "items": [
+        {
+          "id": "llamada",
+          "text": "Pruébalo: el timbre llama al móvil"
+        },
+        {
+          "id": "persona",
+          "text": "Pruébalo: detecta una persona"
+        }
+      ]
+    },
+    {
+      "id": "instalar",
+      "name": "Instalar",
+      "items": [
+        {
+          "id": "equipo",
+          "text": "Preparar el equipo del cliente (Docker y el stack)"
+        },
+        {
+          "id": "red",
+          "text": "Conectar a la red del cliente y probar sin internet"
+        },
+        {
+          "id": "copia",
+          "text": "Programar la copia de seguridad"
+        }
+      ]
+    },
+    {
+      "id": "entregar",
+      "name": "Entregar",
+      "items": [
+        {
+          "id": "licencias",
+          "text": "Entregar licencias.md y THIRD_PARTY_NOTICES.md",
+          "download": "licenses"
+        },
+        {
+          "id": "manual",
+          "text": "Entregar el manual de uso"
+        },
+        {
+          "id": "codigo",
+          "text": "Entregar el código del firmware (GPL)"
+        }
+      ]
+    },
+    {
+      "id": "soporte",
+      "name": "Soporte",
+      "items": [
+        {
+          "id": "actualizar",
+          "text": "Revisar actualizaciones cada mes"
+        },
+        {
+          "id": "visita",
+          "text": "Visita de revisión a los 3 meses"
+        }
+      ]
+    }
+  ],
+  "links": {}
+}

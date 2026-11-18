@@ -1,0 +1,10 @@
+{
+  "id": "laptop-demo",
+  "name": "Laptop de desarrollo y demo",
+  "icon": "💻",
+  "ram_gb": 16,
+  "cpu_cores": 8,
+  "gpu_vram_gb": 4,
+  "always_on": false,
+  "role": "Desarrollar, enseñar la demo e instalar."
+}

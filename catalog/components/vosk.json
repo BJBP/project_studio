@@ -1,0 +1,22 @@
+{
+  "id": "vosk",
+  "name": "Vosk",
+  "kind": "software",
+  "slots": [
+    "stt"
+  ],
+  "protocols": [
+    "wyoming"
+  ],
+  "license": {
+    "spdx": "Apache-2.0",
+    "commercial": "yes",
+    "notes": "Reconocimiento ligero, menos preciso."
+  },
+  "needs": {
+    "ram_gb": 0.5,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://alphacephei.com/vosk/"
+}

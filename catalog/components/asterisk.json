@@ -1,0 +1,22 @@
+{
+  "id": "asterisk",
+  "name": "Asterisk",
+  "kind": "software",
+  "slots": [
+    "sip"
+  ],
+  "protocols": [
+    "sip"
+  ],
+  "license": {
+    "spdx": "GPL-2.0",
+    "commercial": "conditions",
+    "notes": "Central telefónica; al distribuirla modificada se entrega el código."
+  },
+  "needs": {
+    "ram_gb": 0.5,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://www.asterisk.org/"
+}

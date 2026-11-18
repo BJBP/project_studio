@@ -1,0 +1,12 @@
+{
+  "id": "relay-5v",
+  "name": "Módulo relé 5 V",
+  "kind": "hardware",
+  "slots": [
+    "relay"
+  ],
+  "protocols": [
+    "gpio"
+  ],
+  "spec": "Relé de 5 V con entrada a 3,3 V y contactos de 10 A."
+}

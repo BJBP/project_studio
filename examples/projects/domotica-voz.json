@@ -1,0 +1,243 @@
+{
+  "id": "domotica-voz",
+  "name": "Domótica con voz local",
+  "icon": "🏠",
+  "sector": "Hogar y oficina",
+  "status": "works",
+  "summary": "Asistente de voz que controla luces y aparatos sin nube ni Alexa.",
+  "slots": {
+    "controller": {
+      "component": "esp32-s3",
+      "pos": [
+        0,
+        1
+      ]
+    },
+    "firmware": {
+      "component": "esphome",
+      "pos": [
+        1,
+        1
+      ]
+    },
+    "broker": {
+      "component": "mosquitto",
+      "pos": [
+        2,
+        1
+      ]
+    },
+    "hub": {
+      "component": "home-assistant",
+      "pos": [
+        3,
+        1
+      ]
+    },
+    "stt": {
+      "component": "whisper",
+      "pos": [
+        3,
+        0
+      ],
+      "variant": "small-int8"
+    },
+    "llm": {
+      "component": "ollama",
+      "pos": [
+        4,
+        1
+      ],
+      "variant": "qwen3.5:4b"
+    },
+    "tts": {
+      "component": "piper",
+      "pos": [
+        3,
+        2
+      ]
+    }
+  },
+  "connections": [
+    {
+      "from": "controller",
+      "to": "firmware",
+      "protocol": "esphome-api"
+    },
+    {
+      "from": "firmware",
+      "to": "broker",
+      "protocol": "mqtt"
+    },
+    {
+      "from": "broker",
+      "to": "hub",
+      "protocol": "mqtt"
+    },
+    {
+      "from": "stt",
+      "to": "hub",
+      "protocol": "wyoming"
+    },
+    {
+      "from": "hub",
+      "to": "tts",
+      "protocol": "wyoming"
+    },
+    {
+      "from": "hub",
+      "to": "llm",
+      "protocol": "http"
+    }
+  ],
+  "hardware": [
+    {
+      "part": "esp32-s3",
+      "qty": 1
+    },
+    {
+      "part": "mic-i2s",
+      "qty": 1
+    },
+    {
+      "part": "amp-i2s",
+      "qty": 1
+    },
+    {
+      "part": "speaker",
+      "qty": 1
+    },
+    {
+      "part": "oled-i2c",
+      "qty": 1
+    },
+    {
+      "part": "relay-5v",
+      "qty": 1
+    },
+    {
+      "part": "buzzer",
+      "qty": 1
+    },
+    {
+      "part": "psu-12v",
+      "qty": 1
+    },
+    {
+      "part": "fan-12v",
+      "qty": 1
+    },
+    {
+      "part": "bulb-12v",
+      "qty": 1
+    },
+    {
+      "part": "breadboard",
+      "qty": 1
+    },
+    {
+      "part": "mini-pc",
+      "qty": 1
+    }
+  ],
+  "equipment": [
+    "laptop-demo",
+    "mini-pc"
+  ],
+  "stages": [
+    {
+      "id": "comprar",
+      "name": "Comprar",
+      "source": "hardware"
+    },
+    {
+      "id": "armar",
+      "name": "Armar",
+      "items": [
+        {
+          "id": "tutorial",
+          "text": "Seguir el tutorial 3D paso a paso",
+          "link": "tutorial"
+        },
+        {
+          "id": "cables",
+          "text": "Revisar cables y polaridad antes de conectar la fuente"
+        }
+      ]
+    },
+    {
+      "id": "probar",
+      "name": "Probar",
+      "items": [
+        {
+          "id": "oled",
+          "text": "Pruébalo: la OLED muestra texto"
+        },
+        {
+          "id": "rele",
+          "text": "Pruébalo: el relé enciende el foco"
+        },
+        {
+          "id": "voz",
+          "text": "Pruébalo: «enciende el foco» por voz",
+          "link": "demo"
+        }
+      ]
+    },
+    {
+      "id": "instalar",
+      "name": "Instalar",
+      "items": [
+        {
+          "id": "equipo",
+          "text": "Preparar el equipo del cliente (Docker y el stack)"
+        },
+        {
+          "id": "red",
+          "text": "Conectar a la red del cliente y probar sin internet"
+        },
+        {
+          "id": "copia",
+          "text": "Programar la copia de seguridad"
+        }
+      ]
+    },
+    {
+      "id": "entregar",
+      "name": "Entregar",
+      "items": [
+        {
+          "id": "licencias",
+          "text": "Entregar licencias.md y THIRD_PARTY_NOTICES.md",
+          "download": "licenses"
+        },
+        {
+          "id": "manual",
+          "text": "Entregar el manual de uso"
+        },
+        {
+          "id": "codigo",
+          "text": "Entregar el código del firmware (GPL)"
+        }
+      ]
+    },
+    {
+      "id": "soporte",
+      "name": "Soporte",
+      "items": [
+        {
+          "id": "actualizar",
+          "text": "Revisar actualizaciones cada mes"
+        },
+        {
+          "id": "visita",
+          "text": "Visita de revisión a los 3 meses"
+        }
+      ]
+    }
+  ],
+  "links": {
+    "tutorial": "/tutorials/circuito_3d/index.html",
+    "demo": "/demos/voice/?embed=1"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "influxdb",
+  "name": "InfluxDB OSS",
+  "kind": "software",
+  "slots": [
+    "historian"
+  ],
+  "protocols": [
+    "http"
+  ],
+  "license": {
+    "spdx": "MIT",
+    "commercial": "yes",
+    "notes": "Base de datos de series de tiempo."
+  },
+  "needs": {
+    "ram_gb": 1,
+    "cpu_cores": 1,
+    "gpu": "none"
+  },
+  "docs": "https://www.influxdata.com/"
+}
