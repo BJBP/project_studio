@@ -15,8 +15,8 @@ SECRETS_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "
 def build_config() -> dict:
     """Connection settings for the page; 'error' explains what to do when the stack is not ready."""
     config = {
-        "haUrl": os.environ.get("HA_URL", "http://127.0.0.1:8124"),
-        "mqttUrl": os.environ.get("MQTT_WS_URL", "ws://127.0.0.1:9002"),
+        "haUrl": os.environ.get("HA_URL", "http://127.0.0.1:8123"),
+        "mqttUrl": os.environ.get("MQTT_WS_URL", "ws://127.0.0.1:9001"),
         "haToken": None,
         "error": None,
     }

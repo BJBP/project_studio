@@ -15,7 +15,7 @@ from pathlib import Path
 import httpx
 import websockets
 
-HA_URL = os.environ.get("HA_URL", "http://127.0.0.1:8124")
+HA_URL = os.environ.get("HA_URL", "http://127.0.0.1:8123")
 HA_CONTAINER = os.environ.get("HA_CONTAINER", "domotica-voz-homeassistant-1")
 SECRETS = Path.home() / ".agents" / "secrets" / "project_studio" / "ha.json"
 CHUNK = 3200  # 100 ms of 16 kHz 16-bit mono audio
