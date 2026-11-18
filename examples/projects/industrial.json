@@ -156,5 +156,7 @@
       ]
     }
   ],
-  "links": {}
+  "links": {
+    "demo": "/demos/voice/?catalog=industrial&embed=1"
+  }
 }

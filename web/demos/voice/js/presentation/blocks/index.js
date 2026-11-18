@@ -9,8 +9,10 @@ import { createDevicesBlock } from './devices-block.js';
 import { createModesBlock } from './modes-block.js';
 import { createCameraBlock } from './camera-block.js';
 
+// A catalog may list the blocks shown at first ("blocks": ["devices", "modes"]); the rest stay in «+ Añadir bloque».
 export function createDemoBlocks(ctx) {
-  return [
+  const shown = ctx.catalog?.blocks;
+  const blocks = [
     createCircuitBlock(ctx),
     createOledBlock(ctx),
     createTalkBlock(ctx),
@@ -20,4 +22,5 @@ export function createDemoBlocks(ctx) {
     createConversationBlock(ctx),
     createDevicesBlock(ctx),
   ];
+  return shown ? blocks.map((block) => ({ ...block, defaultVisible: shown.includes(block.id) })) : blocks;
 }

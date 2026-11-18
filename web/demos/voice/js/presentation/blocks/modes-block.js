@@ -2,14 +2,14 @@
 // Home Assistant and a «Probar» button that simulates what triggers them (door, doorbell, heat, a bang).
 import { fill, h } from '../../../../../shared/dom.js';
 
-const MODES_URL = new URL('../../../data/modes.example.json', import.meta.url);
+const DATA_URL = new URL('../../../data/', import.meta.url);
 
-export function createModesBlock({ live, t, assist, simulator }) {
+export function createModesBlock({ t, assist, simulator, catalog }) {
   let modes = [], states = {}, message = '', root = null;
 
   async function load() {
     try {
-      modes = (await (await fetch(MODES_URL)).json()).modes;
+      modes = (await (await fetch(new URL(catalog?.modes ?? 'modes.example.json', DATA_URL))).json()).modes;
       await readStates();
     } catch (error) {
       message = t('modesLoadError');

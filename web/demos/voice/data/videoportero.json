@@ -1,0 +1,57 @@
+{
+  "base_topic": "studio",
+  "modes": "videoportero.modes.json",
+  "blocks": [
+    "devices",
+    "modes",
+    "camera",
+    "talk",
+    "conversation"
+  ],
+  "devices": [
+    {
+      "id": "portero",
+      "name": "Portero",
+      "model": "Cámara IP + ESP32 (simulado)",
+      "area": "Entrada principal",
+      "entities": [
+        {
+          "key": "timbre",
+          "component": "binary_sensor",
+          "name": "Timbre",
+          "device_class": "sound",
+          "sim": {
+            "type": "manual",
+            "pulse_s": 2
+          }
+        },
+        {
+          "key": "persona",
+          "component": "binary_sensor",
+          "name": "Persona en la puerta",
+          "device_class": "occupancy",
+          "sim": {
+            "type": "camera",
+            "pulse_s": 15
+          }
+        },
+        {
+          "key": "cerradura",
+          "component": "lock",
+          "name": "Cerradura"
+        },
+        {
+          "key": "luz",
+          "component": "switch",
+          "name": "Luz de entrada"
+        },
+        {
+          "key": "aviso",
+          "component": "text",
+          "name": "Aviso del portero",
+          "max": 64
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "studio_portero",
+  "alias": "Modo portero",
+  "mode": "single",
+  "description": "Timbre: luz y aviso.",
+  "triggers": [
+    {
+      "trigger": "state",
+      "entity_id": "binary_sensor.portero_timbre",
+      "to": "on"
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_portero",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "switch.turn_on",
+      "target": {
+        "entity_id": "switch.portero_luz"
+      }
+    },
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.portero_aviso"
+      },
+      "data": {
+        "value": "Llaman a la puerta"
+      }
+    }
+  ]
+}

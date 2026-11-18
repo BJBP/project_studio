@@ -1,0 +1,24 @@
+{
+  "modes": [
+    {
+      "id": "sobretemperatura",
+      "icon": "🌡️",
+      "name": "Sobretemperatura",
+      "test": {
+        "device": "linea1",
+        "key": "temp_motor"
+      },
+      "description": "Motor a más de 85 °C: sirena y aviso de parada."
+    },
+    {
+      "id": "vibracion",
+      "icon": "📳",
+      "name": "Vibración alta",
+      "test": {
+        "device": "linea1",
+        "key": "vibracion"
+      },
+      "description": "Vibración mayor de 7 mm/s: aviso de mantenimiento."
+    }
+  ]
+}

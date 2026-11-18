@@ -52,4 +52,6 @@ def export_docs(repo, project_id: str, render) -> dict:
     rows = license_rows(project, catalog)
     return {"licencias.md": render.licenses_md(project, rows, license_alerts(rows)),
             "THIRD_PARTY_NOTICES.md": render.notices_md(project, rows),
-            "compras.csv": render.shopping_csv(shopping(repo, project_id))}
+            "compras.csv": render.shopping_csv(shopping(repo, project_id)),
+            "inventree_partes.csv": render.inventree_csv(project, shopping(repo, project_id)),
+            "odoo_productos.csv": render.odoo_csv(project, shopping(repo, project_id))}

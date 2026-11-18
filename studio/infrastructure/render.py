@@ -1,4 +1,5 @@
-# Writes the delivery documents: licencias.md, THIRD_PARTY_NOTICES.md and compras.csv.
+# Writes the delivery documents: licencias.md, THIRD_PARTY_NOTICES.md, compras.csv, and the purchase list for
+# InvenTree (parts) and Odoo (products) CSV imports. Column names follow each program's import template.
 # DocRenderer(t) where t(key, **params) gives the texts of the current language.
 import csv
 import io
@@ -28,6 +29,26 @@ class DocRenderer:
             lines += [f"## {row['name']}", "", f"- {t('doc.colLicense')}: {row['spdx']}",
                       f"- {t('doc.source')}: {row['docs'] or '—'}", ""]
         return "\n".join(lines)
+
+    @staticmethod
+    def _csv(header: list, rows: list) -> str:
+        out = io.StringIO()
+        writer = csv.writer(out)
+        writer.writerow(header)
+        writer.writerows(rows)
+        return out.getvalue()
+
+    def inventree_csv(self, project: dict, shopping: dict) -> str:
+        rows = [[row["name"], row["spec"], row["part"], project["name"], row["qty"]] for row in shopping["rows"]]
+        return self._csv(["name", "description", "IPN", "keywords", "quantity"], rows)
+
+    def odoo_csv(self, project: dict, shopping: dict) -> str:
+        rows = []
+        for row in shopping["rows"]:
+            model, offer = row["model"] or {}, row["offer"] or {}
+            name = f"{model.get('brand', '')} {model.get('model', '')}".strip() or row["name"]
+            rows.append([name, row["part"], "consu", offer.get("price", ""), row["spec"]])
+        return self._csv(["name", "default_code", "type", "standard_price", "description_purchase"], rows)
 
     def shopping_csv(self, shopping: dict) -> str:
         out = io.StringIO()

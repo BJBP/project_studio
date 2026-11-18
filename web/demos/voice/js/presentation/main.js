@@ -16,6 +16,9 @@ import { createDemoBlocks } from './blocks/index.js';
 import { createSimulator } from '../application/simulator.js';
 import { t, localeTable } from './i18n.js';
 
+// ?catalog=<name> loads data/<name>.json (video intercom, industry…); without it, the tutorial circuit.
+const CATALOG_NAME = /^[a-z0-9_-]+$/.test(new URLSearchParams(location.search).get('catalog') ?? '')
+  ? new URLSearchParams(location.search).get('catalog') : 'devices.example';
 const DISCOVERY_SETTLE_MS = 2000; // HA needs a moment to register freshly announced entities
 const BRAIN_STORAGE_KEY = 'studio.voice.brain';
 
@@ -57,7 +60,7 @@ function showWarning(detail) {
 
 async function loadCatalog() {
   try {
-    const response = await fetch('data/devices.example.json');
+    const response = await fetch(`data/${CATALOG_NAME}.json`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     const result = validateCatalog(data);
@@ -104,7 +107,7 @@ async function main() {
       { id: 'main', title: t('columnMain') },
       { id: 'side', title: t('columnSide') },
     ],
-    storage: createStorage('studio.voice.layout'),
+    storage: createStorage(`studio.voice.layout.${CATALOG_NAME}`),
     t: localeTable,
   });
 

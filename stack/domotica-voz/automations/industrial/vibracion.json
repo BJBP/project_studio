@@ -1,0 +1,31 @@
+{
+  "id": "studio_vibracion",
+  "alias": "Modo vibración alta",
+  "mode": "single",
+  "description": "Vibración mayor de 7 mm/s: aviso de mantenimiento.",
+  "triggers": [
+    {
+      "trigger": "numeric_state",
+      "entity_id": "sensor.linea1_vibracion",
+      "above": 7
+    }
+  ],
+  "conditions": [
+    {
+      "condition": "state",
+      "entity_id": "input_boolean.modo_vibracion",
+      "state": "on"
+    }
+  ],
+  "actions": [
+    {
+      "action": "text.set_value",
+      "target": {
+        "entity_id": "text.linea1_estado"
+      },
+      "data": {
+        "value": "Revisar rodamientos: vibración alta"
+      }
+    }
+  ]
+}
