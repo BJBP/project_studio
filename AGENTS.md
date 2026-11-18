@@ -21,7 +21,8 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 | Stack de voz (Docker) | `stack/domotica-voz/docker-compose.yml`, `mosquitto/mosquitto.conf`, `.env.example` |
 | Configuración automática de Home Assistant | `stack/domotica-voz/setup/{setup_ha,flows,agents,ha_client}.py` |
 | IAs disponibles (local y nube) | `stack/domotica-voz/ai_providers.json` (añadir una = añadir una entrada); claves en `~/.agents/secrets/project_studio/ai_keys.json` |
-| Servidor del Estudio | `serve.py` (página, `/config.json`, audio), `serve_ai.py` (lista de IAs y guardar clave) |
+| Servidor del Estudio | `serve.py` (página, `/config.json`, audio), `serve_ai.py` (lista de IAs y guardar clave), `serve_models.py` (modelos de cada IA y cambio de modelo), `serve_firmware.py` |
+| Activar por voz | servicio `wakeword` (microWakeWord) en el stack; `ha-assist.js` `startAudio(..., { wakeWord: true })`; `assistant-session.js` `startHandsFree()`; prueba: `tests/e2e/voice_pipeline.py --wake "Okey Nabu. Enciende el foco."` |
 | Tutorial 3D (copia del original) | `web/tutorials/circuito_3d/index.html` |
 | Motor de bloques | `web/engines/blocks/` |
 | Demo de voz (capas) | `web/demos/voice/js/{domain,application,infrastructure,presentation}/` |

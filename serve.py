@@ -12,6 +12,7 @@ from pathlib import Path
 
 from serve_ai import public_providers, save_key
 from serve_firmware import build_status, start_build
+from serve_models import list_models, set_model
 from studio.presentation.api import PREFIX as STUDIO_PREFIX, route as studio_route
 from studio.presentation.wiring import build_repo
 
@@ -65,6 +66,9 @@ class StudioHandler(SimpleHTTPRequestHandler):
         if self.path.startswith(STUDIO_PREFIX):
             self.send_json(*studio_route(self.server.repo, "GET", self.path))
             return
+        if self.path.startswith("/api/ai-models/"):
+            self.send_json(*list_models(SECRETS_FILE.parent, self.path.rsplit("/", 1)[-1]))
+            return
         if self.path.startswith("/api/firmware/status/"):
             self.send_json(*build_status(self.path.rsplit("/", 1)[-1]))
             return
@@ -81,6 +85,8 @@ class StudioHandler(SimpleHTTPRequestHandler):
         if self.path == "/api/ai-key":
             result = save_key(SECRETS_FILE.parent, data.get("provider", ""), data.get("key", ""))
             self.send_json(200 if result["ok"] else 400, result)
+        elif self.path == "/api/ai-model":
+            self.send_json(*set_model(SECRETS_FILE.parent, str(data.get("provider", "")), str(data.get("model", ""))))
         elif self.path == "/api/speak":
             self.send_json(*speak(str(data.get("text", ""))[:MAX_SPEAK_CHARS]))
         elif self.path == "/api/firmware/build":

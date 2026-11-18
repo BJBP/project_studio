@@ -8,6 +8,7 @@ services:
     environment:
       HA_URL: ${HA_URL:-http://host.docker.internal:8123}
       MQTT_WS_URL: ${MQTT_WS_URL:-ws://127.0.0.1:9001}
+      OLLAMA_HOST_URL: ${OLLAMA_HOST_URL:-http://host.docker.internal:11434}
     volumes:
       - ${STUDIO_DATA_DIR:-../project_studio_data}:/data
       - ${STUDIO_SECRETS_DIR:-~/.agents/secrets/project_studio}:/secrets

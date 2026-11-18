@@ -42,3 +42,23 @@ test('a rejected key changes nothing', async () => {
   assert.equal((await choice.addKey('claude', 'bad')).code, 'E_FLOW_INVALID');
   assert.equal(choice.brains[1].status, 'needs_key');
 });
+
+test('chooseModel keeps the new model when it works and the old one when it fails', async () => {
+  const saves = [];
+  let ok = true;
+  const modelsApi = {
+    fetch: async () => ({ models: [{ id: 'a' }, { id: 'b' }], current: 'a', gpuGb: 4 }),
+    save: async (provider, model) => { saves.push([provider, model]); return ok ? { ok, current: model } : { ok, code: 'E_SETUP', current: 'b' }; },
+  };
+  const choice = createBrainChoice({ assist: null, session: { setPipeline() {} }, providers, store: { get: () => null, set() {} }, modelsApi });
+  await choice.loadModels('local');
+  assert.equal(choice.models('local').current, 'a');
+  await choice.chooseModel('local', 'b');
+  assert.equal(choice.models('local').current, 'b');
+  ok = false;
+  const result = await choice.chooseModel('local', 'a');
+  assert.equal(result.code, 'E_SETUP');
+  assert.equal(choice.models('local').current, 'b');
+  assert.equal(choice.models('local').message.code, 'E_SETUP');
+  assert.deepEqual(saves, [['local', 'b'], ['local', 'a']]);
+});

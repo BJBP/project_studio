@@ -1,7 +1,7 @@
 # Project Studio web server (serve.py + studio package). The voice stack runs in stack/domotica-voz.
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 WORKDIR /app
-COPY serve.py serve_ai.py ./
+COPY serve*.py ./
 COPY studio ./studio
 COPY catalog ./catalog
 COPY examples ./examples

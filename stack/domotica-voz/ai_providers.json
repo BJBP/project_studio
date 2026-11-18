@@ -1,5 +1,5 @@
 {
-  "_help": "IAs que el Estudio ofrece. Añadir una = añadir una entrada con una integración de conversación de Home Assistant. Las claves NO van aquí: se guardan fuera del repositorio.",
+  "_help": "IAs que el Estudio ofrece. Añadir una = añadir una entrada con una integración de conversación de Home Assistant. Las claves NO van aquí: se guardan fuera del repositorio. «models» lista los modelos que se pueden elegir (ids del proveedor); vacía = el recomendado por el proveedor. Los modelos locales salen de Ollama.",
   "providers": [
     {
       "id": "local",
@@ -15,7 +15,13 @@
       "cloud": true,
       "key_step": "user",
       "key_url": "https://console.anthropic.com/settings/keys",
-      "pipeline": "Asistente Claude"
+      "pipeline": "Asistente Claude",
+      "model_option": "chat_model",
+      "models": [
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5"
+      ]
     },
     {
       "id": "openai",
@@ -24,7 +30,9 @@
       "cloud": true,
       "key_step": "user",
       "key_url": "https://platform.openai.com/api-keys",
-      "pipeline": "Asistente OpenAI"
+      "pipeline": "Asistente OpenAI",
+      "model_option": "chat_model",
+      "models": []
     },
     {
       "id": "gemini",
@@ -33,7 +41,9 @@
       "cloud": true,
       "key_step": "api",
       "key_url": "https://aistudio.google.com/app/apikey",
-      "pipeline": "Asistente Gemini"
+      "pipeline": "Asistente Gemini",
+      "model_option": "chat_model",
+      "models": []
     }
   ]
 }

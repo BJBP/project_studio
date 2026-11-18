@@ -30,7 +30,7 @@
 |---|---|
 | Stack | `stack/domotica-voz/docker-compose.yml` (servicio `wakeword`) |
 | Configuración | `setup/flows.py` (integración y palabra en cada asistente) |
-| Servidor | `serve_ai.py` (lista de modelos y cambio de modelo) |
+| Servidor | `serve_models.py` (lista de modelos y cambio de modelo) |
 | Navegador | `infrastructure/ha-assist.js` (inicio en la palabra), `application/assistant-session.js` (modo manos libres), bloques `talk-block.js` y `brain-block.js` |
 
 ## Verificación
@@ -38,4 +38,11 @@ Pruebas de Node con un Home Assistant falso; en el navegador, «okay nabu, encie
 inyectada en el micrófono; cambio de modelo y respuesta escrita.
 
 ## Estado
-En curso.
+- **Hecho el 2026-11-18.** Servicio `wakeword` en el stack; `setup_ha.py` pone «okay_nabu» en cada asistente.
+  Bloque «Hablar» con «👂 Activar por voz»; bloque «Cerebro» con la lista de modelos y el aviso de GPU
+  (sale de `catalog/equipment/<equipo>.json`). El modelo elegido se guarda en `ai_models.json`, junto a las claves.
+- Comprobado: `tests/e2e/voice_pipeline.py --wake "Okey Nabu. Enciende el foco."` detecta la palabra y enciende el
+  foco; sin la palabra no se activa. En la página, con la voz de Piper como micrófono: esperando → escuchando →
+  pensando → hablando → esperando, y el foco se apagó en Home Assistant. Cambio de modelo a `lfm3:latest` en la
+  página: Ollama lo cargó y respondió; se volvió a `qwen3.5:4b`. Imagen Docker del Estudio construida y probada.
+- Cambio frente al plan: OpenAI y Gemini no traen lista de modelos (no se inventan nombres); usan el recomendado.

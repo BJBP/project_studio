@@ -1,5 +1,6 @@
 // Brain block: lists the AIs the assistant can think with (local or cloud), shows which one is in use,
-// switches between them and adds a cloud AI key. Reads/acts through brainChoice; texts come from t().
+// switches between them, picks the model of the AI in use and adds a cloud AI key. Reads/acts through brainChoice;
+// texts come from t().
 
 const KEY_ERRORS = { E_FLOW_INVALID: 'keyRejected', E_KEY_FORMAT: 'keyFormat', E_STUDIO_DOWN: 'studioDown' };
 
@@ -7,6 +8,7 @@ export function createBrainBlock({ live, t, brainChoice }) {
   let unsubscribe = null;
   let openKeyFor = null; // provider id whose key form is open; survives re-renders
   let busy = false;
+  const askedModels = new Set(); // providers whose model list was already requested
 
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -55,6 +57,41 @@ export function createBrainBlock({ live, t, brainChoice }) {
     return form;
   }
 
+  // The model list of the AI in use, with a GPU memory warning for local models that do not fit.
+  function modelPicker(brain) {
+    const info = brainChoice.models?.(brain.id);
+    if (!info) {
+      if (!askedModels.has(brain.id)) { askedModels.add(brain.id); brainChoice.loadModels?.(brain.id); }
+      return el('p', 'brain-note', t('modelLoading'));
+    }
+    const box = el('div', 'brain-models');
+    if (info.models.length) {
+      const label = el('label', 'brain-key-label', t('modelLabel'));
+      const select = el('select', 'talk-input');
+      select.disabled = Boolean(info.saving);
+      if (!info.current) select.append(new Option(t('modelRecommended'), '', true, true));
+      for (const model of info.models) {
+        const size = model.sizeGb ? ` · ${model.sizeGb} GB` : '';
+        select.append(new Option(`${model.label}${size}`, model.id, false, model.id === (info.saving ?? info.current)));
+      }
+      select.addEventListener('change', () => { if (select.value) brainChoice.chooseModel(brain.id, select.value); });
+      label.append(select);
+      box.append(label);
+    } else if (!info.message) {
+      box.append(el('p', 'brain-note', t('modelRecommended')));
+    }
+    const chosen = info.models.find((m) => m.id === info.current);
+    if (info.gpuGb && chosen?.sizeGb > info.gpuGb) box.append(el('p', 'lic-warn', t('modelTooBig').replace('{gpu}', info.gpuGb)));
+    else if (info.gpuGb) box.append(el('p', 'brain-note', t('modelGpuHint').replace('{gpu}', info.gpuGb)));
+    const status = el('p', 'brain-key-message');
+    status.setAttribute('role', 'status');
+    if (info.saving) status.textContent = t('modelSaving').replace('{model}', info.saving);
+    else if (info.message) { status.textContent = `${info.message.code}: ${info.message.message}`; status.dataset.state = 'error'; }
+    else if (info.current) status.textContent = t('modelInUse').replace('{model}', info.current);
+    box.append(status);
+    return box;
+  }
+
   function row(brain, rerender) {
     const inUse = brainChoice.current?.id === brain.id;
     const item = el('li', 'brain-row');
@@ -79,6 +116,7 @@ export function createBrainBlock({ live, t, brainChoice }) {
     } else {
       item.append(el('span', 'brain-note', t('brainNotReady')));
     }
+    if (inUse) item.append(modelPicker(brain));
     if (openKeyFor === brain.id && brain.status === 'needs_key') item.append(keyForm(brain, rerender));
     return item;
   }
