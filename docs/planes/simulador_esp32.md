@@ -41,3 +41,11 @@ Assistant. Emulador: QEMU de Espressif (GPL-2.0, local, en Docker). Se descartó
 Prueba hecha. **Decisión del usuario (2026-11-18): esperar a que ESPHome admita OPENETH en el ESP32-S3.**
 Para retomarlo: con cada versión nueva de ESPHome, ejecutar `build_firmware.py circuito_maestro --sim`; si compila,
 seguir con `firmware/simulator/run_sim.sh`, `setup/esphome_device.py` y la pestaña del mockup.
+
+## Alternativas mientras tanto (pendientes, 2026-11-18)
+1. **Arreglarlo con `external_components`** (recomendada): copia propia del componente `ethernet` de ESPHome que
+   salta la parte RMII en el S3; NuttX ya usa OPENETH con el S3 en QEMU. Prueba de ~3 h; si funciona, proponer el
+   arreglo a ESPHome y borrar la copia cuando lo incluyan.
+2. **Híbrida**: el firmware S3 sin red arranca en QEMU (se ven compilación, instalación y arranque); «funcionando» lo
+   muestra el ESP32 virtual generado desde el mismo YAML. ~4–6 h, sin riesgo técnico.
+3. Wokwi: descartada por ser propietaria.
