@@ -2,7 +2,7 @@
 // thinking, speaking) and its last orders (heard text, answer with ▶ to play it, what it moved). Reads Home
 // Assistant over its WebSocket (token from /config.json); pure parsing in ../voice-runs.js.
 import { fill, h } from '../../../shared/dom.js';
-import { createAssist } from '../../../demos/voice/js/infrastructure/ha-assist.js';
+import { connectHa } from '../ha-live.js';
 import { micLevel, satelliteState, summarizeRun } from '../voice-runs.js';
 
 const LEVEL_MS = 1000;
@@ -29,13 +29,6 @@ export function createVoiceMonitorBlock({ t, store }) {
     const id = setTimeout(() => { timers.delete(id); fn(); }, ms);
     timers.add(id);
   };
-
-  async function connect() {
-    const config = await (await fetch('/config.json')).json();
-    if (config.error || !config.haToken) throw { message: config.error ?? t('monitorNoHa') };
-    assist = createAssist({ haUrl: config.haUrl, token: config.haToken });
-    await assist.connect();
-  }
 
   function showLevel(states) {
     const db = micLevel(states, device.id);
@@ -96,7 +89,7 @@ export function createVoiceMonitorBlock({ t, store }) {
         h('div', { class: 'board-row' }, h('strong', {}, t('monitorState')), steps),
         h('h4', {}, t('monitorRuns')), runs, status,
         h('p', { class: 'board-status' }, t('monitorHint')));
-      connect().then(() => { pollLevel(); pollRuns(); }).catch((error) => say(`⚠ ${error.message ?? t('monitorNoHa')}`, 'error'));
+      connectHa(t('monitorNoHa')).then((client) => { assist = client; pollLevel(); pollRuns(); }).catch((error) => say(`⚠ ${error.message ?? t('monitorNoHa')}`, 'error'));
     },
     destroy() {
       alive = false;
