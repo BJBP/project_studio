@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Circuito Maestro Completo — OLED + Relé 12V + Foco + Cooler 8025HD</title>
+  <title>Circuito Maestro Corregido — Pines Exactos (ESP32-S3 + INMP441 + OLED + Relé 12V)</title>
   <style>
     :root {
       --bg: #070b14;
@@ -216,8 +216,8 @@
     <div class="card-hud brand">
       <div class="brand-icon">🛠️</div>
       <div>
-        <h1>Tu Circuito Maestro Completo (3D) — Con Pantalla OLED y Maqueta 12V</h1>
-        <p>ESP32-S3 · INMP441 · MAX98357A · Buzzer · OLED 0.96" Amarillo/Azul · Relé 5V · Tronic 12V + Foco + Cooler 8025HD</p>
+        <h1>Circuito Maestro 3D — Pines y Serigrafía Exactos</h1>
+        <p>ESP32-S3 · INMP441 (SCK/WS/L-R · SD/VDD/GND) · MAX98357A · OLED · Relé · Tronic 12V + Foco + Cooler</p>
       </div>
     </div>
 
@@ -400,9 +400,10 @@
       gold: new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.24, metalness: 0.88 }),
       brass: new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.28, metalness: 0.85 }),
       silver: new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.22, metalness: 0.9 }),
-      solder: new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.14, metalness: 0.95 }),
+      // Soldadura plateada brillante (visible incluso sin envMap)
+      solder: new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.22, metalness: 0.35, emissive: 0x475569, emissiveIntensity: 0.28 }),
       copper: new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x16a34a, emissiveIntensity: 0.45, roughness: 0.3, metalness: 0.6 }),
-      pcbBlack: new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5, metalness: 0.15 }),
+      pcbBlack: new THREE.MeshStandardMaterial({ color: 0x0b101b, roughness: 0.5, metalness: 0.12 }),
       pcbBlue: new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.45, metalness: 0.15 }),
       pcbPurple: new THREE.MeshStandardMaterial({ color: 0x581c87, roughness: 0.4, metalness: 0.12 }),
       relayBlue: new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.32 }),
@@ -536,32 +537,71 @@
     registerHit(breadboardGroup, 'Protoboard MB-102', 'Columnas (a–e y f–j) unidas verticalmente de 5 en 5. Rieles rojo (+) y azul (−) unidos horizontalmente.');
 
     // =========================================================================
-    // 4. ESP32-S3, INMP441, MAX98357A, PARLANTE, BUZZER (EN 50-53), OLED (EN 59-62)
+    // 4. ESP32-S3-N16R8 CON SERIGRAFÍA EXACTAMENTE ALINEADA CON CADA PIN
     // =========================================================================
     const espGroup = new THREE.Group(); scene.add(espGroup);
     const espLen = 5.85, espW = 2.82, espPcbH = 0.16;
+    const espSilkW = espLen - 0.04, espSilkH = espW - 0.04;
     const espPcb = new THREE.Mesh(new THREE.BoxGeometry(espLen, espPcbH, espW), MATS.pcbBlack); espPcb.castShadow = true; espGroup.add(espPcb);
+
     const LEFT_PINS  = ['GND','5V','14','13','12','11','10','9','46','3','8','18','17','16','15','7','6','5','4','RST','3V3','3V3'];
     const RIGHT_PINS = ['GND','GND','19','20','21','47','48','45','0','35','36','37','38','39','40','41','42','2','1','44','43','GND'];
+
     const espSilk = new THREE.Mesh(
-      new THREE.PlaneGeometry(espLen - 0.04, espW - 0.04),
+      new THREE.PlaneGeometry(espSilkW, espSilkH),
       new THREE.MeshBasicMaterial({
         map: makeTex(1024, 512, (ctx, w, h) => {
-          ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, w, h);
+          ctx.fillStyle = '#0b101b'; ctx.fillRect(0, 0, w, h);
+
+          // Antena PCB dorada extremo derecho
           ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 6; ctx.beginPath();
-          ctx.moveTo(w-115,h*0.3); ctx.lineTo(w-25,h*0.3); ctx.lineTo(w-25,h*0.5); ctx.lineTo(w-75,h*0.5); ctx.lineTo(w-75,h*0.7); ctx.lineTo(w-25,h*0.7); ctx.stroke();
-          ctx.font = 'bold 17px monospace'; ctx.textAlign = 'center';
+          ctx.moveTo(w-110, h*0.30); ctx.lineTo(w-24, h*0.30); ctx.lineTo(w-24, h*0.50);
+          ctx.lineTo(w-70, h*0.50); ctx.lineTo(w-70, h*0.70); ctx.lineTo(w-24, h*0.70); ctx.stroke();
+
+          const cyTopPin = ((-5 * PITCH / espSilkH) + 0.5) * h; // ~22 px
+          const cyBotPin = (( 5 * PITCH / espSilkH) + 0.5) * h; // ~490 px
+
           for (let i = 0; i < 22; i++) {
-            const px = 68 + i * ((w - 180) / 21);
+            const px = -2.667 + i * PITCH;
+            const cx = ((px / espSilkW) + 0.5) * w;
+
+            // Pads dorados exactos debajo de cada pin
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath(); ctx.arc(cx, cyTopPin, 11, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx, cyBotPin, 11, 0, Math.PI * 2); ctx.fill();
+
+            // Etiquetas giradas -90° hacia ADENTRO justo debajo/encima de cada pin sin taparse
             const lp = LEFT_PINS[i];
-            ctx.fillStyle = lp === '3V3' ? '#fbbf24' : lp === '5V' ? '#f87171' : ['8','9'].includes(lp) ? '#2dd4bf' : ['4','5','6','15','16','17'].includes(lp) ? '#38bdf8' : '#64748b';
-            ctx.fillText(lp, px, 42);
+            const colL = lp === '3V3' ? '#fbbf24' : lp === '5V' ? '#f87171' : ['8','9'].includes(lp) ? '#2dd4bf' : ['4','5','6','15','16','17'].includes(lp) ? '#38bdf8' : '#cbd5e1';
+            ctx.save();
+            ctx.translate(cx, 62);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = colL;
+            ctx.font = 'bold 20px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(lp, 0, 0);
+            ctx.restore();
+
             const rp = RIGHT_PINS[i];
-            ctx.fillStyle = rp === 'GND' ? '#94a3b8' : ['1','2'].includes(rp) ? '#fde047' : '#64748b';
-            ctx.fillText(rp, px, h - 26);
+            const colR = rp === 'GND' ? '#94a3b8' : ['1','2'].includes(rp) ? '#fde047' : '#cbd5e1';
+            ctx.save();
+            ctx.translate(cx, h - 62);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = colR;
+            ctx.font = 'bold 20px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(rp, 0, 0);
+            ctx.restore();
           }
-          ctx.save(); ctx.translate(28, h * 0.27); ctx.rotate(-Math.PI/2); ctx.fillStyle = '#ef4444'; ctx.font = 'bold 17px sans-serif'; ctx.fillText('USB (NO)', 0, 0); ctx.restore();
-          ctx.save(); ctx.translate(28, h * 0.73); ctx.rotate(-Math.PI/2); ctx.fillStyle = '#22c55e'; ctx.font = 'bold 19px sans-serif'; ctx.fillText('UART ✅', 0, 0); ctx.restore();
+
+          // Etiquetas USB / UART bien visibles a la derecha de las cajas USB-C
+          ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#f87171'; ctx.font = 'bold 22px sans-serif';
+          ctx.fillText('◀ USB (NO)', 96, 140);
+          ctx.fillStyle = '#4ade80'; ctx.font = 'bold 24px sans-serif';
+          ctx.fillText('◀ UART ✅', 96, 372);
         })
       })
     );
@@ -576,7 +616,7 @@
           ctx.fillStyle = '#1e293b'; ctx.font = 'bold 34px sans-serif'; ctx.textAlign = 'center';
           ctx.fillText('ESP32-S3-WROOM-1', w/2, 115); ctx.font = 'bold 28px monospace'; ctx.fillText('N16R8 · Wi-Fi', w/2, 170);
           ctx.font = '20px sans-serif'; ctx.fillStyle = '#475569'; ctx.fillText('Latita metálica hacia ARRIBA', w/2, 225);
-        }), metalness: 0.75, roughness: 0.28
+        }), metalness: 0.4, roughness: 0.35
       }), MATS.silver, MATS.silver, MATS.silver]
     );
     wroomShield.position.set(1.25, espPcbH / 2 + 0.15, 0); wroomShield.castShadow = true; espGroup.add(wroomShield);
@@ -599,7 +639,8 @@
       [-5 * PITCH, 5 * PITCH].forEach(pz => {
         const col = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.22, 0.20), MATS.blackPlastic); col.position.set(px, -espPcbH/2 - 0.11, pz); espHeadersGroup.add(col);
         const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.72, 6), MATS.gold); pin.position.set(px, -espPcbH/2 - 0.36, pz); espHeadersGroup.add(pin);
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.085, 0.09, 10), MATS.solder); cone.position.set(px, espPcbH/2 + 0.045, pz); espGroup.add(cone); espSolderCones.push(cone);
+        // Cono pequeño plateado centrado en el pad para no tapar el texto
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.052, 0.055, 10), MATS.solder); cone.position.set(px, espPcbH/2 + 0.03, pz); espGroup.add(cone); espSolderCones.push(cone);
       });
     }
 
@@ -613,49 +654,105 @@
     }
     registerHit(espGroup, 'ESP32-S3-N16R8', 'Tiene DOS pines 3V3 juntos: uno alimenta al Micrófono y el otro a tu Pantalla OLED. GPIO 8 (SDA) y GPIO 9 (SCL) manejan la pantalla.');
 
-    // INMP441
+    // =========================================================================
+    // 5. INMP441 IDÉNTICO A TU FOTO (ARRIBA: SCK, WS, L/R | ABAJO: SD, VDD, GND)
+    // =========================================================================
     const micGroup = new THREE.Group(); scene.add(micGroup);
-    const micPcb = new THREE.Mesh(new THREE.CylinderGeometry(0.74, 0.74, 0.14, 32), MATS.pcbPurple); micPcb.castShadow = true; micGroup.add(micPcb);
+    const micR = 0.86;
+    const micPcb = new THREE.Mesh(new THREE.CylinderGeometry(micR, micR, 0.14, 32), MATS.pcbBlack);
+    micPcb.castShadow = true; micGroup.add(micPcb);
+
+    const micFaceD = (micR - 0.01) * 2;
     const micFace = new THREE.Mesh(
-      new THREE.CircleGeometry(0.73, 32),
+      new THREE.CircleGeometry(micR - 0.01, 32),
       new THREE.MeshBasicMaterial({
         map: makeTex(256, 256, (ctx, w, h) => {
-          ctx.fillStyle = '#581c87'; ctx.beginPath(); ctx.arc(w/2, h/2, w/2 - 2, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center'; ctx.fillText('INMP441', w/2, 46);
-          ctx.font = 'bold 14px monospace'; ctx.fillStyle = '#fde047'; ctx.fillText('L/R  WS  SCK', w/2, 74); ctx.fillText('SD  VDD  GND', w/2, h - 54);
-          ctx.fillStyle = '#fca5a5'; ctx.font = 'bold 14px sans-serif'; ctx.fillText('⚠️ SOLO 3.3V', w/2, h - 26);
+          ctx.fillStyle = '#0b0f19'; ctx.beginPath(); ctx.arc(w/2, h/2, w/2 - 2, 0, Math.PI*2); ctx.fill();
+          // Borde dorado tipo PCB real de tu foto
+          ctx.strokeStyle = '#b48a3e'; ctx.lineWidth = 10;
+          ctx.beginPath(); ctx.arc(w/2, h/2, w/2 - 12, 0.25, Math.PI - 0.25); ctx.stroke();
+          ctx.beginPath(); ctx.arc(w/2, h/2, w/2 - 12, Math.PI + 0.25, Math.PI*2 - 0.25); ctx.stroke();
+
+          // Dibujar pads dorados exactos en las posiciones físicas de las columnas 32, 33, 34 y filas d, g
+          const topPins = ['SCK', 'WS', 'L/R'];
+          const botPins = ['SD',  'VDD','GND'];
+          const cyTop = ((-2.5 * PITCH / micFaceD) + 0.5) * h; // ~33 px
+          const cyBot = (( 2.5 * PITCH / micFaceD) + 0.5) * h; // ~223 px
+
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          for (let i = 0; i < 3; i++) {
+            const lx = (i - 1) * PITCH;
+            const cx = ((lx / micFaceD) + 0.5) * w; // ~90, 128, 166 px
+
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath(); ctx.arc(cx, cyTop, 11, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx, cyBot, 11, 0, Math.PI*2); ctx.fill();
+
+            // Texto fila superior (SCK, WS, L/R) debajo de sus pads
+            ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 16px monospace';
+            ctx.fillText(topPins[i], cx, cyTop + 26);
+
+            // Texto fila inferior (SD, VDD, GND) arriba de sus pads
+            ctx.fillStyle = botPins[i] === 'VDD' ? '#fbbf24' : '#f8fafc';
+            ctx.fillText(botPins[i], cx, cyBot - 26);
+          }
+
+          // Ícono blanco de micrófono a la izquierda apuntando al centro (como en tu foto!)
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath(); ctx.roundRect ? ctx.roundRect(42, 118, 36, 20, 10) : ctx.fillRect(42, 118, 36, 20); ctx.fill();
+          ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.arc(60, 128, 18, -Math.PI/2, Math.PI/2, true); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(42, 128); ctx.lineTo(30, 128); ctx.moveTo(30, 118); ctx.lineTo(30, 138); ctx.stroke();
         })
       })
     );
     micFace.rotation.x = -Math.PI / 2; micFace.position.y = 0.075; micGroup.add(micFace);
-    const micRing = new THREE.Mesh(new THREE.RingGeometry(0.08, 0.19, 24), MATS.gold); micRing.rotation.x = -Math.PI / 2; micRing.position.y = 0.08; micGroup.add(micRing);
+
+    const micRing = new THREE.Mesh(new THREE.RingGeometry(0.08, 0.17, 24), MATS.gold); micRing.rotation.x = -Math.PI / 2; micRing.position.y = 0.08; micGroup.add(micRing);
     const micHole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.04, 16), MATS.holeDark); micHole.position.y = 0.065; micGroup.add(micHole);
     const micPinsGroup = new THREE.Group(); micGroup.add(micPinsGroup);
     const micSolderCones = [];
     [-PITCH, 0, PITCH].forEach(lx => [-2.5 * PITCH, 2.5 * PITCH].forEach(lz => {
       const yCollar = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.22, 0.20), MATS.yellowPlastic); yCollar.position.set(lx, -0.18, lz); micPinsGroup.add(yCollar);
       const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.66, 6), MATS.gold); pin.position.set(lx, -0.40, lz); micPinsGroup.add(pin);
-      const solder = new THREE.Mesh(new THREE.ConeGeometry(0.088, 0.12, 10), MATS.solder); solder.position.set(lx, 0.13, lz); micGroup.add(solder); micSolderCones.push(solder);
+      const solder = new THREE.Mesh(new THREE.ConeGeometry(0.052, 0.055, 10), MATS.solder); solder.position.set(lx, 0.095, lz); micGroup.add(solder); micSolderCones.push(solder);
     }));
     const MIC_BOARD_POS = new THREE.Vector3(colX(33), BB_Y + 0.56, (ROW_Z.d + ROW_Z.g) / 2);
     const MIC_PARK_POS  = new THREE.Vector3(colX(33), 0.72, 5.2);
-    registerHit(micGroup, 'Micrófono INMP441', '¡Alimentar SOLO con 3.3V! Pines amarillos soldados con el huequito dorado hacia arriba.');
+    registerHit(micGroup, 'Micrófono INMP441 (Orden exacto de tu foto)', 'Fila de arriba (d32-d34): SCK, WS, L/R. Fila de abajo (g32-g34): SD, VDD (⚠️ SOLO 3.3V), GND.');
 
-    // MAX98357A + Parlante
+    // =========================================================================
+    // 6. MAX98357A + PARLANTE (LETRAS ALINEADAS CON CADA PIN)
+    // =========================================================================
     const ampGroup = new THREE.Group(); scene.add(ampGroup);
     const ampW = 7 * PITCH + 0.24, ampD = 1.95;
+    const ampSilkW = ampW - 0.04, ampSilkH = ampD - 0.04;
     const ampPcb = new THREE.Mesh(new THREE.BoxGeometry(ampW, 0.14, ampD), MATS.pcbPurple); ampPcb.castShadow = true; ampGroup.add(ampPcb);
     const ampSilk = new THREE.Mesh(
-      new THREE.PlaneGeometry(ampW - 0.04, ampD - 0.04),
+      new THREE.PlaneGeometry(ampSilkW, ampSilkH),
       new THREE.MeshBasicMaterial({
         map: makeTex(512, 512, (ctx, w, h) => {
           ctx.fillStyle = '#581c87'; ctx.fillRect(0, 0, w, h);
-          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('MAX98357A', w/2, 160);
-          ctx.font = 'bold 20px monospace'; ctx.fillStyle = '#cbd5e1'; ctx.fillText('Amplificador 5V', w/2, 200);
-          ['VIN','GND','SD','GAIN','DIN','BCLK','LRC'].forEach((p, idx) => {
-            const px = 42 + idx * ((w - 84) / 6); ctx.fillStyle = (p === 'SD' || p === 'GAIN') ? '#94a3b8' : '#fde047'; ctx.fillText(p, px, 64);
-          });
-          ctx.fillStyle = '#86efac'; ctx.font = 'bold 26px monospace'; ctx.fillText('+   −', w/2, h - 38);
+          const pins = ['VIN','GND','SD','GAIN','DIN','BCLK','LRC'];
+          const cyPin = (((-ampD/2 + 0.22) / ampSilkH) + 0.5) * h; // ~53 px
+          for (let idx = 0; idx < 7; idx++) {
+            const px = (idx - 3) * PITCH;
+            const cx = ((px / ampSilkW) + 0.5) * w;
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath(); ctx.arc(cx, cyPin, 16, 0, Math.PI*2); ctx.fill();
+
+            ctx.save();
+            ctx.translate(cx, 130);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = (pins[idx] === 'SD' || pins[idx] === 'GAIN') ? '#cbd5e1' : '#fde047';
+            ctx.font = 'bold 26px monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(pins[idx], 0, 0);
+            ctx.restore();
+          }
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('MAX98357A', w/2, 238);
+          ctx.font = 'bold 19px monospace'; ctx.fillStyle = '#cbd5e1'; ctx.fillText('Amp 5V I2S', w/2, 276);
+          ctx.fillStyle = '#86efac'; ctx.font = 'bold 28px monospace'; ctx.fillText('+     −', w/2, h - 38);
         })
       })
     );
@@ -672,11 +769,11 @@
       const px = (i - 3) * PITCH, pz = -ampD / 2 + 0.22;
       const col = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.22, 0.20), MATS.blackPlastic); col.position.set(px, -0.18, pz); ampPinsGroup.add(col);
       const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.66, 6), MATS.gold); pin.position.set(px, -0.40, pz); ampPinsGroup.add(pin);
-      const solder = new THREE.Mesh(new THREE.ConeGeometry(0.088, 0.12, 10), MATS.solder); solder.position.set(px, 0.13, pz); ampGroup.add(solder); ampSolderCones.push(solder);
+      const solder = new THREE.Mesh(new THREE.ConeGeometry(0.052, 0.055, 10), MATS.solder); solder.position.set(px, 0.095, pz); ampGroup.add(solder); ampSolderCones.push(solder);
     }
     const AMP_BOARD_POS = new THREE.Vector3(colX(44), BB_Y + 0.56, ROW_Z.d + (ampD/2 - 0.22));
     const AMP_PARK_POS  = new THREE.Vector3(colX(44), 0.72, 5.2);
-    registerHit(ampGroup, 'Amplificador MAX98357A', '7 pines abajo y bornera verde arriba (+ / −). SD y GAIN sin conectar.');
+    registerHit(ampGroup, 'Amplificador MAX98357A', '7 pines en d41–d47: VIN, GND, SD(libre), GAIN(libre), DIN(17), BCLK(16), LRC(15). Bornera verde (+ / −) al parlante.');
 
     const speakerGroup = new THREE.Group(); speakerGroup.position.set(5.4, 0, -6.5); speakerGroup.rotation.y = -0.35; scene.add(speakerGroup);
     const spkBox = new THREE.Mesh(new THREE.BoxGeometry(3.2, 3.6, 2.4), MATS.blackPlastic); spkBox.position.y = 1.8; spkBox.castShadow = true; speakerGroup.add(spkBox);
@@ -684,7 +781,7 @@
     const spkRing = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.09, 12, 32), MATS.silver); spkRing.position.set(0, 1.9, 1.24); speakerGroup.add(spkRing);
     registerHit(speakerGroup, 'Parlante', 'Cable rojo en (+) y negro en (−) de la bornera verde del MAX98357A.');
 
-    // Buzzer en columnas 50 (+) y 53 (−) para dejar espacio limpio a la pantalla OLED (cols 59–62)
+    // Buzzer en columnas 50 (+) y 53 (−)
     const buzzerGroup = new THREE.Group();
     const BUZ_BOARD_POS = new THREE.Vector3((colX(50) + colX(53)) / 2, BB_Y + 0.78, ROW_Z.g);
     const BUZ_PARK_POS  = new THREE.Vector3(colX(51.5), 0.75, 5.2);
@@ -707,59 +804,59 @@
     registerHit(buzzerGroup, 'Buzzer Activo', 'Patita larga (+) en g50 hacia GPIO 2; patita corta (−) en g53 al carril Azul (−).');
 
     // =========================================================================
-    // 5. TU PANTALLA OLED 0.96" I2C AMARILLO/AZUL (COLS 59..62, FILA d)
+    // 7. TU PANTALLA OLED 0.96" I2C (LETRAS ALINEADAS CON LOS 4 PINES d59..d62)
     // =========================================================================
-    const oledGroup = new THREE.Group();
-    scene.add(oledGroup);
-
+    const oledGroup = new THREE.Group(); scene.add(oledGroup);
     const oledSize = 2.65;
     const oledPcb = new THREE.Mesh(new THREE.BoxGeometry(oledSize, 0.14, oledSize), MATS.pcbBlue);
     oledPcb.castShadow = true; oledGroup.add(oledPcb);
 
-    // Franja blanca de cabecera arriba donde van los 4 pines (GND, VCC, SCL, SDA)
+    const oledHdrW = oledSize - 0.10, oledHdrH = 0.72;
     const oledHeaderStrip = new THREE.Mesh(
-      new THREE.PlaneGeometry(oledSize - 0.1, 0.55),
+      new THREE.PlaneGeometry(oledHdrW, oledHdrH),
       new THREE.MeshBasicMaterial({
-        map: makeTex(256, 64, (ctx, w, h) => {
+        map: makeTex(256, 96, (ctx, w, h) => {
           ctx.fillStyle = '#1e3a8a'; ctx.fillRect(0, 0, w, h);
-          ctx.fillStyle = '#fff'; ctx.font = 'bold 17px monospace'; ctx.textAlign = 'center';
-          ['GND','VCC','SCL','SDA'].forEach((lbl, idx) => {
-            ctx.fillText(lbl, 72 + idx * 36, 46);
-          });
+          const lbls = ['GND','VCC','SCL','SDA'];
+          for (let i = 0; i < 4; i++) {
+            const px = (i - 1.5) * PITCH;
+            const cx = ((px / oledHdrW) + 0.5) * w;
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath(); ctx.arc(cx, 18, 9, 0, Math.PI*2); ctx.fill();
+            ctx.save();
+            ctx.translate(cx, 58);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = lbls[i] === 'VCC' ? '#fbbf24' : '#ffffff';
+            ctx.font = 'bold 17px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(lbls[i], 0, 0);
+            ctx.restore();
+          }
         })
       })
     );
     oledHeaderStrip.rotation.x = -Math.PI / 2;
-    oledHeaderStrip.position.set(0, 0.075, -oledSize / 2 + 0.30);
+    oledHeaderStrip.position.set(0, 0.075, -oledSize / 2 + 0.38);
     oledGroup.add(oledHeaderStrip);
 
-    // Cristal negro del OLED + Canvas dinámico bicolor (Amarillo arriba / Azul abajo)
     const oledCanvas = document.createElement('canvas'); oledCanvas.width = 256; oledCanvas.height = 128;
     const oledCtx = oledCanvas.getContext('2d');
     const oledTex = new THREE.CanvasTexture(oledCanvas);
-    const oledGlass = new THREE.Mesh(new THREE.BoxGeometry(2.38, 0.06, 1.56), MATS.pcbBlack);
-    oledGlass.position.set(0, 0.09, 0.18); oledGroup.add(oledGlass);
+    const oledGlass = new THREE.Mesh(new THREE.BoxGeometry(2.38, 0.06, 1.46), MATS.pcbBlack);
+    oledGlass.position.set(0, 0.09, 0.30); oledGroup.add(oledGlass);
+    const oledScreen = new THREE.Mesh(new THREE.PlaneGeometry(2.15, 1.10), new THREE.MeshBasicMaterial({ map: oledTex }));
+    oledScreen.rotation.x = -Math.PI / 2; oledScreen.position.set(0, 0.125, 0.30); oledGroup.add(oledScreen);
 
-    const oledScreen = new THREE.Mesh(new THREE.PlaneGeometry(2.15, 1.15), new THREE.MeshBasicMaterial({ map: oledTex }));
-    oledScreen.rotation.x = -Math.PI / 2;
-    oledScreen.position.set(0, 0.125, 0.18);
-    oledGroup.add(oledScreen);
-
-    // 4 pines (cols 59, 60, 61, 62 en fila d)
     for (let i = 0; i < 4; i++) {
       const px = (i - 1.5) * PITCH;
-      const pz = -oledSize / 2 + 0.24;
-      const col = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.22, 0.20), MATS.blackPlastic);
-      col.position.set(px, -0.18, pz); oledGroup.add(col);
-      const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.66, 6), MATS.gold);
-      pin.position.set(px, -0.40, pz); oledGroup.add(pin);
-      const solder = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.09, 10), MATS.solder);
-      solder.position.set(px, 0.11, pz); oledGroup.add(solder);
+      const pz = -oledSize / 2 + 0.16;
+      const col = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.22, 0.20), MATS.blackPlastic); col.position.set(px, -0.18, pz); oledGroup.add(col);
+      const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.66, 6), MATS.gold); pin.position.set(px, -0.40, pz); oledGroup.add(pin);
+      const solder = new THREE.Mesh(new THREE.ConeGeometry(0.052, 0.055, 10), MATS.solder); solder.position.set(px, 0.095, pz); oledGroup.add(solder);
     }
 
-    const OLED_BOARD_POS = new THREE.Vector3(colX(60.5), BB_Y + 0.56, ROW_Z.d + (oledSize / 2 - 0.24));
+    const OLED_BOARD_POS = new THREE.Vector3(colX(60.5), BB_Y + 0.56, ROW_Z.d + (oledSize / 2 - 0.16));
     const OLED_PARK_POS  = new THREE.Vector3(colX(60.5), 0.72, 5.2);
-    registerHit(oledGroup, 'Tu Pantalla OLED 0.96" I2C (Yellow-Blue)', '4 pines en d59–d62: GND → Azul (−), VCC → segundo pin 3V3, SCL → GPIO 9, SDA → GPIO 8. ¡Revisa siempre el orden impreso en tu plaquita!');
+    registerHit(oledGroup, 'Tu Pantalla OLED 0.96" I2C (Yellow-Blue)', '4 pines en d59–d62: GND → Azul (−), VCC → segundo pin 3V3, SCL → GPIO 9, SDA → GPIO 8.');
 
     function drawOledScreen() {
       const ctx = oledCtx, w = 256, h = 128;
@@ -767,8 +864,7 @@
       if (state.stepIdx < 10) {
         ctx.fillStyle = '#111827'; ctx.fillRect(8, 8, w - 16, h - 16);
         ctx.fillStyle = '#475569'; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('OLED APAGADA', w/2, 70);
-        oledTex.needsUpdate = true; return;
+        ctx.fillText('OLED APAGADA', w/2, 70); oledTex.needsUpdate = true; return;
       }
       if (state.oledLines) {
         // Text sent by the Studio (virtual ESP32): yellow header band + up to 6 blue lines, like the real 128x64 OLED.
@@ -778,24 +874,18 @@
         state.oledLines.slice(0, 6).forEach((line, i) => ctx.fillText(line, 6, 47 + i * 16));
         oledTex.needsUpdate = true; return;
       }
-      // Zona superior AMARILLA (primeros 32 px de la OLED Yellow-Blue!)
-      ctx.fillStyle = '#facc15';
-      ctx.font = 'bold 18px monospace'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#facc15'; ctx.font = 'bold 18px monospace'; ctx.textAlign = 'center';
       ctx.fillText('DOMOTICA 100% LOCAL', w/2, 23);
-
-      // Zona inferior AZUL
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 17px monospace';
+      ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 17px monospace';
       ctx.fillText(state.relayOn ? '12V: ENCENDIDO [ON]' : '12V: APAGADO  [OFF]', w/2, 56);
-      ctx.fillStyle = state.buzzerOn ? '#7dd3fc' : '#60a5fa';
-      ctx.font = '15px monospace';
+      ctx.fillStyle = state.buzzerOn ? '#7dd3fc' : '#60a5fa'; ctx.font = '15px monospace';
       ctx.fillText(state.buzzerOn ? 'Alarma: BEEP ACTIVO!' : 'Red: Sin Internet OK', w/2, 84);
       ctx.fillText('Web: 192.168.4.1', w/2, 112);
       oledTex.needsUpdate = true;
     }
 
     // =========================================================================
-    // 6. TU RELÉ + FUENTE TRONIC 12V + CONECTOR JACK + SOCKET NEGRO FOCO 12V + COOLER 8025HD
+    // 8. TU RELÉ + TRONIC 12V + JACK + SOCKET NEGRO + COOLER 8025HD
     // =========================================================================
     const relayGroup = new THREE.Group(); relayGroup.position.set(11.6, 0, -0.2); scene.add(relayGroup);
     const relayPad = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.16, 3.4), MATS.cardboard); relayPad.position.y = 0.08; relayPad.receiveShadow = true; relayGroup.add(relayPad);
@@ -833,9 +923,7 @@
       const sc1 = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.06, 14), MATS.silver); sc1.position.set(-1.66, 1.05, sz); relayGroup.add(sc1);
       const sc2 = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.06, 14), MATS.silver); sc2.position.set( 1.66, 1.11, sz); relayGroup.add(sc2);
     });
-    [-1.12, -0.92, -0.72].forEach(px => {
-      const jp = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.42, 6), MATS.gold); jp.position.set(px, 0.50, -0.98); relayGroup.add(jp);
-    });
+    [-1.12, -0.92, -0.72].forEach(px => { const jp = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.42, 6), MATS.gold); jp.position.set(px, 0.50, -0.98); relayGroup.add(jp); });
     const redJumperCap = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.34, 0.20), MATS.redCap); redJumperCap.position.set(-1.02, 0.52, -0.98); relayGroup.add(redJumperCap);
     const relayPwrLedMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x16a34a, emissiveIntensity: 0.2 });
     const relayPwrLed = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.09, 0.12), relayPwrLedMat); relayPwrLed.position.set(-1.05, 0.36, -0.45); relayGroup.add(relayPwrLed);
@@ -843,7 +931,6 @@
     const relayLed = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.09, 0.12), relayLedMat); relayLed.position.set(-1.05, 0.36, 0.48); relayGroup.add(relayLed);
     registerHit(relayGroup, 'Tu Módulo Relé 5V (SRD-05VDC-SL-C)', 'Lado verde: ESP32 (DC+, DC−, IN) con capuchón rojo en H. Lado azul: circuito seguro de 12V (COM y NO).');
 
-    // Conector negro con bornera verde + Adaptador Tronic 12V-2A
     const dcJackGroup = new THREE.Group(); dcJackGroup.position.set(16.0, 0, -2.1); scene.add(dcJackGroup);
     const jackBlock = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.65, 1.35), MATS.greenTerm); jackBlock.position.set(-0.35, 0.325, 0); jackBlock.castShadow = true; dcJackGroup.add(jackBlock);
     const jackLabel = new THREE.Mesh(
@@ -879,16 +966,11 @@
     const adapterPlug = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 1.5, 12), MATS.blackPlastic); adapterPlug.rotation.z = Math.PI / 2; adapterPlug.position.set(-1.55, 0.33, 0); adapterGroup.add(adapterPlug);
     registerHit(adapterGroup, 'Tu Adaptador Tronic 12V-2A', 'Alimenta con 12V seguros tu foquito y tu ventilador 8025HD.');
 
-    // Tu Socket negro redondo con 2 tornillos + Foquito transparente de 12V (de tu foto!)
     const bulb12Group = new THREE.Group(); bulb12Group.position.set(12.2, 0, -6.2); scene.add(bulb12Group);
-    const sockBase = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.12, 0.30, 28), MATS.blackPlastic);
-    sockBase.position.y = 0.15; sockBase.castShadow = true; bulb12Group.add(sockBase);
-    // Lengüetas de bronce con 2 tornillos plateados
+    const sockBase = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.12, 0.30, 28), MATS.blackPlastic); sockBase.position.y = 0.15; sockBase.castShadow = true; bulb12Group.add(sockBase);
     const brassTab1 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.06, 0.35), MATS.brass); brassTab1.position.set(-0.55, 0.32, 0.38); brassTab1.rotation.y = -0.5; bulb12Group.add(brassTab1);
     const brassTab2 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.06, 0.35), MATS.brass); brassTab2.position.set( 0.55, 0.32, 0.38); brassTab2.rotation.y =  0.5; bulb12Group.add(brassTab2);
-    [[-0.65, 0.45], [0.65, 0.45]].forEach(([sx, sz]) => {
-      const sc = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.08, 14), MATS.silver); sc.position.set(sx, 0.38, sz); bulb12Group.add(sc);
-    });
+    [[-0.65, 0.45], [0.65, 0.45]].forEach(([sx, sz]) => { const sc = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.08, 14), MATS.silver); sc.position.set(sx, 0.38, sz); bulb12Group.add(sc); });
     const brassCup = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.45, 20), MATS.brass); brassCup.position.y = 0.48; bulb12Group.add(brassCup);
     const bulbThreads = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.30, 0.35, 20), MATS.silver); bulbThreads.position.y = 0.85; bulb12Group.add(bulbThreads);
     const bulbMat = new THREE.MeshStandardMaterial({ color: 0xfef9c3, emissive: 0xffb703, emissiveIntensity: 0, transparent: true, opacity: 0.72, roughness: 0.15 });
@@ -897,7 +979,6 @@
     const filament = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.025, 8, 16, Math.PI), filamentMat); filament.position.y = 1.32; bulb12Group.add(filament);
     registerHit(bulb12Group, 'Tu Socket Negro + Foquito 12V', 'Atornilla el cable rojo desde NO en un tornillo del socket y el negro hacia (−) del Jack en el otro tornillo.');
 
-    // Tu Ventilador SUCAM 8025HD (80x80x25mm 12V 0.2A)
     const fan12Group = new THREE.Group(); fan12Group.position.set(16.2, 0, -6.2); fan12Group.rotation.y = -0.25; scene.add(fan12Group);
     const fanStand = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.28, 1.6), MATS.blackPlastic); fanStand.position.y = 0.14; fanStand.castShadow = true; fan12Group.add(fanStand);
     const fanBodyGroup = new THREE.Group(); fanBodyGroup.position.set(0, 1.55, 0); fan12Group.add(fanBodyGroup);
@@ -930,7 +1011,7 @@
     registerHit(fan12Group, 'Tu Ventilador SUCAM 8025HD (12V 0.2A)', 'Cable rojo (+) desde NO del relé; cable negro (−) al tornillo (−) del conector DC Jack.');
 
     // =========================================================================
-    // 7. LAPTOP + CÁMARA USB + CAUTÍN 3D
+    // 9. LAPTOP + CÁMARA USB + CAUTÍN 3D
     // =========================================================================
     const laptopGroup = new THREE.Group(); laptopGroup.position.set(-10.5, 0, -6.4); laptopGroup.rotation.y = 0.28; scene.add(laptopGroup);
     const lapBase = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.32, 4.9), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.65, roughness: 0.32 })); lapBase.position.y = 0.16; lapBase.castShadow = true; laptopGroup.add(lapBase);
@@ -973,14 +1054,14 @@
     demoPrint.rotation.x = -Math.PI / 2; demoPrint.position.y = 0.075; demoSolderBoard.add(demoPrint);
     [-0.85, -0.45].forEach(x => {
       const p = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 8), MATS.gold); p.position.set(x, -0.2, 0.08); demoSolderBoard.add(p);
-      const c = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.14, 12), MATS.solder); c.position.set(x, 0.14, 0.08); demoSolderBoard.add(c);
+      const c = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.10, 12), MATS.solder); c.position.set(x, 0.12, 0.08); demoSolderBoard.add(c);
     });
     [0.45, 0.85].forEach(x => { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 8), MATS.gold); p.position.set(x, -0.2, 0.08); demoSolderBoard.add(p); });
-    const badBridge = new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 12), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, emissive: 0xef4444, emissiveIntensity: 0.45, metalness: 0.8 }));
+    const badBridge = new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 12), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, emissive: 0xef4444, emissiveIntensity: 0.45, metalness: 0.5 }));
     badBridge.scale.set(1.6, 0.65, 0.8); badBridge.position.set(0.65, 0.14, 0.08); demoSolderBoard.add(badBridge);
 
     // =========================================================================
-    // 8. TODOS LOS CABLES (CURVOS + RECTOS 3D), INCLUYENDO OLED EN PASO 10
+    // 10. TODOS LOS CABLES (INMP441 CORREGIDO: d32=SCK, d33=WS, d34=L/R | g32=SD, g33=VDD, g34=GND)
     // =========================================================================
     function holeTop(c, rk) { return new THREE.Vector3(colX(c), BB_Y + 0.02, ROW_Z[rk]); }
     function backRailHole(c, plus) { return new THREE.Vector3(nearestRailX(c), BB_Y + 0.02, plus ? ROW_Z.backPlus : ROW_Z.backMinus); }
@@ -1034,7 +1115,7 @@
         stA: () => [], stB: () => stPath([[nearestRailX(56),BB_Y,ROW_Z.backMinus], [nearestRailX(56),1.15,ROW_Z.backMinus], [nearestRailX(56),1.15,-3.3], [8.7,1.15,-3.3], [8.7,1.15,3.3], [nearestRailX(56),1.15,3.3], [nearestRailX(56),1.15,ROW_Z.frontMinus], [nearestRailX(56),BB_Y,ROW_Z.frontMinus]])
       },
 
-      // Paso 7 = 3B INMP441
+      // Paso 7 = 3B INMP441 CORREGIDO EXACTAMENTE SEGÚN TU FOTO (d32=SCK, d33=WS, d34=L/R | g32=SD, g33=VDD, g34=GND)
       { id: 'w_mic_vdd', minStep: 7, proj: ['voz','intercom','acustico'], color: 0xf59e0b, hex: '#f59e0b',
         label: 'INMP441 VDD (i33) → ESP32 3V3 #1 (i25) ⚠️', info: '¡CRÍTICO! Solo 3.3V, NUNCA a 5V.',
         ptsA: () => arc(holeTop(33,'i'), holeTop(25,'i'), 1.05, 0.25),
@@ -1043,39 +1124,39 @@
         stB: () => { const p = getEspPinWorld('L',21,'B'); return stPath([[colX(33),BB_Y,ROW_Z.i], [colX(33),1.16,ROW_Z.i], [colX(33),1.16,3.35], [p.x,1.16,3.35], [p.x,p.y,p.z]]); }
       },
       { id: 'w_mic_gnd', minStep: 7, proj: ['voz','intercom','acustico'], color: 0x0f172a, hex: '#0f172a',
-        label: 'INMP441 GND (j34) → Carril Azul (−)', info: 'Tierra del micrófono.',
+        label: 'INMP441 GND (j34) → Carril Azul (−)', info: 'Tierra del micrófono (esquina inferior derecha en tu foto).',
         ptsA: () => arc(holeTop(34,'j'), backRailHole(35,false), 1.35),
         ptsB: () => arc(holeTop(34,'j'), frontRailHole(34,false), 0.75),
         stA: () => stPath([[colX(34),BB_Y,ROW_Z.j], [colX(34),1.18,ROW_Z.j], [colX(34),1.18,2.05], [colX(36.5),1.18,2.05], [colX(36.5),1.18,ROW_Z.backMinus], [nearestRailX(35),1.18,ROW_Z.backMinus], [nearestRailX(35),BB_Y,ROW_Z.backMinus]]),
         stB: () => stPath([[colX(34),BB_Y,ROW_Z.j], [colX(34),1.15,ROW_Z.j], [nearestRailX(34),1.15,ROW_Z.frontMinus], [nearestRailX(34),BB_Y,ROW_Z.frontMinus]])
       },
       { id: 'w_mic_lr',  minStep: 7, proj: ['voz','intercom','acustico'], color: 0x475569, hex: '#475569',
-        label: 'INMP441 L/R (b32) → Carril Azul (−)', info: 'Obligatorio a (−) para evitar ruido.',
-        ptsA: () => arc(holeTop(32,'b'), backRailHole(31,false), 0.72),
-        ptsB: () => arc(holeTop(32,'b'), backRailHole(31,false), 0.72),
-        stA: () => stPath([[colX(32),BB_Y,ROW_Z.b], [colX(32),1.12,ROW_Z.b], [colX(32),1.12,-3.15], [nearestRailX(31),1.12,-3.15], [nearestRailX(31),1.12,ROW_Z.backMinus], [nearestRailX(31),BB_Y,ROW_Z.backMinus]]),
-        stB: () => stPath([[colX(32),BB_Y,ROW_Z.b], [colX(32),1.12,ROW_Z.b], [colX(32),1.12,-3.15], [nearestRailX(31),1.12,-3.15], [nearestRailX(31),1.12,ROW_Z.backMinus], [nearestRailX(31),BB_Y,ROW_Z.backMinus]])
+        label: 'INMP441 L/R (b34) → Carril Azul (−)', info: 'En tu foto L/R es la esquina superior derecha (col 34). Obligatorio a (−) para evitar ruido.',
+        ptsA: () => arc(holeTop(34,'b'), backRailHole(34,false), 0.72),
+        ptsB: () => arc(holeTop(34,'b'), backRailHole(34,false), 0.72),
+        stA: () => stPath([[colX(34),BB_Y,ROW_Z.b], [colX(34),1.12,ROW_Z.b], [colX(34),1.12,ROW_Z.backMinus], [nearestRailX(34),1.12,ROW_Z.backMinus], [nearestRailX(34),BB_Y,ROW_Z.backMinus]]),
+        stB: () => stPath([[colX(34),BB_Y,ROW_Z.b], [colX(34),1.12,ROW_Z.b], [colX(34),1.12,ROW_Z.backMinus], [nearestRailX(34),1.12,ROW_Z.backMinus], [nearestRailX(34),BB_Y,ROW_Z.backMinus]])
       },
       { id: 'w_mic_ws',  minStep: 7, proj: ['voz','intercom','acustico'], color: 0x22c55e, hex: '#22c55e',
-        label: 'INMP441 WS (b33) → ESP32 GPIO 4 (h22)', info: 'Word Select I2S 0.',
+        label: 'INMP441 WS (b33) → ESP32 GPIO 4 (h22)', info: 'Word Select I2S 0 (pin del medio arriba).',
         ptsA: () => arc(holeTop(33,'b'), holeTop(22,'h'), 1.48, -0.35),
         ptsB: () => arc(holeTop(33,'b'), getEspPinWorld('L',18,'B'), 2.15),
-        stA: () => stPath([[colX(33),BB_Y,ROW_Z.b], [colX(33),1.24,ROW_Z.b], [colX(33),1.24,-3.55], [colX(29),1.24,-3.55], [colX(29),1.24,ROW_Z.h], [colX(22),1.24,ROW_Z.h], [colX(22),BB_Y,ROW_Z.h]]),
-        stB: () => { const p = getEspPinWorld('L',18,'B'); return stPath([[colX(33),BB_Y,ROW_Z.b], [colX(33),1.24,ROW_Z.b], [colX(33),1.24,-3.55], [colX(29),1.24,-3.55], [colX(29),1.24,3.5], [p.x,1.24,3.5], [p.x,p.y,p.z]]); }
+        stA: () => stPath([[colX(33),BB_Y,ROW_Z.b], [colX(33),1.22,ROW_Z.b], [colX(33),1.22,-3.25], [colX(29),1.22,-3.25], [colX(29),1.22,ROW_Z.h], [colX(22),1.22,ROW_Z.h], [colX(22),BB_Y,ROW_Z.h]]),
+        stB: () => { const p = getEspPinWorld('L',18,'B'); return stPath([[colX(33),BB_Y,ROW_Z.b], [colX(33),1.22,ROW_Z.b], [colX(33),1.22,-3.25], [colX(29),1.22,-3.25], [colX(29),1.22,3.5], [p.x,1.22,3.5], [p.x,p.y,p.z]]); }
       },
       { id: 'w_mic_sck', minStep: 7, proj: ['voz','intercom','acustico'], color: 0x3b82f6, hex: '#3b82f6',
-        label: 'INMP441 SCK (b34) → ESP32 GPIO 5 (g21)', info: 'Bit Clock I2S 0.',
-        ptsA: () => arc(holeTop(34,'b'), holeTop(21,'g'), 1.72, -0.45),
-        ptsB: () => arc(holeTop(34,'b'), getEspPinWorld('L',17,'B'), 2.35),
-        stA: () => stPath([[colX(34),BB_Y,ROW_Z.b], [colX(34),1.32,ROW_Z.b], [colX(34),1.32,-3.85], [colX(28.5),1.32,-3.85], [colX(28.5),1.32,ROW_Z.g], [colX(21),1.32,ROW_Z.g], [colX(21),BB_Y,ROW_Z.g]]),
-        stB: () => { const p = getEspPinWorld('L',17,'B'); return stPath([[colX(34),BB_Y,ROW_Z.b], [colX(34),1.32,ROW_Z.b], [colX(34),1.32,-3.85], [colX(28.5),1.32,-3.85], [colX(28.5),1.32,3.65], [p.x,1.32,3.65], [p.x,p.y,p.z]]); }
+        label: 'INMP441 SCK (b32) → ESP32 GPIO 5 (g21)', info: 'En tu foto SCK es la esquina superior izquierda (col 32).',
+        ptsA: () => arc(holeTop(32,'b'), holeTop(21,'g'), 1.72, -0.45),
+        ptsB: () => arc(holeTop(32,'b'), getEspPinWorld('L',17,'B'), 2.35),
+        stA: () => stPath([[colX(32),BB_Y,ROW_Z.b], [colX(32),1.30,ROW_Z.b], [colX(32),1.30,-3.55], [colX(28.5),1.30,-3.55], [colX(28.5),1.30,ROW_Z.g], [colX(21),1.30,ROW_Z.g], [colX(21),BB_Y,ROW_Z.g]]),
+        stB: () => { const p = getEspPinWorld('L',17,'B'); return stPath([[colX(32),BB_Y,ROW_Z.b], [colX(32),1.30,ROW_Z.b], [colX(32),1.30,-3.55], [colX(28.5),1.30,-3.55], [colX(28.5),1.30,3.65], [p.x,1.30,3.65], [p.x,p.y,p.z]]); }
       },
       { id: 'w_mic_sd',  minStep: 7, proj: ['voz','intercom','acustico'], color: 0x06b6d4, hex: '#06b6d4',
-        label: 'INMP441 SD (h32) → ESP32 GPIO 6 (f20)', info: 'Datos de voz.',
+        label: 'INMP441 SD (h32) → ESP32 GPIO 6 (f20)', info: 'Datos de voz (esquina inferior izquierda en tu foto).',
         ptsA: () => arc(holeTop(32,'h'), holeTop(20,'f'), 1.25, 0.15),
         ptsB: () => arc(holeTop(32,'h'), getEspPinWorld('L',16,'B'), 1.75),
         stA: () => stPath([[colX(32),BB_Y,ROW_Z.h], [colX(32),1.20,ROW_Z.h], [colX(26),1.20,ROW_Z.h], [colX(26),1.20,ROW_Z.f], [colX(20),1.20,ROW_Z.f], [colX(20),BB_Y,ROW_Z.f]]),
-        stB: () => { const p = getEspPinWorld('L',16,'B'); return stPath([[colX(32),BB_Y,ROW_Z.h], [colX(32),1.20,ROW_Z.h], [colX(32),1.20,2.0], [colX(28),1.20,2.0], [colX(28),1.20,3.8], [p.x,1.20,3.8], [p.x,p.y,p.z]]); }
+        stB: () => { const p = getEspPinWorld('L',16,'B'); return stPath([colX(32),BB_Y,ROW_Z.h].length ? [[colX(32),BB_Y,ROW_Z.h], [colX(32),1.20,ROW_Z.h], [colX(32),1.20,2.0], [colX(28),1.20,2.0], [colX(28),1.20,3.8], [p.x,1.20,3.8], [p.x,p.y,p.z]] : []); }
       },
 
       // Paso 8 = 3C MAX98357A + Parlante
@@ -1084,7 +1165,7 @@
         ptsA: () => arc(holeTop(41,'b'), backRailHole(41,true), 0.72),
         ptsB: () => arc(holeTop(41,'b'), backRailHole(41,true), 0.72),
         stA: () => stPath([[colX(41),BB_Y,ROW_Z.b], [colX(41),1.12,ROW_Z.b], [colX(41),1.12,ROW_Z.backPlus], [nearestRailX(41),1.12,ROW_Z.backPlus], [nearestRailX(41),BB_Y,ROW_Z.backPlus]]),
-        stB: () => stPath([[colX(41),BB_Y,ROW_Z.b], [colX(41),1.12,ROW_Z.b], [colX(41),1.12,ROW_Z.backPlus], [nearestRailX(41),1.12,ROW_Z.backPlus], [nearestRailX(41),BB_Y,ROW_Z.backPlus]])
+        stB: () => stPath([colX(41),BB_Y,ROW_Z.b].length ? [[colX(41),BB_Y,ROW_Z.b], [colX(41),1.12,ROW_Z.b], [colX(41),1.12,ROW_Z.backPlus], [nearestRailX(41),1.12,ROW_Z.backPlus], [nearestRailX(41),BB_Y,ROW_Z.backPlus]] : [])
       },
       { id: 'w_amp_gnd',  minStep: 8, proj: ['voz','seguridad','salud','intercom'], color: 0x1e293b, hex: '#1e293b',
         label: 'MAX98357A GND (c42) → Carril Azul (−)', info: 'Tierra amplificador.',
@@ -1097,7 +1178,7 @@
         label: 'MAX98357A LRC (c47) → ESP32 GPIO 15 (i18)', info: 'Canal I2S 1.',
         ptsA: () => arc(holeTop(47,'c'), holeTop(18,'i'), 2.15, -0.5),
         ptsB: () => arc(holeTop(47,'c'), getEspPinWorld('L',14,'B'), 2.6),
-        stA: () => stPath([[colX(47),BB_Y,ROW_Z.c], [colX(47),1.40,ROW_Z.c], [colX(47),1.40,-4.2], [colX(27.5),1.40,-4.2], [colX(27.5),1.40,ROW_Z.i], [colX(18),1.40,ROW_Z.i], [colX(18),BB_Y,ROW_Z.i]]),
+        stA: () => stPath([colX(47),BB_Y,ROW_Z.c].length ? [[colX(47),BB_Y,ROW_Z.c], [colX(47),1.40,ROW_Z.c], [colX(47),1.40,-4.2], [colX(27.5),1.40,-4.2], [colX(27.5),1.40,ROW_Z.i], [colX(18),1.40,ROW_Z.i], [colX(18),BB_Y,ROW_Z.i]] : []),
         stB: () => { const p = getEspPinWorld('L',14,'B'); return stPath([[colX(47),BB_Y,ROW_Z.c], [colX(47),1.40,ROW_Z.c], [colX(47),1.40,-4.2], [colX(27.5),1.40,-4.2], [colX(27.5),1.40,3.95], [p.x,1.40,3.95], [p.x,p.y,p.z]]); }
       },
       { id: 'w_amp_bclk', minStep: 8, proj: ['voz','seguridad','salud','intercom'], color: 0xd946ef, hex: '#d946ef',
@@ -1367,14 +1448,14 @@
     }
 
     // =========================================================================
-    // 9. LOS 13 PASOS DEL TUTORIAL (CON TU PANTALLA OLED EN PASO 3E)
+    // 11. LOS 13 PASOS DEL TUTORIAL (ACTUALIZADOS CON EL ORDEN REAL DEL INMP441)
     // =========================================================================
     const STEPS = [
       {
         pill: 'Paso 0 · Conoce tus piezas', sub: 'Maqueta Domótica Completa',
         title: 'Todas tus piezas reales sobre la mesa',
         bullets: [
-          '🧠 <b>ESP32-S3-N16R8 + Micrófono + Parlante + Buzzer:</b> Tu cerebro, oído, voz y alarma.',
+          '🧠 <b>ESP32-S3-N16R8 + Micrófono INMP441 + Parlante + Buzzer:</b> Tu cerebro, oído, voz y alarma.',
           '📺 <b>Tu Pantalla OLED 0.96" Amarillo/Azul:</b> Muestra estado local e IP sin mirar la PC.',
           '⚡ <b>Tu Relé SRD-05VDC-SL-C + Cargador Tronic 12V-2A:</b> Interruptor seguro para 12V.',
           '💡🌀 <b>Tu Socket negro con Foquito 12V y Ventilador SUCAM 8025HD:</b> Cargas reales.'
@@ -1382,7 +1463,7 @@
         alertType: 'warn', alertText: '💡 Usa <b>📐 3D Isométrica (Rectos)</b>, <b>🧊 3D Normal</b> o <b>⬛⬜ Ambos</b> arriba cuando quieras.',
         cam3D:  { theta: 0.35, phi: 0.85, radius: 27.5, target: new THREE.Vector3(1.5, 1.0, -1.5) },
         camIso: { theta: 0.16, phi: 0.44, size: 11.8,  target: new THREE.Vector3(1.6, 0.5, -1.5) },
-        visualHtml: `<div style="text-align:center;line-height:1.45;"><b style="color:#86efac;">100% Real:</b><br>Cada pieza en este 3D coincide con las de tus fotos.</div>`
+        visualHtml: `<div style="text-align:center;line-height:1.45;"><b style="color:#86efac;">100% Fiel a tus Fotos:</b><br>Los pines y letras de cada placa coinciden exactamente con tus piezas reales.</div>`
       },
       {
         pill: 'Paso 1A · Soldadura', sub: 'Trabajo con cautín',
@@ -1396,11 +1477,11 @@
         cam3D:  { theta: 0.25, phi: 0.92, radius: 4.8, target: new THREE.Vector3(colX(33) + 0.9, 1.35, 5.2) },
         camIso: { theta: 0.18, phi: 0.56, size: 2.8, target: new THREE.Vector3(colX(33) + 1.0, 1.25, 5.2) },
         visualHtml: `<svg viewBox="0 0 260 85" width="100%" height="80">
-          <rect x="8" y="34" width="105" height="10" rx="2" fill="#581c87"/>
+          <rect x="8" y="34" width="105" height="10" rx="2" fill="#0f172a"/>
           <polygon points="34,34 40,20 46,34" fill="#e2e8f0"/><rect x="38" y="12" width="4" height="54" fill="#fbbf24"/>
           <polygon points="72,34 78,20 84,34" fill="#e2e8f0"/><rect x="76" y="12" width="4" height="54" fill="#fbbf24"/>
           <text x="60" y="79" fill="#86efac" font-size="11" font-weight="bold" text-anchor="middle">✅ BIEN: conos separados</text>
-          <rect x="145" y="34" width="105" height="10" rx="2" fill="#581c87"/>
+          <rect x="145" y="34" width="105" height="10" rx="2" fill="#0f172a"/>
           <rect x="174" y="12" width="4" height="54" fill="#fbbf24"/><rect x="212" y="12" width="4" height="54" fill="#fbbf24"/>
           <ellipse cx="195" cy="28" rx="26" ry="10" fill="#e2e8f0" stroke="#ef4444" stroke-width="2"/>
           <text x="197" y="79" fill="#fca5a5" font-size="11" font-weight="bold" text-anchor="middle">❌ MAL: ¡pines pegados!</text>
@@ -1487,13 +1568,13 @@
         visualHtml: 'WIRE_LIST'
       },
       {
-        pill: 'Paso 3B · Micrófono INMP441', sub: '⚠️ ¡Solo 3.3V!',
-        title: 'Colocar el Micrófono INMP441 y conectarlo',
+        pill: 'Paso 3B · Micrófono INMP441', sub: '⚠️ ¡Solo 3.3V! (Orden real de tu placa)',
         tryIt: { see: 'Con el firmware instalado, di «Okay Nabu»: la pantalla muestra «Escuchando…».', fix: 'Revisa VDD a 3V3 (nunca 5V), L/R a GND, WS→4, SCK→5, SD→6.' },
+        title: 'Colocar tu Micrófono INMP441 y conectarlo',
         bullets: [
-          '1️⃣ Encájalo cruzando el canal central: fila <code>d</code> (<code>L/R, WS, SCK</code>) y fila <code>g</code> (<code>SD, VDD, GND</code>) en cols <code>32–34</code>.',
+          '1️⃣ Encájalo cruzando el canal central con las letras derechas: arriba fila <code>d</code> (<code>SCK=d32, WS=d33, L/R=d34</code>) y abajo fila <code>g</code> (<code>SD=g32, VDD=g33, GND=g34</code>).',
           '2️⃣ <b>CRÍTICO:</b> <code>VDD</code> (<code>i33</code>) va al primer pin <code>3V3</code> del ESP32 (<code>i25</code>). <b>¡NUNCA a 5V!</b>',
-          '3️⃣ <code>L/R</code> (<code>b32</code>) y <code>GND</code> (<code>j34</code>) al <b>Azul (−)</b>; <code>WS→4</code>, <code>SCK→5</code>, <code>SD→6</code>.'
+          '3️⃣ <code>L/R</code> (<code>b34</code>) y <code>GND</code> (<code>j34</code>) al <b>Azul (−)</b>; <code>SCK→5</code> (<code>b32</code>), <code>WS→4</code> (<code>b33</code>), <code>SD→6</code> (<code>h32</code>).'
         ],
         alertType: 'danger', alertText: '🔥 Si conectas VDD del INMP441 al riel rojo (5V) se quema al instante.',
         cam3D:  { theta: 0.08, phi: 0.65, radius: 9.5, target: new THREE.Vector3(colX(28), 1.1, 0.0) },
@@ -1533,11 +1614,11 @@
         title: 'Colocar tu Pantalla OLED I2C de 4 pines',
         tryIt: { see: 'Al encender, la pantalla muestra «FOCO:OFF  FAN:OFF» y «Listo».', fix: 'Revisa SDA→8, SCL→9 y VCC a 3V3. Si sigue en negro, la dirección puede ser 0x3D en vez de 0x3C.' },
         bullets: [
-          '1️⃣ Pincha los 4 pines de la OLED en fila <code>d</code> (cols <code>59, 60, 61, 62</code>). <b>Lee primero el orden impreso</b> en tu placa (aquí: <code>GND, VCC, SCL, SDA</code>).',
+          '1️⃣ Pincha los 4 pines de la OLED en fila <code>d</code> (cols <code>59, 60, 61, 62</code>). <b>Lee primero el orden impreso</b> en tu placa (<code>GND, VCC, SCL, SDA</code>).',
           '2️⃣ Conecta <code>GND</code> al <b>Carril Azul (−)</b>, y <code>VCC</code> al <b>segundo pin <code>3V3</code></b> del ESP32 (<code>h24</code>).',
           '3️⃣ Conecta <code>SCL</code> al <b><code>GPIO 9</code></b> (<code>g11</code>) y <code>SDA</code> al <b><code>GPIO 8</code></b> (<code>f14</code>).'
         ],
-        alertType: 'danger', alertText: '⚠️ Revisa el orden exacto de las letras sobre el vidrio de TU pantalla antes de enchufar GND y VCC, porque algunas vienen invertidas (VCC primero y GND segundo).',
+        alertType: 'danger', alertText: '⚠️ Revisa el orden exacto de las letras sobre el vidrio de TU pantalla antes de enchufar GND y VCC, porque algunas vienen invertidas.',
         cam3D:  { theta: 0.10, phi: 0.65, radius: 11.5, target: new THREE.Vector3(2.8, 1.0, -1.5) },
         camIso: { theta: 0.12, phi: 0.42, size: 7.4,  target: new THREE.Vector3(2.8, 0.8, -1.5) },
         visualHtml: 'WIRE_LIST'
@@ -1623,13 +1704,13 @@
     ];
 
     // =========================================================================
-    // 10. ETIQUETAS, AUDIO, PANTALLA LAPTOP Y CONTROLES DE CÁMARA
+    // 12. ETIQUETAS (DESPLAZADAS PARA NO TAPAR TEXTO DE LAS PLACAS), AUDIO Y CAM
     // =========================================================================
     const labelsLeft = document.getElementById('labels-left');
     const labelsRight = document.getElementById('labels-right');
     const LABEL_DEFS = [
-      { id: 'esp', text: 'ESP32-S3-N16R8', sub: () => state.stepIdx === 12 ? '✅ Cable blanco aquí: UART' : '2 pines 3V3 · GPIO 8/9 OLED', min: 0, pos: () => espGroup.position.clone().add(new THREE.Vector3(0, 0.7, 0)) },
-      { id: 'mic', text: 'Micrófono INMP441', sub: () => '⚠️ SOLO 3.3V · Huequito arriba', warn: true, min: 0, pos: () => micGroup.position.clone().add(new THREE.Vector3(0, 0.55, 0)) },
+      { id: 'esp', text: 'ESP32-S3-N16R8', sub: () => state.stepIdx === 12 ? '✅ Cable blanco aquí: UART' : '2 pines 3V3 · GPIO 8/9 OLED', min: 0, pos: () => espGroup.position.clone().add(new THREE.Vector3(-1.35, 0.75, 0.0)) },
+      { id: 'mic', text: 'Micrófono INMP441', sub: () => '⚠️ SOLO 3.3V · Huequito arriba', warn: true, min: 0, pos: () => micGroup.position.clone().add(new THREE.Vector3(0, 0.65, 0)) },
       { id: 'amp', text: 'MAX98357A', sub: () => 'Bornera verde arriba · 7 pines abajo', min: 0, pos: () => ampGroup.position.clone().add(new THREE.Vector3(0, 0.95, 0)) },
       { id: 'buz', text: 'Buzzer Activo', sub: () => 'Patita larga (+) en g50', min: 0, pos: () => buzzerGroup.position.clone().add(new THREE.Vector3(0, 0.75, 0)) },
       { id: 'oled',text: 'OLED 0.96" I2C', sub: () => 'VCC→3V3 · SDA→8 · SCL→9', ok: true, min: 0, pos: () => oledGroup.position.clone().add(new THREE.Vector3(0, 0.85, 0)) },
@@ -1833,7 +1914,7 @@
     }, { passive: false });
 
     // =========================================================================
-    // 11. CONTROLES UI
+    // 13. CONTROLES UI
     // =========================================================================
     function updateOrthoFrustum(aspect) {
       const s = camIsoState.size;
@@ -1993,7 +2074,7 @@
     };
 
     // =========================================================================
-    // 12. LOOP DE ANIMACIÓN Y RENDER DUAL-CÁMARA
+    // 14. LOOP DE ANIMACIÓN Y RENDER DUAL-CÁMARA
     // =========================================================================
     const clock = new THREE.Clock();
 
@@ -2090,7 +2171,6 @@
       else if (s === 9) buzzerGroup.position.lerpVectors(BUZ_BOARD_POS.clone().add(new THREE.Vector3(0, 1.5, 0)), BUZ_BOARD_POS, Math.min(1, p / 0.25));
       else buzzerGroup.position.lerp(BUZ_BOARD_POS, 0.2);
 
-      // Animación colocación de tu Pantalla OLED en Paso 10 (3E)
       if (s < 10) oledGroup.position.lerp(OLED_PARK_POS, 0.15);
       else if (s === 10) oledGroup.position.lerpVectors(OLED_BOARD_POS.clone().add(new THREE.Vector3(0, 1.5, 0)), OLED_BOARD_POS, Math.min(1, p / 0.25));
       else oledGroup.position.lerp(OLED_BOARD_POS, 0.2);
