@@ -46,7 +46,7 @@
 - Simulador del ESP32 (pendiente): esperar a ESPHome, o probar la alternativa 1 (`external_components`, ~3 h) o la 2 (híbrida); detalle en el plan. Con cada versión nueva de ESPHome, probar `build_firmware.py circuito_maestro --sim` (`docs/planes/simulador_esp32.md`).
 
 ## Integrar en vez de programar (sugerencias)
-- Primero, el sistema de módulos: cada integración en `modules/<id>/` con su manifiesto (licencia, servicio Docker,
+- Primero, el sistema de módulos (integraciones y también tipos de proyecto, bloques, pantallas…): cada módulo en `modules/<id>/` con su manifiesto (licencia, servicio Docker,
   botones, bloques o pestañas, opciones) y un administrador «Módulos» en el Estudio para instalar, activar,
   desactivar y desinstalar con un clic. Las integraciones de abajo llegan como módulos. Hay que hacer antes el plan,
   con mockup.
