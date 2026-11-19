@@ -38,7 +38,9 @@ def run_flow(client: HaClient, handler: str, answers: dict) -> dict:
         if result.get("type") == "form" and result.get("errors"):
             raise HaError("E_FLOW_INVALID", f"{handler}: Home Assistant rechazó los datos ({result['errors']}). "
                                             "Si es una clave de IA, revisa que esté bien copiada.")
-    if result.get("type") == "abort" and result.get("reason") not in ("already_configured", "single_instance_allowed"):
+    # "already_configured_updates": the device was already there and HA only refreshed its address.
+    reason = str(result.get("reason"))
+    if result.get("type") == "abort" and not reason.startswith("already_configured") and reason != "single_instance_allowed":
         raise HaError("E_FLOW_ABORT", f"{handler}: {result.get('reason')}")
     return result
 
