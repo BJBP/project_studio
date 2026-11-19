@@ -44,3 +44,16 @@
 - Palabra propia en Docker del Estudio: el contenedor no puede reiniciar el detector; avisa de reiniciar el stack de voz.
 - La palabra del ESP32 real va en `firmware/esphome/packages/voice.yaml`: cambiarla desde el Estudio y volver a compilar.
 - Simulador del ESP32 (pendiente): esperar a ESPHome, o probar la alternativa 1 (`external_components`, ~3 h) o la 2 (híbrida); detalle en el plan. Con cada versión nueva de ESPHome, probar `build_firmware.py circuito_maestro --sim` (`docs/planes/simulador_esp32.md`).
+
+## Integrar en vez de programar (sugerencias)
+- ESPConnect (MIT, ~2.2k estrellas, solo navegador, Docker en local): administrar la placa (copias de seguridad,
+  monitor serie, particiones, archivos). Servicio en el stack y botón «🔧 Administrar placa» en Aparatos. Sustituye a
+  copias y monitor propios. ~1 h.
+- Home Assistant como administrador de aparatos y automatizaciones: enlaces desde el Estudio a sus páginas en vez de
+  editores propios. ~1 h.
+- Frigate (MIT) para el videoportero: detección de personas con la cámara real, en vez de ampliar la detección de
+  movimiento propia. Necesita GPU o Coral; revisar en la mini PC.
+- Node-RED (Apache 2.0) para flujos del proyecto industrial sin programar. n8n es «fair-code»: uso interno sí,
+  revenderlo no.
+- InvenTree (MIT) por su API en vez de solo exportar CSV: el inventario y las compras se actualizan solos.
+- Zigbee2MQTT (GPL-3.0, se usa como programa aparte): aparatos Zigbee comerciales sin firmware propio.
