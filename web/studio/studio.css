@@ -77,6 +77,13 @@ body { margin: 0; background: var(--page-bg); color: var(--page-text); font-fami
 
 .equipment-list { display: grid; gap: 12px; }
 .equipment-card { padding: 12px; border: 1px solid var(--page-border); border-radius: var(--page-radius); }
+.board-panel { display: grid; gap: 8px; margin: 8px 0; }
+.board-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.board-row select, .board-row input { flex: 1 1 160px; min-width: 0; max-width: none; }
+.board-wifi { display: grid; gap: 8px; border: 1px solid var(--page-border); border-radius: var(--page-radius); padding: 8px 12px; }
+.board-check { display: flex; align-items: center; gap: 8px; }
+.board-status[data-state="error"] { color: var(--page-warning-text); }
+.board-status[data-state="ok"] { color: var(--page-ok, inherit); font-weight: 600; }
 .equipment-card h3 { margin: 0 0 4px; font-size: 1rem; }
 .equipment-items { padding-left: 18px; font-size: 0.9rem; }
 
