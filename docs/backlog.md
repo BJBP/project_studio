@@ -48,8 +48,8 @@
 ## Integrar en vez de programar (sugerencias)
 - Primero, el sistema de módulos (integraciones y también tipos de proyecto, bloques, pantallas…): cada módulo en `modules/<id>/` con su manifiesto (licencia, servicio Docker,
   botones, bloques o pestañas, opciones) y un administrador «Módulos» en el Estudio para instalar, activar,
-  desactivar y desinstalar con un clic. Las integraciones de abajo llegan como módulos. Hay que hacer antes el plan,
-  con mockup.
+  desactivar y desinstalar con un clic. Las integraciones de abajo llegan como módulos. Plan por aprobar:
+  `docs/planes/sistema_modulos.md`.
 - ESPConnect (MIT, ~2.2k estrellas, solo navegador, Docker en local): administrar la placa (copias de seguridad,
   monitor serie, particiones, archivos). Servicio en el stack y botón «🔧 Administrar placa» en Aparatos. Sustituye a
   copias y monitor propios. ~1 h.
