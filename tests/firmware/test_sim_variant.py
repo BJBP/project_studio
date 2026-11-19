@@ -24,3 +24,10 @@ def test_the_real_device_becomes_its_simulator():
 def test_a_yaml_without_name_is_rejected():
     with pytest.raises(ValueError):
         sim_config("packages:\n  base: !include packages/base.yaml\n")
+
+
+def test_real_board_wifi_setup_listens_on_the_com_connector():
+    # Improv (Wi-Fi from the browser) uses the logger's port; on the S3 the default is the native USB, not «COM».
+    wifi = (ROOT / "firmware" / "esphome" / "packages" / "wifi.yaml").read_text(encoding="utf-8")
+    assert "improv_serial:" in wifi
+    assert "hardware_uart: UART0" in wifi
