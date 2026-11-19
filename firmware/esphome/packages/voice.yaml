@@ -56,3 +56,15 @@ voice_assistant:
     - micro_wake_word.start:
   on_client_disconnected:
     - micro_wake_word.stop:
+
+# Microphone level for the Studio's voice monitor: if this moves when you talk, the microphone and its wiring work.
+# Passive: it only listens while the wake word (or the assistant) already has the microphone on.
+sensor:
+  - platform: sound_level
+    passive: true
+    measurement_duration: 500ms
+    microphone:
+      microphone: mic
+      bits_per_sample: 16
+    rms:
+      name: "Nivel del micrófono"

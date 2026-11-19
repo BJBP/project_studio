@@ -81,6 +81,14 @@ body { margin: 0; background: var(--page-bg); color: var(--page-text); font-fami
 .board-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .board-row select, .board-row input { flex: 1 1 160px; min-width: 0; max-width: none; }
 .board-wifi { display: grid; gap: 8px; border: 1px solid var(--page-border); border-radius: var(--page-radius); padding: 8px 12px; }
+.monitor-bar { flex: 1 1 160px; height: 12px; border-radius: 6px; background: linear-gradient(to right, var(--page-accent) var(--level, 0%), var(--page-border) var(--level, 0%)); transition: background .3s; }
+.monitor-db[data-state="error"] { color: var(--page-warning-text); }
+.monitor-steps { display: flex; gap: 10px; flex-wrap: wrap; }
+.monitor-step[aria-current="step"] { font-weight: 600; color: var(--page-accent); }
+.monitor-runs { display: grid; gap: 8px; }
+.monitor-run { display: grid; grid-template-columns: 5.5em 1fr; gap: 8px; border-top: 1px solid var(--page-border); padding-top: 6px; }
+.monitor-run p { margin: 0 0 2px; }
+.monitor-time, .monitor-target { color: var(--page-muted, inherit); font-size: .9em; }
 .names-key { min-width: 9em; }
 .board-wifi summary { cursor: pointer; font-weight: 600; }
 .board-check { display: flex; align-items: center; gap: 8px; }
