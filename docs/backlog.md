@@ -24,7 +24,10 @@
 - Reorganizaciones propuestas por el análisis de la fase 1 (`.git/analisis_fase1.md`, por decidir): helper común de
   suscripción para bloques (2–3 h), dividir block-manager.js (4–6 h), puerto `ha-gateway` (3–5 h), helpers de
   interruptor (1–2 h), lectura común de ai_providers/ai_keys (1–2 h), dividir ha-assist.js (3–4 h).
-- Fase 4: flashear el ESP32 real desde «Aparatos» (necesita el cable USB) y probar Wi-Fi por Improv, OTA y la voz «okay nabu».
+- Placa real: instalada desde el Estudio y en Home Assistant (2026-11-19). Falta probar «Conectar» con una red nueva (la placa ya tenía Wi-Fi), OTA y la voz «okay nabu».
+- Placa real: entidades repetidas en Home Assistant (las del aparato virtual y las de la placa: `switch.circuito_maestro_foco` y `_foco_2`). Quitar el virtual cuando hay placa real, o darle otro nombre.
+- Placa real: con `next_url`, el «⚡ Instalar por USB» del navegador ofrece «Visitar aparato», que no abre nada (la placa no tiene página web).
+- Placa por USB desde el Estudio en Docker: el contenedor no ve el puerto COM en Windows; la pantalla lo avisa y queda «⚡ Instalar por USB».
 - Fase 4: el cooler necesita el segundo relé (`packages/relay2.yaml`) cableado; el firmware aún no envía el nivel de sonido del micrófono (dB).
 - Fase 4: el panel de ESPHome guarda su estado (`.device-builder*`) dentro de `firmware/esphome/`; está ignorado por git, pero mejor montarlo en la carpeta de datos.
 - Fase 5: revisar los nombres de columna de `inventree_partes.csv` y `odoo_productos.csv` importándolos en una instancia real.
