@@ -28,7 +28,8 @@ def wait_for_ha(timeout_s: int = 300) -> None:
     deadline = time.time() + timeout_s
     while time.time() < deadline:
         try:
-            if httpx.get(f"{BASE_URL}/api/onboarding", timeout=5).status_code == 200:
+            # /api/onboarding answers 404 once onboarding is done, so it cannot tell whether HA is up.
+            if httpx.get(f"{BASE_URL}/manifest.json", timeout=5).status_code == 200:
                 return
         except httpx.HTTPError:
             pass
@@ -37,7 +38,8 @@ def wait_for_ha(timeout_s: int = 300) -> None:
 
 
 def onboard() -> dict:
-    steps = {s["step"]: s["done"] for s in httpx.get(f"{BASE_URL}/api/onboarding", timeout=10).json()}
+    response = httpx.get(f"{BASE_URL}/api/onboarding", timeout=10)
+    steps = {s["step"]: s["done"] for s in response.json()} if response.status_code == 200 else {"user": True}
     if steps.get("user"):
         raise HaError("E_HA_ONBOARDED", f"Home Assistant ya tiene usuario pero falta {SECRETS_FILE}. "
                       "Borra el volumen ha_config (docker compose down -v) y repite.")
