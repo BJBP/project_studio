@@ -29,10 +29,33 @@ def ensure_mode_switches(client: HaClient) -> None:
                    "target": {"entity_id": f"input_boolean.{object_id}"}})
 
 
+def virtual_twins() -> dict:
+    """{entity id: its virtual twin's id} for every demo catalog entity (device_names.py names the twin)."""
+    return {f"{e['component']}.{d['id']}_{e['key']}": f"{e['component']}.{d['id']}_virtual_{e['key']}"
+            for path in sorted(DATA_DIR.glob("devices*.json"))
+            for d in json.loads(path.read_text(encoding="utf-8")).get("devices", []) for e in d.get("entities", [])}
+
+
+def with_virtual_twins(config: dict, twins: dict) -> dict:
+    """Actions on a catalog entity also act on its virtual twin, so a mode moves the real board and the demo at once.
+    A twin that does not exist (no real board yet) is skipped by Home Assistant."""
+    def expand(node):
+        if isinstance(node, list):
+            return [expand(n) for n in node]
+        if not isinstance(node, dict):
+            return node
+        out = {k: expand(v) for k, v in node.items()}
+        ids = [out["entity_id"]] if isinstance(out.get("entity_id"), str) else out.get("entity_id")
+        if isinstance(ids, list) and any(i in twins for i in ids):
+            out["entity_id"] = ids + [twins[i] for i in ids if i in twins]
+        return out
+    return {**config, "actions": expand(config.get("actions", []))}
+
+
 def ensure_automations(client: HaClient) -> int:
-    count = 0
+    count, twins = 0, virtual_twins()
     for path in sorted(AUTOMATIONS_DIR.glob("**/*.json")):
-        config = json.loads(path.read_text(encoding="utf-8"))
+        config = with_virtual_twins(json.loads(path.read_text(encoding="utf-8")), twins)
         result = client.post(f"/api/config/automation/config/{config['id']}", config)
         if result.get("result") != "ok":
             raise HaError("E_AUTOMATION", f"{path.name}: Home Assistant no la aceptó ({result})")

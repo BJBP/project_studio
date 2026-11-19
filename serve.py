@@ -12,7 +12,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from serve_ai import public_providers, save_key
-from serve_board import add_to_ha, connect, flash_status, list_ports, scan, start_flash
+from serve_board import add_to_ha, connect, flash_status, list_ports, scan, start_flash, sync_names
 from serve_firmware import build_status, start_build
 from serve_models import list_models, set_model
 from serve_wake import import_word, list_words, set_word
@@ -112,11 +112,13 @@ class StudioHandler(SimpleHTTPRequestHandler):
             self.send_json(*start_flash(str(data.get("name", "")), str(data.get("port", ""))))
         elif self.path == "/api/board/scan":
             self.send_json(*scan(str(data.get("port", ""))))
+        elif self.path == "/api/device-names":
+            self.send_json(*sync_names(str(data.get("project", ""))))
         elif self.path == "/api/board/ha":
-            self.send_json(*add_to_ha(str(data.get("ip", ""))))
+            self.send_json(*add_to_ha(str(data.get("ip", "")), str(data.get("project", ""))))
         elif self.path == "/api/board/wifi":
             self.send_json(*connect(SECRETS_FILE.parent, str(data.get("port", "")), str(data.get("ssid", "")),
-                                    str(data.get("password", "")), bool(data.get("remember"))))
+                                    str(data.get("password", "")), bool(data.get("remember")), str(data.get("project", ""))))
         elif self.path.startswith(STUDIO_PREFIX):
             self.send_json(*studio_route(self.server.repo, "POST", self.path, data))
         else:

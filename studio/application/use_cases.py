@@ -1,4 +1,4 @@
-# What the Studio can do: list projects, show one, swap or reset a piece, check it, tick the flow.
+# What the Studio can do: list projects, show one, swap or reset a piece, check it, tick the flow, name outputs.
 # Every function receives the repository (port) and returns plain dicts; failures raise StudioError(code).
 import re
 import unicodedata
@@ -55,6 +55,7 @@ def project_view(repo, project_id: str) -> dict:
             "broken": sorted(broken_connections(project, catalog)),
             "licenses": {"rows": rows, "alerts": license_alerts(rows), "level": license_level(rows)},
             "flow": stages_view(project, catalog, set(state["done"])),
+            "names": state.get("names", {}),
             "equipment": [fit(project, catalog, repo.equipment()[e]) for e in project.get("equipment", [])
                           if e in repo.equipment()]}
 
@@ -106,3 +107,22 @@ def create_project(repo, from_id: str, name: str) -> str:
         raise StudioError("E_PROJECT_EXISTS", project=new_id)
     repo.save_project({**project, "id": new_id, "name": name, "from": from_id})
     return new_id
+
+
+MAX_NAME_CHARS = 40
+
+
+def set_output_name(repo, project_id: str, device_id: str, key: str, name: str) -> dict:
+    """What is connected to one output of a real device ("Ventilador" on the relay). Empty name = catalog name."""
+    project = get_project(repo, project_id)
+    if device_id not in {d.get("id") for d in project.get("devices", [])} or not re.fullmatch(r"[a-z0-9_]+", str(key)):
+        raise StudioError("E_UNKNOWN_OUTPUT", device=device_id, key=key)
+    name = " ".join(str(name).split())
+    if len(name) > MAX_NAME_CHARS:
+        raise StudioError("E_NAME_FORMAT", max=MAX_NAME_CHARS)
+    state = repo.load_state(project_id)
+    state["names"] = {d: dict(n) for d, n in state.get("names", {}).items()}  # copy: never touch the defaults
+    names = state["names"].setdefault(device_id, {})
+    names.update({key: name}) if name else names.pop(key, None)
+    repo.save_state(project_id, state)
+    return state["names"]

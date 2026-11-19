@@ -21,7 +21,7 @@ def test_connect_uses_stdin_saves_only_when_asked_and_reports_board_errors(tmp_p
         calls.append((args, stdin))
         return 1, "E_IMPROV_AUTH: La placa no pudo entrar en la red."
     monkeypatch.setattr(serve_board, "_board", fake_board)
-    status, body = serve_board.connect(tmp_path, "COM4", "Red", "clave", remember=True)
+    status, body = serve_board.connect(tmp_path, "COM4", "Red", "clave", remember=True, project="domotica-voz")
     assert (status, body["code"]) == (400, "E_IMPROV_AUTH")
     assert "clave" not in " ".join(calls[0][0]) and json.loads(calls[0][1])["password"] == "clave"
     assert not (tmp_path / "wifi.json").exists()  # a failed connection is not remembered
@@ -31,5 +31,5 @@ def test_empty_password_uses_the_remembered_wifi(tmp_path, monkeypatch):
     (tmp_path / "wifi.json").write_text(json.dumps({"ssid": "Red", "password": "guardada"}), encoding="utf-8")
     sent = []
     monkeypatch.setattr(serve_board, "_board", lambda args, stdin=None, timeout_s=120: (sent.append(stdin), (1, "E_X: y"))[1])
-    serve_board.connect(tmp_path, "COM4", "Red", "", remember=False)
+    serve_board.connect(tmp_path, "COM4", "Red", "", remember=False, project="domotica-voz")
     assert json.loads(sent[0])["password"] == "guardada"
