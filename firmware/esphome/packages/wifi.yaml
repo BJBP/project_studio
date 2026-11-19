@@ -6,3 +6,8 @@ wifi:
 captive_portal:
 
 improv_serial:
+
+# Improv listens on the logger's port. The ESP32-S3 defaults to its native USB; UART0 is the «COM» connector
+# (USB-to-serial chip), the one used to install.
+logger:
+  hardware_uart: UART0
