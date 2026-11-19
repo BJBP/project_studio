@@ -37,3 +37,18 @@ test('clicks become service calls on the chosen device', () => {
     { domain: 'button', service: 'press', entity_id: 'button.lab_alarma' });
   assert.equal(twinAction('oled', 'lab', { source: 'real' }, both), null);
 });
+
+test('without Wi-Fi the cable stand-in takes the real board place, and Wi-Fi wins when both answer', () => {
+  const onCable = [
+    { entity_id: 'switch.lab_foco', state: 'unavailable', attributes: {} },
+    { entity_id: 'switch.lab_virtual_foco', state: 'off', attributes: {} },
+    { entity_id: 'switch.lab_cable_foco', state: 'on', attributes: {} },
+  ];
+  const message = twinMessage(onCable, 'lab', { source: 'real', load: 'bulb' });
+  assert.equal(message.link, 'cable');
+  assert.equal(message.foco, true);  // relay 1 drives the bulb, and the cable says it is on
+  assert.equal(twinAction('relay', 'lab', { source: 'real', load: 'bulb' }, onCable).entity_id, 'switch.lab_cable_foco');
+  const wifiBack = [{ ...onCable[0], state: 'off' }, onCable[1], onCable[2]];
+  assert.equal(twinMessage(wifiBack, 'lab', { source: 'real', load: 'bulb' }).link, 'wifi');
+  assert.equal(twinAction('relay', 'lab', { source: 'real', load: 'bulb' }, wifiBack).entity_id, 'switch.lab_foco');
+});

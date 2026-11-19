@@ -1,15 +1,20 @@
-# Real board only. No Wi-Fi name in the firmware: it is typed once in the browser and sent over the USB cable
-# (Improv Serial).
+# Real board only. No Wi-Fi name in the firmware: the Studio sends it over the USB cable (serial_bridge «@wifi»).
+# The same cable carries orders and states in cable mode, so the board works from the Studio without Wi-Fi too.
 wifi:
   ap: {}
 
 captive_portal:
 
-improv_serial:
-  # Lets the Studio read the board's address over the cable (firmware/board.py), even when it already has Wi-Fi.
-  next_url: "http://{{ip_address}}"
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [serial_bridge]
 
-# Improv listens on the logger's port. The ESP32-S3 defaults to its native USB; UART0 is the «COM» connector
+# Lines that start with "@" on the «COM» connector: see components/serial_bridge/serial_bridge.h.
+serial_bridge:
+
+# The bridge talks on the logger's port. The ESP32-S3 defaults to its native USB; UART0 is the «COM» connector
 # (USB-to-serial chip), the one used to install.
 logger:
   hardware_uart: UART0

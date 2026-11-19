@@ -29,7 +29,10 @@
 - Gemelo digital: el clic en el 3D a veces cae en un cable que pasa por encima del relé; dar prioridad a las piezas sobre los cables. La pantalla OLED del 3D aún no se puede editar con un clic.
 - Gemelo digital: hoy solo para el Circuito maestro (las piezas del 3D están fijas en el tutorial); para otros aparatos, generar el 3D desde el catálogo de piezas.
 - «Qué hay conectado»: probar que la voz usa el nombre nuevo («apaga el ventilador») con la placa real.
-- Placa real: con `next_url`, el «⚡ Instalar por USB» del navegador ofrece «Visitar aparato», que no abre nada (la placa no tiene página web).
+- Modo cable: probado por línea de comandos con la placa (relé y orden escrita). Falta probarlo desde la pantalla, quitando el Wi-Fi.
+- Modo cable: si el Estudio se cierra con el puente en marcha, el asistente sigue sin ver las entidades de Wi-Fi hasta el próximo puente o `cable_bridge.py --restore`.
+- Modo cable: «⚡ Instalar por USB» del navegador ya no pide el Wi-Fi (sin Improv); el Wi-Fi se escribe en el bloque Placa.
+- Modo cable: la placa no busca redes; se podría añadir «@scan» al firmware para llenar la lista.
 - Placa por USB desde el Estudio en Docker: el contenedor no ve el puerto COM en Windows; la pantalla lo avisa y queda «⚡ Instalar por USB».
 - Fase 4: el cooler necesita el segundo relé (`packages/relay2.yaml`) cableado; el firmware aún no envía el nivel de sonido del micrófono (dB).
 - Fase 4: el panel de ESPHome guarda su estado (`.device-builder*`) dentro de `firmware/esphome/`; está ignorado por git, pero mejor montarlo en la carpeta de datos.

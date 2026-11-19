@@ -1,5 +1,5 @@
 // Hardware block: each real ESP32 of the project with its pieces. ⚙ Compilar builds the firmware in Docker,
-// the board panel installs and sets the Wi-Fi through the Studio server; ⚡ Instalar does it from the browser and asks for the Wi-Fi (ESP Web Tools + Improv Serial),
+// the board panel installs and sets the Wi-Fi through the Studio server; ⚡ Instalar does it from the browser (ESP Web Tools; the Wi-Fi is then set in the board panel),
 // ✅ Probar opens the project's Tutorial tab (its «Pruébalo» checks), ↻ OTA opens the ESPHome dashboard for wireless updates.
 import { fill, h } from '../../../shared/dom.js';
 import { createBoardPanel } from './board-panel.js';

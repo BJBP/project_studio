@@ -38,7 +38,7 @@ export function createTwinBlock({ t, store }) {
       if (lastAlarm !== null && message.alarmStamp !== lastAlarm) message.alarma = true;
       lastAlarm = message.alarmStamp;
       frame?.contentWindow?.postMessage(message, location.origin);
-      if (message.online) say(t('twinOnline'), 'ok');
+      if (message.online) say(t(message.link === 'cable' ? 'twinOnlineCable' : message.link === 'wifi' ? 'twinOnlineWifi' : 'twinOnline'), 'ok');
       else say(t(options.source === 'real' ? 'twinOffline' : 'twinNoVirtual'), 'error');
     } catch (error) {
       say(`⚠ ${error.message ?? t('monitorNoHa')}`, 'error');

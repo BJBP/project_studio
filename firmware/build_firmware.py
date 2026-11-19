@@ -43,7 +43,7 @@ def publish(name: str, friendly: str, sim: bool = False) -> Path:
     if sim:  # the emulator boots the image directly; ESP Web Tools needs no manifest for it
         return target
     manifest = {"name": friendly, "version": "1.0", "new_install_prompt_erase": True,
-                "builds": [{"chipFamily": "ESP32-S3", "improv": True,
+                "builds": [{"chipFamily": "ESP32-S3", "improv": False,  # Wi-Fi goes through the Studio (serial_bridge)
                             "parts": [{"path": "firmware.factory.bin", "offset": 0}]}]}
     (target / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     return target
