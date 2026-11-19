@@ -12,7 +12,8 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from serve_ai import public_providers, save_key
-from serve_board import add_to_ha, connect, flash_status, list_ports, scan, start_flash, sync_names
+from serve_board import (add_to_ha, board_status, cable_status, connect, flash_status, list_ports, start_cable,
+                         start_flash, stop_cable, sync_names)
 from serve_firmware import build_status, start_build
 from serve_models import list_models, set_model
 from serve_wake import import_word, list_words, set_word
@@ -82,6 +83,9 @@ class StudioHandler(SimpleHTTPRequestHandler):
         if self.path.startswith("/api/board/flash/"):
             self.send_json(*flash_status(urllib.parse.unquote(self.path.removeprefix("/api/board/flash/"))))
             return
+        if self.path.startswith("/api/board/cable/"):
+            self.send_json(*cable_status(urllib.parse.unquote(self.path.removeprefix("/api/board/cable/"))))
+            return
         if self.path.startswith("/api/firmware/status/"):
             self.send_json(*build_status(self.path.rsplit("/", 1)[-1]))
             return
@@ -110,8 +114,11 @@ class StudioHandler(SimpleHTTPRequestHandler):
             self.send_json(*start_build(data.get("name", "")))
         elif self.path == "/api/board/flash":
             self.send_json(*start_flash(str(data.get("name", "")), str(data.get("port", ""))))
-        elif self.path == "/api/board/scan":
-            self.send_json(*scan(str(data.get("port", ""))))
+        elif self.path == "/api/board/status":
+            self.send_json(*board_status(str(data.get("port", ""))))
+        elif self.path == "/api/board/cable":
+            port, project = str(data.get("port", "")), str(data.get("project", ""))
+            self.send_json(*(start_cable(port, project) if data.get("on") else stop_cable(port)))
         elif self.path == "/api/device-names":
             self.send_json(*sync_names(str(data.get("project", ""))))
         elif self.path == "/api/board/ha":

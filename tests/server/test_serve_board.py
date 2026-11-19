@@ -10,7 +10,7 @@ import serve_board  # noqa: E402
 
 
 def test_bad_port_is_rejected_before_running_anything():
-    assert serve_board.scan("COM4 --erase")[0] == 400
+    assert serve_board.board_status("COM4 --erase")[0] == 400
     assert serve_board.start_flash("circuito_maestro", "../x")[0] == 400
 
 
@@ -19,10 +19,10 @@ def test_connect_uses_stdin_saves_only_when_asked_and_reports_board_errors(tmp_p
 
     def fake_board(args, stdin=None, timeout_s=120):
         calls.append((args, stdin))
-        return 1, "E_IMPROV_AUTH: La placa no pudo entrar en la red."
+        return 1, "E_WIFI_FAILED: La placa no entró en la red."
     monkeypatch.setattr(serve_board, "_board", fake_board)
     status, body = serve_board.connect(tmp_path, "COM4", "Red", "clave", remember=True, project="domotica-voz")
-    assert (status, body["code"]) == (400, "E_IMPROV_AUTH")
+    assert (status, body["code"]) == (400, "E_WIFI_FAILED")
     assert "clave" not in " ".join(calls[0][0]) and json.loads(calls[0][1])["password"] == "clave"
     assert not (tmp_path / "wifi.json").exists()  # a failed connection is not remembered
 

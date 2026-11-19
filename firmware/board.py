@@ -2,10 +2,11 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyserial>=3.5", "esptool>=5"]
 # ///
-# Real board over the USB cable, without a browser: list ports, install the firmware, give it the Wi-Fi (Improv).
-# Usage: uv run firmware/board.py ports | flash <name> --port COM4 | status|scan|wifi --port COM4 [--stdin]
+# Real board over the USB cable, without a browser: list ports, install the firmware, give it the Wi-Fi (cable lines,
+# cable.py), and keep it in Home Assistant over the cable while it has no Wi-Fi (cable_bridge.py).
+# Usage: uv run firmware/board.py ports | flash <name> --port COM4 | status|wifi --port COM4 [--stdin]
 # wifi reads {"ssid","password"} from stdin (--stdin) or from <secrets>/wifi.json; the password is never printed.
-# Exit 0 = "OK: ..." (ports/scan print JSON); otherwise "<CODE>: <what to do>".
+# Exit 0 = "OK: ..." (ports/status print JSON); otherwise "<CODE>: <what to do>".
 import argparse
 import json
 import os
@@ -15,7 +16,7 @@ from pathlib import Path
 
 from serial.tools import list_ports
 
-from improv_link import SAFE_BAUD, BoardError, scan, status, wifi
+from board_link import SAFE_BAUD, BoardError, status, wifi
 
 ROOT = Path(__file__).resolve().parents[1]
 SECRETS_DIR = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio"))
@@ -60,7 +61,7 @@ def credentials(from_stdin: bool) -> tuple[str, str]:
 
 def main(argv: list) -> int:
     parser = argparse.ArgumentParser(prog="board.py")
-    parser.add_argument("action", choices=["ports", "flash", "status", "scan", "wifi"])
+    parser.add_argument("action", choices=["ports", "flash", "status", "wifi"])
     parser.add_argument("name", nargs="?", default="circuito_maestro")
     parser.add_argument("--port")
     parser.add_argument("--stdin", action="store_true")
@@ -73,8 +74,8 @@ def main(argv: list) -> int:
             raise BoardError("E_NO_PORT", "Falta --port (mira los puertos con: board.py ports).")
         if args.action == "flash":
             print(flash(args.name, args.port))
-        elif args.action in ("status", "scan"):
-            print(json.dumps((status if args.action == "status" else scan)(args.port)))
+        elif args.action == "status":
+            print(json.dumps(status(args.port)))
         else:
             print(wifi(args.port, *credentials(args.stdin)))
     except BoardError as err:
