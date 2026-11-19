@@ -26,6 +26,8 @@
   interruptor (1–2 h), lectura común de ai_providers/ai_keys (1–2 h), dividir ha-assist.js (3–4 h).
 - Placa real: instalada desde el Estudio y en Home Assistant (2026-11-19); relé, pantalla y zumbador comprobados en la placa. Falta probar «Conectar» con una red nueva (la placa ya tenía Wi-Fi), OTA y la voz «okay nabu».
 - Monitor de voz: lee `get_states` cada segundo y el historial de órdenes de todo el asistente (también las de la Demo); con muchos aparatos, cambiar a `subscribe_entities`. Importa `ha-assist.js` de la Demo: moverlo a `web/shared/`.
+- Gemelo digital: el clic en el 3D a veces cae en un cable que pasa por encima del relé; dar prioridad a las piezas sobre los cables. La pantalla OLED del 3D aún no se puede editar con un clic.
+- Gemelo digital: hoy solo para el Circuito maestro (las piezas del 3D están fijas en el tutorial); para otros aparatos, generar el 3D desde el catálogo de piezas.
 - «Qué hay conectado»: probar que la voz usa el nombre nuevo («apaga el ventilador») con la placa real.
 - Placa real: con `next_url`, el «⚡ Instalar por USB» del navegador ofrece «Visitar aparato», que no abre nada (la placa no tiene página web).
 - Placa por USB desde el Estudio en Docker: el contenedor no ve el puerto COM en Windows; la pantalla lo avisa y queda «⚡ Instalar por USB».

@@ -14,6 +14,7 @@ import { createEquipmentBlock } from './blocks/equipment-block.js';
 import { createDemoBlock, createTutorialBlock } from './blocks/demo-block.js';
 import { createHardwareBlock } from './blocks/hardware-block.js';
 import { createVoiceMonitorBlock } from './blocks/voice-monitor-block.js';
+import { createTwinBlock } from './blocks/twin-block.js';
 
 const TABS = [
   { id: 'arquitectura', blocks: (ctx) => [createDiagramBlock(ctx), createSlotBlock(ctx)] },
@@ -21,7 +22,7 @@ const TABS = [
   { id: 'compras', blocks: (ctx) => [createShoppingBlock(ctx)] },
   { id: 'licencias', blocks: (ctx) => [createLicensesBlock(ctx), createDocsBlock(ctx)] },
   { id: 'equipos', blocks: (ctx) => [createEquipmentBlock(ctx)] },
-  { id: 'aparatos', when: (view) => view.project.devices?.length, blocks: (ctx) => [createHardwareBlock(ctx), createVoiceMonitorBlock(ctx)] },
+  { id: 'aparatos', when: (view) => view.project.devices?.length, blocks: (ctx) => [createTwinBlock(ctx), createHardwareBlock(ctx), createVoiceMonitorBlock(ctx)] },
   { id: 'tutorial', when: (view) => view.project.links?.tutorial, blocks: (ctx) => [createTutorialBlock(ctx)] },
   { id: 'demo', when: (view) => view.project.links?.demo, blocks: (ctx) => [createDemoBlock(ctx)] },
 ];

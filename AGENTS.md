@@ -26,6 +26,7 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 | Activar por voz | servicio `wakeword` (microWakeWord) en el stack; `ha-assist.js` `startAudio(..., { wakeWord: true })`; `assistant-session.js` `startHandsFree()`; prueba: `tests/e2e/voice_pipeline.py --wake "Okey Nabu. Enciende el foco."` |
 | Nombres real y virtual | `stack/domotica-voz/setup/device_names.py [proyecto]`: la placa toma el nombre elegido en «Qué hay conectado» (`state.json` → `names`), su gemelo virtual «… virtual» en el área Demo; `modes.py` hace que los modos actúen en los dos |
 | Monitor de voz | `web/studio/js/blocks/voice-monitor-block.js` (nivel del micrófono, paso del asistente, últimas órdenes con ▶), datos en `web/studio/js/voice-runs.js`; el nivel sale del sensor `sound_level` de `packages/voice.yaml` |
+| Gemelo digital | `web/studio/js/blocks/twin-block.js` (bloque en Aparatos) + `web/studio/js/twin-sync.js` (estados ↔ mensaje 3D, clic ↔ servicio de HA) + modo `?twin=1` del tutorial 3D (avisa los clics con `studio-twin-click`); conexión a HA en `web/studio/js/ha-live.js` |
 | Tutorial 3D (copia del original) | `web/tutorials/circuito_3d/index.html` |
 | Motor de bloques | `web/engines/blocks/` |
 | Demo de voz (capas) | `web/demos/voice/js/{domain,application,infrastructure,presentation}/` |

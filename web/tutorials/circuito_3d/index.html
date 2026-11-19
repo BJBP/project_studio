@@ -306,6 +306,7 @@
       return colX(best);
     }
 
+    const twinMode = new URLSearchParams(location.search).has('twin');
     const state = {
       viewMode: 'iso',
       load12Mode: 'both',
@@ -1903,6 +1904,8 @@
         const hits = raycaster.intersectObjects(interactiveObjects, false).filter(h => isVisibleDeep(h.object));
         const wireHit = hits.find(h => h.object.userData.wireId);
         state.highlightedWire = wireHit ? wireHit.object.userData.wireId : null;
+        const part = twinMode ? hits.map(h => twinPart(h.object)).find(Boolean) : null;
+        if (part) parent.postMessage({ type: 'studio-twin-click', part }, location.origin);
       }
     });
 
@@ -2283,6 +2286,17 @@
     rebuildWires();
     goToStep(0);
 
+    // Digital twin (?twin=1): a click on the relay, a 12V load or the buzzer goes to the Studio, which acts on the
+    // real (or virtual) device: postMessage { type: 'studio-twin-click', part: 'relay'|'bulb'|'fan'|'buzzer' }.
+    const TWIN_PARTS = [['relay', relayGroup], ['bulb', bulb12Group], ['fan', fan12Group], ['buzzer', buzzerGroup]];
+    function twinPart(object) {
+      for (let o = object; o; o = o.parent) {
+        const found = TWIN_PARTS.find(([, group]) => group === o);
+        if (found) return found[0];
+      }
+      return null;
+    }
+
     // Studio bridge: the demo page sends the virtual ESP32 state with postMessage (same origin only).
     // Message: { type: 'studio-device', foco?, cooler?, alarma?, oledHeader?, oledLines? }
     function applyStudioMessage(e) {
@@ -2298,7 +2312,7 @@
       drawOledScreen(); updateLaptopScreen();
     }
     window.addEventListener('message', applyStudioMessage);
-    if (new URLSearchParams(location.search).has('embed')) {
+    if (twinMode || new URLSearchParams(location.search).has('embed')) {
       document.body.classList.add('studio-embed');
       const style = document.createElement('style');
       style.textContent = '.studio-embed .topbar, .studio-embed .steps-index, .studio-embed .tutor-dock { display: none !important; }';
