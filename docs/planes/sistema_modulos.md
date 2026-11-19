@@ -1,7 +1,8 @@
 # Sistema de módulos (todo lo visible y cada función se instala y se quita)
 
 ## Estado
-Propuesta (2026-11-19), por aprobar. Nada construido.
+Propuesta (2026-11-19). **Decisión del usuario: pendiente.** Nada construido. Para retomarlo, elegir entre el corte
+pequeño (núcleo + barra + avisos, ~0,5 días) y la fase 1 completa.
 
 ## Qué cambia
 Hoy las pestañas del proyecto están fijas en `web/studio/js/project.js` y la cabecera (Presentación, Ayuda) en
