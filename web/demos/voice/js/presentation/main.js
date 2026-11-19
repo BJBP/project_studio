@@ -9,7 +9,6 @@ import { mountBlocks } from '../../../../engines/blocks/block-manager.js';
 import { createStorage } from '../../../../engines/blocks/storage.js';
 import { createLiveStore } from './live.js';
 import { createStack } from './stack.js';
-import { syncAliases } from '../application/sync-aliases.js';
 import { createBrainChoice } from '../application/brain-choice.js';
 import { saveAiKey } from '../infrastructure/ai-keys.js';
 import { fetchModels, saveModel } from '../infrastructure/ai-models.js';
@@ -122,7 +121,7 @@ async function main() {
     try {
       await virtualDevice.start();
       simulator.start();
-      if (assist) setTimeout(() => nameEntities(assist, catalog), DISCOVERY_SETTLE_MS);
+      if (assist) setTimeout(nameEntities, DISCOVERY_SETTLE_MS);
     } catch (error) {
       console.warn('voice demo: no se pudo publicar el dispositivo virtual', error);
     }
@@ -145,8 +144,13 @@ function listenToStudio(live, session) {
   window.studioDemoReady = true;
 }
 
-function nameEntities(assist, catalog) {
-  syncAliases({ assist, catalog }).catch((error) => console.warn('voice demo: no se pudieron poner los nombres cortos', error));
+// Short spoken names and stable ids in Home Assistant (the Studio server runs device_names.py): "foco" for the real
+// board, "foco virtual" for this demo when both exist.
+function nameEntities() {
+  const project = new URLSearchParams(location.search).get('project') ?? 'domotica-voz';
+  fetch('/api/device-names', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project }) })
+    .then((response) => { if (!response.ok) console.warn('voice demo: no se pudieron poner los nombres cortos', response.status); })
+    .catch((error) => console.warn('voice demo: no se pudieron poner los nombres cortos', error));
 }
 
 main().catch((error) => {

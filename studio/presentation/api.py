@@ -36,6 +36,7 @@ def _routes(repo, method: str, parts: list, body: dict):
         ("GET", ("check",)): lambda: [describe(i) for i in uc.check_project(repo, pid)],
         ("POST", ("swap",)): lambda: _with_messages(uc.swap_component(repo, pid, body.get("slot"), body.get("component"))),
         ("POST", ("reset",)): lambda: _with_messages(uc.reset_slot(repo, pid, body.get("slot"))),
+        ("POST", ("names",)): lambda: uc.set_output_name(repo, pid, body.get("device"), body.get("key"), body.get("name", "")),
         ("POST", ("flow",)): lambda: uc.set_item_done(repo, pid, body.get("item"), bool(body.get("done"))),
         ("GET", ("shopping",)): lambda: _shopping(shop.shopping(repo, pid)),
         ("POST", ("shopping", "units")): lambda: _shopping(shop.set_units(repo, pid, body.get("units"))),

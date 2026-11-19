@@ -4,7 +4,7 @@
 import json
 from pathlib import Path
 
-DEFAULT_STATE = {"done": [], "bought": [], "units": 1, "chosen": {}}
+DEFAULT_STATE = {"done": [], "bought": [], "units": 1, "chosen": {}, "names": {}}
 
 
 def _read(path: Path):

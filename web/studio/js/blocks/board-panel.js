@@ -1,6 +1,6 @@
 // Board panel inside a device card: pick the USB port, install the firmware and give the board the Wi-Fi, all from
 // this page (serve_board.py → firmware/board.py). The board lists the networks it sees; the password is only sent
-// to the local server. createBoardPanel({ t, device, timers }) -> HTMLElement.
+// to the local server. createBoardPanel({ t, device, timers, projectId }) -> HTMLElement.
 import { fill, h } from '../../../shared/dom.js';
 
 const POLL_MS = 3000;
@@ -17,7 +17,7 @@ async function call(url, body) {
 
 const problem = (data) => (data?.code ? `⚠ ${data.message}` : null);
 
-export function createBoardPanel({ t, device, timers }) {
+export function createBoardPanel({ t, device, timers, projectId }) {
   const port = h('select', { class: 'blocks-option-input', 'aria-label': t('boardPort') });
   const choices = h('datalist', { id: `board-networks-${device.firmware}` });
   const network = h('input', { class: 'blocks-option-input', list: choices.id, autocomplete: 'off', 'aria-label': t('boardNetwork') });
@@ -68,7 +68,7 @@ export function createBoardPanel({ t, device, timers }) {
 
   async function addToHa(ip) {
     say(t('boardAdding'));
-    const data = await call('/api/board/ha', { ip });
+    const data = await call('/api/board/ha', { ip, project: projectId });
     if (problem(data)) return say(problem(data), 'error');
     say(t(data.inHomeAssistant ? 'boardDone' : 'boardDoneNoHa', { ip: data.ip, message: data.message }), data.inHomeAssistant ? 'ok' : 'error');
   }
@@ -77,7 +77,7 @@ export function createBoardPanel({ t, device, timers }) {
     if (!network.value.trim()) return say(t('boardPickNetwork'), 'error');
     say(t('boardConnecting'));
     const data = await call('/api/board/wifi', {
-      port: port.value, ssid: network.value.trim(), remember: remember.checked,
+      port: port.value, ssid: network.value.trim(), remember: remember.checked, project: projectId,
       password: network.value === savedSsid && !password.value ? '' : password.value,
     });
     password.value = '';

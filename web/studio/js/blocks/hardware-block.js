@@ -3,6 +3,7 @@
 // ✅ Probar opens the project's Tutorial tab (its «Pruébalo» checks), ↻ OTA opens the ESPHome dashboard for wireless updates.
 import { fill, h } from '../../../shared/dom.js';
 import { createBoardPanel } from './board-panel.js';
+import { createOutputsPanel } from './outputs-panel.js';
 
 const ESP_WEB_TOOLS = 'https://unpkg.com/esp-web-tools@10.0.1/dist/web/install-button.js?module';
 const ESPHOME_DASHBOARD = 'http://127.0.0.1:6052/';
@@ -61,7 +62,8 @@ export function createHardwareBlock({ t, store, projectId }) {
       h('h3', {}, `📟 ${device.name}`, h('span', { class: 'brain-note' }, ` · ${device.area}`)),
       h('p', { class: 'brain-note' }, t('hwPieces', { pieces: device.pieces.join(', ') })),
       status,
-      createBoardPanel({ t, device, timers }),
+      createBoardPanel({ t, device, timers, projectId }),
+      createOutputsPanel({ t, device, projectId, names: store.view.names?.[device.id] }),
       h('div', { class: 'shop-actions' }, build, install,
         links.tutorial ? h('a', { class: 'blocks-button', href: `#/p/${encodeURIComponent(projectId)}/tutorial` }, t('hwTest')) : null,
         h('a', { class: 'blocks-button', href: ESPHOME_DASHBOARD, target: '_blank', rel: 'noopener' }, t('hwOta'))));

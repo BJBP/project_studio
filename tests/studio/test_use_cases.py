@@ -46,3 +46,13 @@ def test_exports_for_inventree_and_odoo(repo):
     status, docs = route(repo, "GET", "/api/studio/projects/domotica-voz/docs")
     assert docs["inventree_partes.csv"].startswith("name,description,IPN")
     assert docs["odoo_productos.csv"].splitlines()[1].split(",")[2] == "consu"
+
+
+def test_output_names_are_saved_trimmed_and_cleared(repo):
+    names = uc.set_output_name(repo, "domotica-voz", "circuito_maestro", "foco", "  Ventilador  ")
+    assert names == {"circuito_maestro": {"foco": "Ventilador"}}
+    assert uc.project_view(repo, "domotica-voz")["names"]["circuito_maestro"]["foco"] == "Ventilador"
+    assert uc.set_output_name(repo, "domotica-voz", "circuito_maestro", "foco", "") == {"circuito_maestro": {}}
+    for bad in (("otro", "foco", "x"), ("circuito_maestro", "../x", "x"), ("circuito_maestro", "foco", "x" * 41)):
+        with pytest.raises(uc.StudioError):
+            uc.set_output_name(repo, "domotica-voz", *bad)
