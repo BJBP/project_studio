@@ -42,6 +42,7 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 | Estudio: reglas y casos de uso (Python, cebolla) | `studio/{domain,application,infrastructure,presentation}/` |
 | Catálogo de piezas y equipos (repo, neutro) | `catalog/components/*.json`, `catalog/equipment/*.json` |
 | Proyectos de ejemplo | `examples/projects/*.json` (se copian a la carpeta de datos la primera vez) |
+| Módulos | `modules/<id>/module.json` (pestañas y bloques que añade, requisitos, licencia); reglas `studio/domain/modules.py`, casos de uso `studio/application/modules.py`, estado `<datos>/modules.json`; `python -m studio modules <datos> list\|enable\|disable <id>`; pantalla `web/studio/js/modules-screen.js`, pestañas `module-tabs.js`. Errores: `E_MODULE_MANIFEST`, `E_MODULE_REQUIRES`, `E_MODULE_REQUIRED_BY`, `E_MODULE_CYCLE`, `E_MODULE_NOT_FOUND`. Una pestaña o bloque nuevo = un módulo nuevo, sin tocar `project.js` |
 | Pantallas del Estudio | `web/studio/` (Inicio, pestañas, bloques en `js/blocks/`), recorridos en `presentations/*.json` |
 | Motores comunes | `web/engines/blocks/` (bloques), `web/engines/tour/` (Ayuda y Presentación), `web/shared/` |
 | Pruebas | `tests/`: `node --test tests/*/*.test.mjs`; `uv run --no-project --with pytest --with httpx --with websockets pytest tests/server -q`; e2e en `tests/e2e/` |

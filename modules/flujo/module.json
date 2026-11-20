@@ -1,0 +1,25 @@
+{
+  "id": "flujo",
+  "name": "Flujo",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "🔁",
+  "order": 20,
+  "requires": [],
+  "description": "Pestaña «Flujo» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "flujo",
+        "order": 20
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "flujo",
+        "entry": "js/blocks/flow-block.js",
+        "export": "createFlowBlock"
+      }
+    ]
+  }
+}

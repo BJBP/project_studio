@@ -2,10 +2,12 @@
 # route(repo, method, path, body) -> (status, payload). Paths start with /api/studio/.
 from urllib.parse import urlparse
 
+from studio.application import modules as mods
 from studio.application import shopping as shop
 from studio.application import use_cases as uc
 from studio.infrastructure.render import DocRenderer
 from studio.presentation.messages import describe, t
+from studio.presentation.wiring import build_modules
 
 PREFIX = "/api/studio/"
 
@@ -22,8 +24,19 @@ def _shopping(result: dict) -> dict:
     return {**result, "issues": [describe(i) for i in result["issues"]]}
 
 
+def _modules(result: dict) -> dict:
+    return {**result, "issues": [describe(i) for i in result["issues"]]}
+
+
 def _routes(repo, method: str, parts: list, body: dict):
     """Returns the payload for one request; raises uc.StudioError or KeyError (unknown route)."""
+    if parts[:1] == ["modules"]:
+        store = build_modules(repo)
+        if method == "GET" and len(parts) == 1:
+            return _modules(mods.list_modules(store))
+        if method == "POST" and len(parts) == 2:
+            return _modules(mods.set_enabled(store, parts[1], bool(body.get("enabled"))))
+        raise KeyError("/".join(parts))
     if method == "GET" and parts == ["projects"]:
         return uc.list_projects(repo)
     if method == "POST" and parts == ["projects"]:

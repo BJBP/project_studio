@@ -1,0 +1,36 @@
+{
+  "id": "aparatos",
+  "name": "Aparatos",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "📟",
+  "order": 60,
+  "requires": [],
+  "description": "Pestaña «Aparatos» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "aparatos",
+        "order": 60,
+        "when": "project.devices"
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "aparatos",
+        "entry": "js/blocks/twin-block.js",
+        "export": "createTwinBlock"
+      },
+      {
+        "tab": "aparatos",
+        "entry": "js/blocks/hardware-block.js",
+        "export": "createHardwareBlock"
+      },
+      {
+        "tab": "aparatos",
+        "entry": "js/blocks/voice-monitor-block.js",
+        "export": "createVoiceMonitorBlock"
+      }
+    ]
+  }
+}

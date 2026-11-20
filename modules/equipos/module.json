@@ -1,0 +1,25 @@
+{
+  "id": "equipos",
+  "name": "Equipos",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "🖥",
+  "order": 50,
+  "requires": [],
+  "description": "Pestaña «Equipos» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "equipos",
+        "order": 50
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "equipos",
+        "entry": "js/blocks/equipment-block.js",
+        "export": "createEquipmentBlock"
+      }
+    ]
+  }
+}

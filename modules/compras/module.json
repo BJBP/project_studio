@@ -1,0 +1,25 @@
+{
+  "id": "compras",
+  "name": "Compras",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "🛒",
+  "order": 30,
+  "requires": [],
+  "description": "Pestaña «Compras» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "compras",
+        "order": 30
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "compras",
+        "entry": "js/blocks/shopping-block.js",
+        "export": "createShoppingBlock"
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "licencias",
+  "name": "Licencias",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "📜",
+  "order": 40,
+  "requires": [],
+  "description": "Pestaña «Licencias» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "licencias",
+        "order": 40
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "licencias",
+        "entry": "js/blocks/licenses-block.js",
+        "export": "createLicensesBlock"
+      },
+      {
+        "tab": "licencias",
+        "entry": "js/blocks/licenses-block.js",
+        "export": "createDocsBlock"
+      }
+    ]
+  }
+}

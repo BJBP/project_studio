@@ -1,8 +1,9 @@
-// Studio entry point: routes #/ (projects) and #/p/<project>/<tab>, and starts the guided tours.
+// Studio entry point: routes #/ (projects), #/p/<project>/<tab> and #/modulos, and starts the guided tours.
 import { t } from '../../shared/i18n.js';
 import { createTour } from '../../engines/tour/tour.js';
 import { renderHome } from './home.js';
 import { renderProject } from './project.js';
+import { renderModules } from './modules-screen.js';
 import { runAction, speak } from './tour-actions.js';
 
 let current = null;
@@ -14,7 +15,8 @@ async function show() {
   view.textContent = '';
   const [, page, projectId, tab] = location.hash.split('/');
   try {
-    current = page === 'p' && projectId ? await renderProject(view, projectId, tab) : await renderHome(view);
+    current = page === 'p' && projectId ? await renderProject(view, projectId, tab)
+      : page === 'modulos' ? await renderModules(view) : await renderHome(view);
   } catch (error) {
     view.append(Object.assign(document.createElement('p'), {
       className: 'studio-error', role: 'alert', textContent: `${error.code ?? 'E_STUDIO'}: ${error.message ?? error}`,

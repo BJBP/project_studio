@@ -358,5 +358,19 @@
   "boardVoice.ethernet": "🌐 Placa con Ethernet",
   "boardVoiceHint.laptop": "Sin Wi-Fi, habla al portátil: pestaña Demo → «Mantén para hablar». La placa obedece por el cable.",
   "boardVoiceHint.usb": "Sin Wi-Fi, di «Okay Nabu» a la placa: su audio viaja por este cable y la respuesta suena en su altavoz.",
-  "boardVoiceHint.ethernet": "Necesita el módulo de red W5500 en la placa. Con Ethernet la placa no usa Wi-Fi (ESPHome usa uno u otro) y la voz va como siempre, por la red."
+  "boardVoiceHint.ethernet": "Necesita el módulo de red W5500 en la placa. Con Ethernet la placa no usa Wi-Fi (ESPHome usa uno u otro) y la voz va como siempre, por la red.",
+  "issue.E_MODULE_MANIFEST": "El módulo «{module}» tiene el manifiesto incompleto: {fields}.",
+  "issue.E_MODULE_REQUIRES": "El módulo «{module}» necesita «{requires}». Actívalo primero.",
+  "issue.E_MODULE_REQUIRED_BY": "«{module}» no se puede apagar: lo usan {users}. Apágalos primero.",
+  "issue.E_MODULE_CYCLE": "El módulo «{module}» depende de sí mismo a través de otros.",
+  "issue.E_MODULE_NOT_FOUND": "No hay módulo «{module}».",
+  "btnModules": "🧩 Módulos",
+  "modulesTitle": "🧩 Módulos",
+  "modulesHint": "Cada pestaña y cada bloque del Estudio llegan como un módulo. Apaga los que no uses: desaparecen de la pantalla y tus datos se quedan.",
+  "moduleOn": "Activo",
+  "moduleOff": "Apagado",
+  "moduleAddsTabs": "Añade la pestaña: {tabs}",
+  "moduleAddsBlocks": "{n} bloque(s)",
+  "moduleRequires": "Necesita: {list}",
+  "noModules": "No hay pestañas: todos los módulos de proyecto están apagados. Actívalos en «🧩 Módulos»."
 }
