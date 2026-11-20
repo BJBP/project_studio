@@ -62,14 +62,15 @@ def start() -> int:
     config_dir.mkdir(parents=True, exist_ok=True)
     (config_dir / "matterbridge-hass.config.json").write_text(
         json.dumps(bridge_config(HA_URL, token, exposed), indent=2), encoding="utf-8")
-    run = [str(APP_DIR / "node_modules" / ".bin" / ("matterbridge.cmd" if os.name == "nt" else "matterbridge")),
+    run = [shutil.which("node") or "node", str(APP_DIR / "node_modules" / "matterbridge" / "bin" / "matterbridge.js"),
            "--homedir", str(HOME_DIR), "--frontend", FRONTEND_PORT, "--bind", "127.0.0.1"]
     # The plugin finds matterbridge in the same node_modules; its "npm link" hangs on Windows and is not needed.
     env = {**os.environ, "MATTERBRIDGE_LINK_LOCAL_PLUGINS": "false"}
     subprocess.run([*run, "--add", str(plugin)], cwd=APP_DIR, env=env, capture_output=True)  # repeats are harmless
     print(f"OK: Matterbridge en http://127.0.0.1:{FRONTEND_PORT} (escanea su QR desde la app de Alexa o Google)",
           flush=True)
-    return subprocess.run(run, cwd=APP_DIR, env=env).returncode
+    with open(HOME_DIR / "matterbridge.log", "w", encoding="utf-8") as log:  # the Studio shows only our own lines
+        return subprocess.run(run, cwd=APP_DIR, env=env, stdout=log, stderr=subprocess.STDOUT).returncode
 
 
 def main(argv: list) -> int:

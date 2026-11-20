@@ -103,3 +103,11 @@ body { margin: 0; background: var(--page-bg); color: var(--page-text); font-fami
   .app-header, .studio-tabs, .blocks-toolbar, .blocks-block-header, .shop-actions, .tour-bar { display: none !important; }
 }
 a.blocks-button { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Protocols block: one row per protocol, active ones marked by their state text and border. */
+.protocols-list { display: grid; gap: 8px; }
+.protocol-row { display: grid; grid-template-columns: minmax(140px, 1fr) auto; gap: 4px 12px; align-items: center;
+  padding: 8px 10px; border: 1px solid var(--page-border); border-radius: 8px; }
+.protocol-row[data-active="true"] { border-color: var(--page-accent); }
+.protocol-row .brain-note, .protocol-row .shop-actions { grid-column: 1 / -1; }
+.protocol-state { font-size: 0.9em; color: var(--page-text-muted); }

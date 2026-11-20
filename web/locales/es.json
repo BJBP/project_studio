@@ -341,5 +341,15 @@
   "boardPickNetwork": "Elige o escribe la red y su contraseña.",
   "boardConnecting": "Conectando la placa al Wi-Fi… (hasta 1 minuto)",
   "boardDone": "✅ La placa tiene Wi-Fi (en {ip}) y está en Home Assistant. Para cambiar de red, escribe otra abajo.",
-  "boardDoneNoHa": "La placa está en {ip}, pero no se pudo añadir a Home Assistant: {message}"
+  "boardDoneNoHa": "La placa está en {ip}, pero no se pudo añadir a Home Assistant: {message}",
+  "blockProtocols": "Protocolos",
+  "protoActive": "✅ activo",
+  "protoInactive": "⬜ sin añadir",
+  "protoAdd": "Añadir en Home Assistant ↗",
+  "protoOpen": "Abrir en Home Assistant ↗",
+  "protoStart": "▶ Arrancar",
+  "protoStop": "⏹ Parar",
+  "protoPage": "Ver código para emparejar ↗",
+  "protoNoHa": "Home Assistant no responde: arranca el stack de voz.",
+  "protoHint": "Home Assistant habla estos protocolos. «Añadir» abre su propia pantalla, donde escribes los datos de tu instalación (por ejemplo, la dirección del router KNX)."
 }

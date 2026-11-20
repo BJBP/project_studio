@@ -2,6 +2,7 @@
 # start(key, argv, message, live) runs a command; status(key) -> {"state": idle|running|ok|error|stopped, "message"}
 # (its last line; with live=True also while it runs); stop(key) ends it.
 import atexit
+import os
 import subprocess
 import threading
 
@@ -51,17 +52,26 @@ def stop(key: str) -> bool:
         proc = _procs.pop(key, None)
     if not proc:
         return False
-    proc.terminate()
+    _end(proc)
     proc.wait(timeout=10)
     _set(key, state="stopped")
     return True
+
+
+def _end(proc) -> None:
+    """Ends the job and its children ("uv run" starts Python, which may start Node): terminate() alone leaves them on
+    Windows."""
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], capture_output=True)
+    else:
+        proc.terminate()
 
 
 @atexit.register
 def _stop_all() -> None:
     """The cable bridge holds the board's port: it must not outlive the Studio."""
     for proc in list(_procs.values()):
-        proc.terminate()
+        _end(proc)
 
 
 def status(key: str) -> dict:
