@@ -9,9 +9,19 @@ services:
       HA_URL: ${HA_URL:-http://host.docker.internal:8123}
       MQTT_WS_URL: ${MQTT_WS_URL:-ws://127.0.0.1:9001}
       OLLAMA_HOST_URL: ${OLLAMA_HOST_URL:-http://host.docker.internal:11434}
+    # Runs as your user so the data it writes stays yours (Linux; set STUDIO_UID/STUDIO_GID if yours is not 1000).
+    user: "${STUDIO_UID:-1000}:${STUDIO_GID:-1000}"
+    # The folders must exist first: uv run stack/domotica-voz/setup/ensure_host_paths.py (the launchers do it).
+    # create_host_path: false stops Docker from making them as root-owned folders.
     volumes:
-      - ${STUDIO_DATA_DIR:-../project_studio_data}:/data
-      - ${STUDIO_SECRETS_DIR:-~/.agents/secrets/project_studio}:/secrets
+      - type: bind
+        source: ${STUDIO_DATA_DIR:-../project_studio_data}
+        target: /data
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${STUDIO_SECRETS_DIR:-~/.agents/secrets/project_studio}
+        target: /secrets
+        bind: { create_host_path: false }
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

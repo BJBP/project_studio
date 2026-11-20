@@ -45,7 +45,11 @@ services:
     restart: unless-stopped
     command: --uri tcp://0.0.0.0:10400 --custom-model-dir /custom
     volumes:
-      - ${WAKE_WORDS_DIR:-../../../project_studio_data/wake_words}:/custom:ro
+      - type: bind  # created first by setup/ensure_host_paths.py; Docker would make it root-owned
+        source: ${WAKE_WORDS_DIR:-../../../project_studio_data/wake_words}
+        target: /custom
+        read_only: true
+        bind: { create_host_path: false }
 
   # ESPHome dashboard: wireless (OTA) updates and logs of the real ESP32s. Firmware lives in firmware/esphome.
   esphome:
@@ -55,7 +59,11 @@ services:
       - "127.0.0.1:${ESPHOME_PORT:-6052}:6052"
     volumes:
       - ../../firmware/esphome:/config
-      - ${ESPHOME_SECRETS:-~/.agents/secrets/project_studio/esphome_secrets.yaml}:/config/secrets.yaml:ro
+      - type: bind  # created first by setup/ensure_host_paths.py; Docker would make it a root-owned folder
+        source: ${ESPHOME_SECRETS:-~/.agents/secrets/project_studio/esphome_secrets.yaml}
+        target: /config/secrets.yaml
+        read_only: true
+        bind: { create_host_path: false }
   # Linux only (profile "linux", turned on by iniciar_estudio.sh): Ollama installed as a service listens on 127.0.0.1,
   # which containers cannot reach. This forwards the Docker bridge address (host.docker.internal) to it, without
   # exposing Ollama to the local network. Docker Desktop (Windows/macOS) already reaches the host and does not need it.
