@@ -10,6 +10,7 @@
 
 - Mosquitto sin usuario ni clave (solo 127.0.0.1): añadir usuarios antes de usarlo en una red de cliente.
 - Ollama escucha en 0.0.0.0 en esta laptop (ajuste previo del equipo): visible en la red local.
+- `ollama-bridge` (Linux) usa `alpine/socat:latest`: fijar una versión. En Windows/macOS sigue haciendo falta que Ollama escuche en 0.0.0.0; probar si Docker Desktop llega a 127.0.0.1 sin ese ajuste.
 - Revisar la licencia de la voz de Piper `es_ES-davefx-medium` y de `qwen3.5:4b` antes de ofrecerlo a clientes.
 - IA en la nube: probada solo con una clave falsa (se rechaza y no se guarda). Falta probar Claude, OpenAI y Gemini con una clave real.
 - IA en la nube: botón para quitar una clave (hoy hay que borrarla de `ai_keys.json` y de Home Assistant).
