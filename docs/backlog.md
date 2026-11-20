@@ -74,11 +74,17 @@
 - Zigbee2MQTT (GPL-3.0, se usa como programa aparte): aparatos Zigbee comerciales sin firmware propio.
 
 ## Funciones en la placa y en el PC (plan `docs/planes/funciones_placa_y_pc.md`)
-- Fase 1, placa autónoma: página propia, reglas locales (botón, apagado por tiempo, horario) y aviso «Sin motor».
-- Fase 2, catálogo de funciones y bloque «Dónde corre cada función».
-- Fase 3, bloque «Protocolos» (lo que Home Assistant tiene activo), demo KNX con KNX Virtual y SonoffLAN automático.
-- Pendiente de decidir: KNX real o solo simulador; Matterbridge (Alexa, Google) en Windows o esperar a la mini PC.
-- Enchufe Sonoff S40 (chip BL602, sin ESPHome): conectarlo con SonoffLAN; la app de Home Assistant en el celular
-  necesita abrir Home Assistant a la red de casa (hoy solo 127.0.0.1). Espera el visto bueno.
+- Placa autónoma: compilada, **sin instalar** (la placa desapareció del USB y del Wi-Fi durante la instalación).
+  Conectarla al conector «COM» e instalar; después probar con el PC apagado: botón BOOT, «Apagar en (min)»,
+  horario y la página `http://<IP de la placa>` (usuario y clave en `esphome_secrets.yaml`).
+- Sonoff: entrar una vez con la cuenta de eWeLink en Protocolos → Sonoff → «Añadir en Home Assistant».
+- Celular: Home Assistant escucha en la red de casa (`HA_BIND=0.0.0.0`); probar la app en `http://<IP del PC>:8124`.
+  Si no llega, el Firewall de Windows puede estar bloqueando el puerto 8124 (lo permite la persona usuaria).
+- Matterbridge: arranca y para desde Protocolos; falta emparejarlo desde la app de Alexa o Google. La lista de
+  entidades se lee al arrancar: tras cambiar qué ve el asistente, parar y arrancar. No arranca solo con el Estudio.
+- KNX: falta KNX Virtual (cuenta gratuita en knx.org y descarga, las hace la persona usuaria); después Protocolos →
+  KNX → «Añadir», con la dirección del simulador (túnel, puerto 3671), y probar «apaga la luz del salón».
+- Voz por el cable con selector, todo en Docker y sistema de módulos: pendientes (varios días; esperan el visto bueno
+  de la estimación).
 - Placa con IP nueva del router: Home Assistant en Docker no la descubre solo (sin mDNS). «📶 Ver cómo está la
-  placa» la actualiza; mejor reservar la IP de la placa en el router, o hacerlo solo desde el puente o el Estudio.
+  placa» la actualiza; mejor reservar la IP de la placa en el router.
