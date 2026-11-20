@@ -78,7 +78,7 @@ Página de la placa en el celular (sin PC)
 ## Fases
 0. **Presentación** (hecho): escenas 6 a 9 en `web/studio/presentations/jefe.json`. Lo que funciona se enseña; lo que
    viene se dice como lo siguiente.
-1. **Placa autónoma (≈3 h) — hecha, falta instalarla en la placa:** `packages/web_server.yaml` (página con usuario y clave en los secretos),
+1. **Placa autónoma — hecha e instalada (2026-11-20):** `packages/web_server.yaml` (página con usuario y clave en los secretos),
    `packages/local_rules.yaml` (botón → relé sin red, apagado por tiempo, horario con NTP) y aviso «Sin motor» en la
    pantalla cuando Home Assistant no responde.
 2. **Catálogo de funciones (≈1 día):** `catalog/functions/*.json` con esquema: lugares posibles, paquete o servicio de
