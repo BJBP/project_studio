@@ -22,7 +22,6 @@ export function createBoardPanel({ t, device, timers, projectId }) {
   const network = h('input', { class: 'blocks-option-input', autocomplete: 'off', 'aria-label': t('boardNetwork') });
   const cable = h('input', { type: 'checkbox', onchange: () => setCable(cable.checked) });
   const cableState = h('span', { class: 'board-status', role: 'status' });
-  const online = h('div', { class: 'shop-actions' });
   const password = h('input', { class: 'blocks-option-input', type: 'password', autocomplete: 'off', 'aria-label': t('boardPassword') });
   const remember = h('input', { type: 'checkbox', checked: true });
   const status = h('p', { class: 'board-status', role: 'status' });
@@ -71,13 +70,11 @@ export function createBoardPanel({ t, device, timers, projectId }) {
 
   async function checkBoard() {
     say(t('boardChecking'));
-    fill(online);
     const data = await call('/api/board/status', { port: port.value });
     if (problem(data)) return say(problem(data), 'error');
     if (!network.value) network.value = savedSsid ?? '';
     if (data.online) {
-      fill(online, button('boardAddToHa', () => addToHa(data.ip)));
-      return say(t('boardOnline', { ip: data.ip ?? '?' }), 'ok');
+      return addToHa(data.ip); // a new IP from the router reaches Home Assistant (no mDNS inside Docker)
     }
     say(t('boardNoWifi'), 'error');
   }
@@ -107,7 +104,6 @@ export function createBoardPanel({ t, device, timers, projectId }) {
   return h('div', { class: 'board-panel' },
     h('label', { class: 'board-row' }, t('boardPort'), port, button('boardRefresh', loadPorts)),
     h('div', { class: 'shop-actions' }, button('boardInstall', install), button('boardScan', checkBoard)),
-    online,
     h('label', { class: 'board-check' }, cable, t('boardCable'), cableState),
     h('fieldset', { class: 'board-wifi' }, h('legend', {}, t('boardWifi')),
       h('label', { class: 'board-row' }, t('boardNetwork'), network),

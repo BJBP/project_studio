@@ -297,8 +297,6 @@
   "boardChecking": "Preguntando a la placa por el cable…",
   "boardNoWifi": "La placa responde por el cable, pero no tiene Wi-Fi. Escribe la red (de 2,4 GHz) y su contraseña, o usa «Por cable».",
   "boardCable": "🔌 Por cable: sin Wi-Fi, la placa sigue en Home Assistant por este cable (sin voz)",
-  "boardOnline": "✅ La placa ya tiene Wi-Fi (en {ip}). Para cambiar de red, escribe otra abajo.",
-  "boardAddToHa": "🏠 Añadir a Home Assistant",
   "boardAdding": "Añadiendo la placa a Home Assistant…",
   "boardWifi": "Wi-Fi de la placa",
   "boardNetwork": "Red",
@@ -318,7 +316,7 @@
   "twinOnline": "● En línea: lo que ves es la placa ahora mismo.",
   "twinOnlineWifi": "● En línea por Wi-Fi: lo que ves es la placa ahora mismo.",
   "twinOnlineCable": "● En línea por cable: lo que ves es la placa ahora mismo (la voz necesita Wi-Fi).",
-  "twinOffline": "⚠ Placa sin conexión: se ve el último estado. Revisa su Wi-Fi, o conéctala por cable y marca «🔌 Por cable» en «Placa».",
+  "twinOffline": "⚠ Placa sin conexión: se ve el último estado. En «Placa», pulsa «📶 Ver cómo está la placa» (si cambió de dirección en el Wi-Fi, la actualiza), o conéctala por cable y marca «🔌 Por cable».",
   "twinNoVirtual": "⚠ El aparato virtual no está encendido: abre la Demo una vez.",
   "twinHint": "Haz clic en el relé, el foco o el ventilador para encenderlo o apagarlo, y en el zumbador para que suene. Arrastra para girar la vista.",
   "monitorMic": "Micrófono",
@@ -342,6 +340,6 @@
   "namesNoCatalog": "No se pudo leer la lista de salidas de este aparato.",
   "boardPickNetwork": "Elige o escribe la red y su contraseña.",
   "boardConnecting": "Conectando la placa al Wi-Fi… (hasta 1 minuto)",
-  "boardDone": "✅ Placa en {ip} y añadida a Home Assistant.",
+  "boardDone": "✅ La placa tiene Wi-Fi (en {ip}) y está en Home Assistant. Para cambiar de red, escribe otra abajo.",
   "boardDoneNoHa": "La placa está en {ip}, pero no se pudo añadir a Home Assistant: {message}"
 }
