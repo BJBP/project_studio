@@ -12,6 +12,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from serve_ai import public_providers, save_key
+from serve_bridges import bridge, bridge_status
 from serve_board import (add_to_ha, board_status, cable_status, connect, flash_status, list_ports, start_cable,
                          start_flash, stop_cable, sync_names)
 from serve_firmware import build_status, start_build
@@ -87,6 +88,9 @@ class StudioHandler(SimpleHTTPRequestHandler):
         if self.path.startswith("/api/board/cable/"):
             self.send_json(*cable_status(urllib.parse.unquote(self.path.removeprefix("/api/board/cable/"))))
             return
+        if self.path.startswith("/api/bridge/"):
+            self.send_json(*bridge_status(self.path.rsplit("/", 1)[-1]))
+            return
         if self.path.startswith("/api/firmware/status/"):
             self.send_json(*build_status(self.path.rsplit("/", 1)[-1]))
             return
@@ -117,6 +121,8 @@ class StudioHandler(SimpleHTTPRequestHandler):
             self.send_json(*start_flash(str(data.get("name", "")), str(data.get("port", ""))))
         elif self.path == "/api/board/status":
             self.send_json(*board_status(str(data.get("port", ""))))
+        elif self.path == "/api/bridge":
+            self.send_json(*bridge(str(data.get("name", "")), bool(data.get("on"))))
         elif self.path == "/api/board/cable":
             port, project = str(data.get("port", "")), str(data.get("project", ""))
             self.send_json(*(start_cable(port, project) if data.get("on") else stop_cable(port)))

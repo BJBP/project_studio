@@ -1,0 +1,13 @@
+{
+  "_help": "Protocolos que Home Assistant sabe hablar y puentes del Estudio. Añadir uno = añadir una entrada. domain: la integración de Home Assistant (se ve activa si tiene una entrada); bridge: un puente que el Estudio arranca (serve_bridges.py). needs: lo que hace falta además.",
+  "protocols": [
+    { "id": "esphome", "domain": "esphome", "name": "ESPHome", "icon": "📟", "needs": "Placas con firmware ESPHome (la del Estudio).", "license": "Apache 2.0" },
+    { "id": "mqtt", "domain": "mqtt", "name": "MQTT", "icon": "📨", "needs": "Ya viene en el stack (Mosquitto). Lo usa el modo cable.", "license": "Apache 2.0" },
+    { "id": "knx", "domain": "knx", "name": "KNX", "icon": "🏢", "needs": "Un router o interfaz KNX IP, o el simulador KNX Virtual. Los aparatos se configuran con ETS (de pago).", "license": "Apache 2.0 (xknx: MIT)" },
+    { "id": "zigbee", "domain": "zha", "name": "Zigbee", "icon": "🐝", "needs": "Un adaptador USB Zigbee. Docker en Windows no ve el USB: mejor en la mini PC.", "license": "Apache 2.0" },
+    { "id": "matter", "domain": "matter", "name": "Matter (aparatos)", "icon": "🔷", "needs": "El servidor de Matter y red con IPv6. En Windows con Docker Desktop da problemas.", "license": "Apache 2.0" },
+    { "id": "zwave", "domain": "zwave_js", "name": "Z-Wave", "icon": "〰", "needs": "Un adaptador USB Z-Wave y Z-Wave JS.", "license": "Apache 2.0" },
+    { "id": "sonoff", "domain": "sonoff", "name": "Sonoff (eWeLink)", "icon": "🔌", "needs": "Tu cuenta de eWeLink, una vez. SonoffLAN ya está instalada (custom_integration.py sonoff).", "license": "MIT (comunidad)" },
+    { "id": "alexa-google", "bridge": "matterbridge", "name": "Alexa, Google y Apple", "icon": "🔊", "needs": "Escanea el código de la página del puente desde la app de Alexa, Google Home o Apple Casa. Solo pasa lo que ve el asistente de voz.", "license": "Apache 2.0", "page": "http://127.0.0.1:8283" }
+  ]
+}
