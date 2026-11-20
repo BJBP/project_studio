@@ -1,5 +1,10 @@
 # Backlog
 
+- **Nombres extra por voz**: el interruptor de la placa tiene a mano los alias «foco» e «interruptor» en Home Assistant
+  (2026-11-20), pero `stack/domotica-voz/setup/device_names.py` (línea 23) deja como alias solo el nombre elegido y
+  los borra la próxima vez que se ejecute. Lo resuelve el editor de comandos de voz (fase 1: nombres extra que se
+  guardan en la carpeta de datos y `device_names.py` respeta; botón «Probar» sin ejecutar nada).
+
 - **El micrófono de la placa se apaga solo** (visto el 2026-11-20): `on_client_disconnected` en
   `firmware/esphome/packages/voice.yaml` para la palabra para despertar cuando se desconecta *cualquier* cliente
   (consola de ESPHome, registros), aunque Home Assistant siga conectado; el sensor de nivel queda en «unknown» y
