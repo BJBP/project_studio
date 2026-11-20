@@ -315,7 +315,7 @@
   "twinFan": "Ventilador",
   "twinOnline": "● En línea: lo que ves es la placa ahora mismo.",
   "twinOnlineWifi": "● En línea por Wi-Fi: lo que ves es la placa ahora mismo.",
-  "twinOnlineCable": "● En línea por cable: lo que ves es la placa ahora mismo (la voz necesita Wi-Fi).",
+  "twinOnlineCable": "● En línea por cable: lo que ves es la placa ahora mismo. La voz va según «Voz por el cable», en el bloque Placa.",
   "twinOffline": "⚠ Placa sin conexión: se ve el último estado. En «Placa», pulsa «📶 Ver cómo está la placa» (si cambió de dirección en el Wi-Fi, la actualiza), o conéctala por cable y marca «🔌 Por cable».",
   "twinNoVirtual": "⚠ El aparato virtual no está encendido: abre la Demo una vez.",
   "twinHint": "Haz clic en el relé, el foco o el ventilador para encenderlo o apagarlo, y en el zumbador para que suene. Arrastra para girar la vista.",

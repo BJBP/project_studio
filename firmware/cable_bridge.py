@@ -20,6 +20,7 @@ import threading
 import time
 from pathlib import Path
 
+import httpx
 import paho.mqtt.client as mqtt
 import serial
 
@@ -78,6 +79,18 @@ def show_to_voice(device: dict, names: dict, on_cable: bool) -> None:
         print(f"AVISO E_HA_EXPOSE: la voz puede no llegar por el cable ({err})", flush=True)
 
 
+def ha_sees_board(device: dict) -> bool:
+    """Whether Home Assistant reaches the board over Wi-Fi (its first entity is not unavailable). If Home Assistant
+    itself does not answer, the cable would not help: count it as seen."""
+    try:
+        url, token = ha_access()
+        entity = cable.entity_ids(device, via_cable=False)[0]
+        reply = httpx.get(f"{url}/api/states/{entity}", headers={"Authorization": f"Bearer {token}"}, timeout=5)
+        return reply.status_code != 200 or reply.json().get("state") not in ("unavailable", "unknown")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, IndexError):
+        return True
+
+
 def connect_mqtt(base: str, device: dict, orders: list) -> mqtt.Client:
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=f"{device['id']}_cable")
     client.will_set(cable.availability_topic(base, device), "offline", retain=True)
@@ -101,7 +114,7 @@ def announce(client, base: str, device: dict, names: dict, on_cable: bool) -> No
 
 def run(port: str, device_id: str, project: str, voice_mode: str) -> None:
     device, names, base = load_device(device_id, project)
-    orders, on_cable, asked = [], None, 0.0
+    orders, on_cable, asked, ha_misses = [], None, 0.0, 0
     client = connect_mqtt(base, device, orders)
     with open_port(port) as link:
         lock = threading.Lock()  # the voice thread writes too
@@ -120,8 +133,10 @@ def run(port: str, device_id: str, project: str, voice_mode: str) -> None:
             found = cable.parse(link.readline())
             if not found or voice.heard(found):
                 continue
-            if found["kind"] == "wifi" and on_cable != (not found["online"]):
-                on_cable = not found["online"]
+            if found["kind"] == "wifi":
+                ha_misses = 0 if not found["online"] or ha_sees_board(device) else ha_misses + 1
+            if found["kind"] == "wifi" and on_cable != cable.cable_needed(found["online"], ha_misses):
+                on_cable = cable.cable_needed(found["online"], ha_misses)
                 announce(client, base, device, names, on_cable)
                 voice.cable_changed(on_cable)
                 asked = 0.0  # fresh states for the stand-in

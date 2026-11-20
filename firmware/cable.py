@@ -10,6 +10,7 @@ GET_LINE = b"@get\n"
 STOP_LINE = b"@stop\n"
 END_LINE = b"@end\n"
 LISTEN_LINE = b"@listen\n"  # talk now, without the wake word
+HA_MISSES_FOR_CABLE = 3  # Wi-Fi reports in a row (~15 s) in which Home Assistant cannot see the board
 SPK_CHUNK = 1536  # PCM bytes per @spk line: 2 KB of base64, under the board's 4 KB line limit
 FORBIDDEN = ("\t", "\n", "\r")
 CABLE_KINDS = ("switch", "button", "text")  # what the bridge can move; sensors (mic level) stay Wi-Fi only
@@ -27,6 +28,12 @@ def set_line(name: str, value: str) -> bytes:
 
 def wifi_line(ssid: str, password: str) -> bytes:
     return _line("@wifi", ssid, password)
+
+
+def cable_needed(board_online: bool, ha_misses: int) -> bool:
+    """The cable takes over when the board has no Wi-Fi, and also when it believes it has but Home Assistant has not
+    reached it for a while (a stuck Wi-Fi link: the board keeps its IP but nothing gets through)."""
+    return not board_online or ha_misses >= HA_MISSES_FOR_CABLE
 
 
 def voice_line(on: bool) -> bytes:

@@ -62,3 +62,9 @@ def test_voice_lines_round_trip_audio_and_stay_under_the_board_limit():
     assert cable.parse(b"@listen\r\n") == {"kind": "listen"}
     assert cable.parse(b"@mic\tno*base64\r\n") is None
     assert cable.voice_line(True) == b"@voice\t1\n" and cable.play_line(16000) == b"@play\t16000\n"
+
+
+def test_cable_takes_over_when_wifi_is_down_or_stuck():
+    assert cable.cable_needed(board_online=False, ha_misses=0)
+    assert not cable.cable_needed(board_online=True, ha_misses=cable.HA_MISSES_FOR_CABLE - 1)
+    assert cable.cable_needed(board_online=True, ha_misses=cable.HA_MISSES_FOR_CABLE)
