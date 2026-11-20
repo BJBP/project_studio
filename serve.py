@@ -125,7 +125,8 @@ class StudioHandler(SimpleHTTPRequestHandler):
             self.send_json(*bridge(str(data.get("name", "")), bool(data.get("on"))))
         elif self.path == "/api/board/cable":
             port, project = str(data.get("port", "")), str(data.get("project", ""))
-            self.send_json(*(start_cable(port, project) if data.get("on") else stop_cable(port)))
+            voice = str(data.get("voice", "laptop"))
+            self.send_json(*(start_cable(port, project, voice) if data.get("on") else stop_cable(port)))
         elif self.path == "/api/device-names":
             self.send_json(*sync_names(str(data.get("project", ""))))
         elif self.path == "/api/board/ha":

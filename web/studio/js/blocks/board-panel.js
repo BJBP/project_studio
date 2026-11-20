@@ -15,6 +15,13 @@ async function call(url, body) {
   }
 }
 
+const VOICE_MODES = ['laptop', 'usb', 'ethernet'];
+const VOICE_KEY = 'studio.board.cableVoice';
+
+function savedVoice() {
+  try { return VOICE_MODES.includes(localStorage.getItem(VOICE_KEY)) ? localStorage.getItem(VOICE_KEY) : 'laptop'; } catch { return 'laptop'; }
+}
+
 const problem = (data) => (data?.code ? `⚠ ${data.message}` : null);
 
 export function createBoardPanel({ t, device, timers, projectId }) {
@@ -22,6 +29,9 @@ export function createBoardPanel({ t, device, timers, projectId }) {
   const network = h('input', { class: 'blocks-option-input', autocomplete: 'off', 'aria-label': t('boardNetwork') });
   const cable = h('input', { type: 'checkbox', onchange: () => setCable(cable.checked) });
   const cableState = h('span', { class: 'board-status', role: 'status' });
+  const voiceHint = h('p', { class: 'brain-note' });
+  const voice = h('select', { class: 'blocks-option-input', 'aria-label': t('boardVoice'), onchange: changeVoice },
+    VOICE_MODES.map((mode) => h('option', { value: mode }, t(`boardVoice.${mode}`))));
   const password = h('input', { class: 'blocks-option-input', type: 'password', autocomplete: 'off', 'aria-label': t('boardPassword') });
   const remember = h('input', { type: 'checkbox', checked: true });
   const status = h('p', { class: 'board-status', role: 'status' });
@@ -56,7 +66,7 @@ export function createBoardPanel({ t, device, timers, projectId }) {
 
   async function setCable(on) {
     if (!port.value) { cable.checked = false; return say(t('boardNoPorts'), 'error'); }
-    const data = await call('/api/board/cable', { port: port.value, project: projectId, on });
+    const data = await call('/api/board/cable', { port: port.value, project: projectId, on, voice: voice.value });
     if (problem(data)) return say(problem(data), 'error');
     watchCable();
   }
@@ -98,13 +108,22 @@ export function createBoardPanel({ t, device, timers, projectId }) {
     say(t(data.inHomeAssistant ? 'boardDone' : 'boardDoneNoHa', { ip: data.ip, message: data.message }), data.inHomeAssistant ? 'ok' : 'error');
   }
 
+  function changeVoice() {
+    try { localStorage.setItem(VOICE_KEY, voice.value); } catch { /* private window: the choice lasts this visit */ }
+    voiceHint.textContent = t(`boardVoiceHint.${voice.value}`);
+    if (cable.checked) setCable(false).then(() => setCable(true));  // the bridge starts again with the new voice
+  }
+
   const show = h('button', { type: 'button', class: 'blocks-button', 'aria-label': t('boardShowPassword'),
     onclick: () => { password.type = password.type === 'password' ? 'text' : 'password'; } }, '👁');
+  voice.value = savedVoice();
+  voiceHint.textContent = t(`boardVoiceHint.${voice.value}`);
   loadPorts();
   return h('div', { class: 'board-panel' },
     h('label', { class: 'board-row' }, t('boardPort'), port, button('boardRefresh', loadPorts)),
     h('div', { class: 'shop-actions' }, button('boardInstall', install), button('boardScan', checkBoard)),
     h('label', { class: 'board-check' }, cable, t('boardCable'), cableState),
+    h('label', { class: 'board-row' }, t('boardVoice'), voice), voiceHint,
     h('fieldset', { class: 'board-wifi' }, h('legend', {}, t('boardWifi')),
       h('label', { class: 'board-row' }, t('boardNetwork'), network),
       h('label', { class: 'board-row' }, t('boardPassword'), password, show),

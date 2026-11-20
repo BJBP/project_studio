@@ -33,3 +33,7 @@ def test_empty_password_uses_the_remembered_wifi(tmp_path, monkeypatch):
     monkeypatch.setattr(serve_board, "_board", lambda args, stdin=None, timeout_s=120: (sent.append(stdin), (1, "E_X: y"))[1])
     serve_board.connect(tmp_path, "COM4", "Red", "", remember=False, project="domotica-voz")
     assert json.loads(sent[0])["password"] == "guardada"
+
+
+def test_cable_voice_must_be_a_known_mode():
+    assert serve_board.start_cable("COM4", "domotica-voz", "bluetooth")[0] == 400
