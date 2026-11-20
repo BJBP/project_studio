@@ -1,5 +1,11 @@
 # Backlog
 
+- **El micrófono de la placa se apaga solo** (visto el 2026-11-20): `on_client_disconnected` en
+  `firmware/esphome/packages/voice.yaml` para la palabra para despertar cuando se desconecta *cualquier* cliente
+  (consola de ESPHome, registros), aunque Home Assistant siga conectado; el sensor de nivel queda en «unknown» y
+  «Okay Nabu» no responde. Arreglo: parar solo si `not api.connected`, sin romper el modo cable; compilar, instalar
+  por USB y comprobar que el nivel vuelve a moverse. Mientras tanto: desconectar y conectar la placa.
+
 - Probar la voz real con el micrófono del navegador (solo se probó la orden escrita en la página y la voz con `tests/e2e/voice_pipeline.py`).
 - El indicador «Micrófono» dice «Sin conexión» hasta la primera vez que se pulsa «Mantén para hablar»: mejor «Sin usar».
 - Probar `iniciar_estudio.bat` de principio a fin en una máquina limpia.
