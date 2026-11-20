@@ -24,6 +24,7 @@ IP_RE = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
 OK_IP = re.compile(r"^OK: placa en (\d+\.\d+\.\d+\.\d+)$")
 WIFI_FILE = "wifi.json"
 _cable_projects: dict = {}  # port -> (project, voice), while cable mode is on
+_busy: set = set()  # ports another action is using right now (the cable bridge is paused meanwhile)
 
 
 def _board(args: list, stdin: str | None = None, timeout_s: int = 120) -> tuple[int, str]:
@@ -50,6 +51,10 @@ def list_ports(secrets_dir: Path) -> tuple[int, dict]:
     saved = secrets_dir / WIFI_FILE
     ssid = json.loads(saved.read_text(encoding="utf-8")).get("ssid") if saved.exists() else None
     return 200, {"ports": json.loads(line), "savedSsid": ssid}
+
+
+def port_busy(port: str) -> bool:
+    return port in _busy
 
 
 def _cable_key(port: str) -> str:
@@ -81,10 +86,12 @@ def cable_status(port: str) -> tuple[int, dict]:
 def _port_free(port: str, action):
     """Runs action() with the cable bridge paused (it holds the port), then resumes it."""
     project, voice = _cable_projects.get(port, (None, None))
+    _busy.add(port)
     paused = serve_jobs.stop(_cable_key(port))
     try:
         return action()
     finally:
+        _busy.discard(port)
         if paused and project:
             start_cable(port, project, voice)
 

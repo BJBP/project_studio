@@ -296,7 +296,7 @@
   "boardScan": "📶 Ver cómo está la placa",
   "boardChecking": "Preguntando a la placa por el cable…",
   "boardNoWifi": "La placa responde por el cable, pero no tiene Wi-Fi. Escribe la red (de 2,4 GHz) y su contraseña, o usa «Por cable».",
-  "boardCable": "🔌 Por cable: sin Wi-Fi, la placa sigue en Home Assistant por este cable",
+  "boardCable": "🔌 Por cable: si Home Assistant deja de ver la placa por Wi-Fi, sigue por este cable. Con la placa en el USB se activa solo; desmárcalo para apagarlo",
   "boardAdding": "Añadiendo la placa a Home Assistant…",
   "boardWifi": "Wi-Fi de la placa",
   "boardNetwork": "Red",
