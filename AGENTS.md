@@ -8,7 +8,7 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 2. Configurar Home Assistant (solo la primera vez): `uv run stack/domotica-voz/setup/setup_ha.py`.
    Devuelve `OK: ...` o `<CÓDIGO>: qué hacer`. El token queda en `~/.agents/secrets/project_studio/ha.json`
    (fuera del repo; un agente delegado no lo lee).
-3. Abrir el Estudio: `iniciar_estudio.bat` (Windows) o `iniciar_estudio.sh`. Con Docker: `docker compose up -d`.
+3. Abrir el Estudio: `iniciar_estudio.bat` (Windows) o `iniciar_estudio.sh`. Con Docker: `docker compose up -d`, con el stack del paso 1 ya en marcha (se une a su red y llega a Home Assistant por `homeassistant:8123`; la página usa `HA_PUBLIC_URL`).
 4. Revisar un proyecto: `uv run --no-project python -m studio check <carpeta de datos> domotica-voz`
    → `OK: ...` o una línea `<CÓDIGO>: mensaje` por problema (salida 1 si hay errores `E_`).
    Exportar documentos: `... -m studio export <datos> <proyecto> <carpeta de salida>`.

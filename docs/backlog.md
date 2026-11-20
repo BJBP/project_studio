@@ -3,7 +3,7 @@
 - Probar la voz real con el micrófono del navegador (solo se probó la orden escrita en la página y la voz con `tests/e2e/voice_pipeline.py`).
 - El indicador «Micrófono» dice «Sin conexión» hasta la primera vez que se pulsa «Mantén para hablar»: mejor «Sin usar».
 - Probar `iniciar_estudio.bat` de principio a fin en una máquina limpia.
-- `docker-compose.yml` de la raíz en Linux: el contenedor no llega a Home Assistant (`host.docker.internal:8123` → escucha solo en 127.0.0.1) y la página recibe `haUrl` con `host.docker.internal`, que el navegador no resuelve. Separar la URL del servidor (red del stack, `http://homeassistant:8123`) de la del navegador (`http://127.0.0.1:8123`). En Linux, usar el lanzador.
+- La página pide `/favicon.ico` y no existe (404 en la consola).
 - `setup_ha.py` justo tras reiniciar el stack falló una vez con `E_HA_HTTP ... subentries/flow/... -> 404 Invalid flow specified`; repetirlo pasó. Reintentar ese paso una vez ante ese 404.
 - La orden de pruebas de `tests/server` del `AGENTS.md` falla al cargar 2 archivos (falta `httpx`): añadir `--with httpx --with websockets`.
 - Antes de una demo, hacer una pregunta de calentamiento: la GPU de 4 GB va justa y la primera respuesta de la IA puede fallar.

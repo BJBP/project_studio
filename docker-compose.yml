@@ -1,14 +1,17 @@
 # Studio web page: docker compose up -d  →  http://127.0.0.1:8765/
-# Data folder and secrets stay on this computer (volumes); the voice stack is stack/domotica-voz.
+# Data folder and secrets stay on this computer (volumes); the voice stack is stack/domotica-voz and must be running:
+# the Studio joins its network and reaches Home Assistant by name, also on Linux where HA listens only on 127.0.0.1.
 services:
   studio:
     build: .
     ports:
       - "127.0.0.1:${STUDIO_PORT:-8765}:8765"
     environment:
-      HA_URL: ${HA_URL:-http://host.docker.internal:8123}
+      HA_URL: http://homeassistant:8123  # this server, inside the stack network
+      HA_PUBLIC_URL: ${HA_PUBLIC_URL:-http://127.0.0.1:8123}  # the page, in the browser
       MQTT_WS_URL: ${MQTT_WS_URL:-ws://127.0.0.1:9001}
       OLLAMA_HOST_URL: ${OLLAMA_HOST_URL:-http://host.docker.internal:11434}
+      HOME: /tmp  # your user has no home in the image; uv keeps its cache there
     # Runs as your user so the data it writes stays yours (Linux; set STUDIO_UID/STUDIO_GID if yours is not 1000).
     user: "${STUDIO_UID:-1000}:${STUDIO_GID:-1000}"
     # The folders must exist first: uv run stack/domotica-voz/setup/ensure_host_paths.py (the launchers do it).
@@ -24,4 +27,10 @@ services:
         bind: { create_host_path: false }
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks: [default, stack]
     restart: unless-stopped
+
+networks:
+  stack:
+    name: domotica-voz_default  # created by stack/domotica-voz (docker compose up -d there first)
+    external: true

@@ -47,7 +47,8 @@ def speak(text: str) -> tuple[int, dict]:
 def build_config() -> dict:
     """Connection settings for the page; 'error' explains what to do when the stack is not ready."""
     config = {
-        "haUrl": os.environ.get("HA_URL", "http://127.0.0.1:8123"),
+        # The page may reach HA by another address than this server (Docker: http://homeassistant:8123 inside).
+        "haUrl": os.environ.get("HA_PUBLIC_URL") or os.environ.get("HA_URL", "http://127.0.0.1:8123"),
         "mqttUrl": os.environ.get("MQTT_WS_URL", "ws://127.0.0.1:9001"),
         "haToken": None,
         "error": None,
