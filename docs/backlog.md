@@ -3,6 +3,7 @@
 - Probar la voz real con el micrófono del navegador (solo se probó la orden escrita en la página y la voz con `tests/e2e/voice_pipeline.py`).
 - El indicador «Micrófono» dice «Sin conexión» hasta la primera vez que se pulsa «Mantén para hablar»: mejor «Sin usar».
 - Probar `iniciar_estudio.bat` de principio a fin en una máquina limpia.
+- Todo en Docker para que funcione igual en Windows, Linux y macOS: plan en `docs/planes/todo_en_docker.md` (en espera; faltan 4 decisiones).
 - Antes de una demo, hacer una pregunta de calentamiento: la GPU de 4 GB va justa y la primera respuesta de la IA puede fallar.
 - `web/demos/voice/js/infrastructure/ha-assist.js` tiene 176 líneas: separar `request()` (peticiones sueltas) de las ejecuciones de voz.
 - `tests/e2e/device_control.py` necesita la página Demo abierta una vez (anuncia los aparatos): automatizarlo sin navegador.
