@@ -10,7 +10,7 @@
 
 - Mosquitto sin usuario ni clave (solo 127.0.0.1): añadir usuarios antes de usarlo en una red de cliente.
 - Ollama escucha en 0.0.0.0 en esta laptop (ajuste previo del equipo): visible en la red local.
-- `ollama-bridge` (Linux) usa `alpine/socat:latest`: fijar una versión. En Windows/macOS sigue haciendo falta que Ollama escuche en 0.0.0.0; probar si Docker Desktop llega a 127.0.0.1 sin ese ajuste.
+- `ollama-bridge`: en Windows/macOS sigue haciendo falta que Ollama escuche en 0.0.0.0; probar si Docker Desktop llega a 127.0.0.1 sin ese ajuste.
 - Revisar la licencia de la voz de Piper `es_ES-davefx-medium` y de `qwen3.5:4b` antes de ofrecerlo a clientes.
 - IA en la nube: probada solo con una clave falsa (se rechaza y no se guarda). Falta probar Claude, OpenAI y Gemini con una clave real.
 - IA en la nube: botón para quitar una clave (hoy hay que borrarla de `ai_keys.json` y de Home Assistant).
@@ -72,3 +72,13 @@
   revenderlo no.
 - InvenTree (MIT) por su API en vez de solo exportar CSV: el inventario y las compras se actualizan solos.
 - Zigbee2MQTT (GPL-3.0, se usa como programa aparte): aparatos Zigbee comerciales sin firmware propio.
+
+## Funciones en la placa y en el PC (plan `docs/planes/funciones_placa_y_pc.md`)
+- Fase 1, placa autónoma: página propia, reglas locales (botón, apagado por tiempo, horario) y aviso «Sin motor».
+- Fase 2, catálogo de funciones y bloque «Dónde corre cada función».
+- Fase 3, bloque «Protocolos» (lo que Home Assistant tiene activo), demo KNX con KNX Virtual y SonoffLAN automático.
+- Pendiente de decidir: KNX real o solo simulador; Matterbridge (Alexa, Google) en Windows o esperar a la mini PC.
+- Enchufe Sonoff S40 (chip BL602, sin ESPHome): conectarlo con SonoffLAN; la app de Home Assistant en el celular
+  necesita abrir Home Assistant a la red de casa (hoy solo 127.0.0.1). Espera el visto bueno.
+- Placa con IP nueva del router: Home Assistant en Docker no la descubre solo (sin mDNS). «📶 Ver cómo está la
+  placa» la actualiza; mejor reservar la IP de la placa en el router, o hacerlo solo desde el puente o el Estudio.
