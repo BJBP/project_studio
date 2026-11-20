@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from studio.infrastructure.json_repository import JsonRepository
+from studio.infrastructure.connection_store import JsonConnectionStore
 from studio.infrastructure.module_store import JsonModuleStore
 
 PROGRAM_DIR = Path(__file__).resolve().parents[2]
@@ -19,3 +20,7 @@ def build_repo(data_dir: str | Path | None = None) -> JsonRepository:
 
 def build_modules(repo: JsonRepository) -> JsonModuleStore:
     return JsonModuleStore(repo.program_dir, repo.data_dir)
+
+
+def build_connections(repo: JsonRepository) -> JsonConnectionStore:
+    return JsonConnectionStore(repo.program_dir, repo.data_dir)

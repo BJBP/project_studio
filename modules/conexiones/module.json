@@ -1,0 +1,19 @@
+{
+  "id": "conexiones",
+  "name": "Conexiones externas",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "🌐",
+  "order": 65,
+  "requires": ["aparatos"],
+  "description": "Comparte aparatos de Home Assistant con otras plataformas (conectores en connectors/).",
+  "adds": {
+    "blocks": [
+      {
+        "tab": "aparatos",
+        "entry": "js/blocks/connections-block.js",
+        "export": "createConnectionsBlock"
+      }
+    ]
+  }
+}

@@ -98,3 +98,10 @@
   casilla lo apaga y se recuerda en cable.json). El Estudio en Docker no ve el USB: ahí no se activa.
 - Placa con IP nueva del router: Home Assistant en Docker no la descubre solo (sin mDNS). «📶 Ver cómo está la
   placa» la actualiza; mejor reservar la IP de la placa en el router.
+- Conexiones externas: compartir el enchufe S40 (ya está en Home Assistant) cuando se pida.
+- Conexiones externas: un módulo nuevo instalado queda apagado si `<datos>/modules.json` ya existe; hay que activarlo
+  en «Módulos». Decidir si los módulos nuevos se activan solos.
+- Conexiones externas: el Estudio de Docker (8767) aún usa la imagen vieja; al reconstruirla, comprobar que solo uno
+  de los dos Estudios lleva el proceso (`connections.lock`) y que llega a la plataforma por `host.docker.internal`.
+- Conexiones externas: instalar un conector desde la pantalla (hoy con el `instalar.bat` de cada conector).
+- Conexiones externas: el formulario relee toda la lista cada 5 s; con muchos aparatos, actualizar solo el estado.

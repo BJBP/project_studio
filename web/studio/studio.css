@@ -111,3 +111,9 @@ a.blocks-button { text-decoration: none; display: inline-flex; align-items: cent
 .protocol-row[data-active="true"] { border-color: var(--page-accent); }
 .protocol-row .brain-note, .protocol-row .shop-actions { grid-column: 1 / -1; }
 .protocol-state { font-size: 0.9em; color: var(--page-text-muted); }
+.connection-form:not(:empty) { display: grid; gap: 8px; margin-top: 12px; padding: 12px;
+  border: 1px solid var(--page-accent); border-radius: 8px; }
+.connection-form h3 { margin: 0; font-size: 1em; }
+.connection-device { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(120px, 1fr) auto; gap: 6px;
+  align-items: center; }
+@media (max-width: 600px) { .connection-device { grid-template-columns: 1fr; } }
