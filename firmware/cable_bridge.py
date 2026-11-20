@@ -6,7 +6,9 @@
 # on its «COM» port; with no Wi-Fi it announces "<device> (cable)" over MQTT and passes the orders back as "@set";
 # when the Wi-Fi returns it takes that stand-in out (the real board answers again). While on cable, the board's
 # Wi-Fi entities are hidden from the voice assistant, so «apaga el ventilador» reaches the cable. Runs until stopped.
-# Usage: uv run firmware/cable_bridge.py --port COM4 [--device circuito_maestro] [--project domotica-voz]
+# Usage: uv run firmware/cable_bridge.py --port COM4 [--device circuito_maestro] [--project domotica-voz] [--voice usb]
+#        --voice: laptop (default; talk to the computer's microphone in the Studio), usb ("Okay Nabu" on the board, its
+#        audio over this cable: firmware with serial_bridge voice) or ethernet (the board's own network module).
 #        uv run firmware/cable_bridge.py --restore [--device ...]: takes the stand-in out and shows the Wi-Fi entities
 #        again (the Studio runs it after stopping the bridge, which is killed without a chance to clean up).
 # Prints one line per change: "CABLE: ...", "WIFI: ...", or "<CODE>: <what to do>" (exit 1).
@@ -14,6 +16,7 @@ import argparse
 import json
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -22,6 +25,7 @@ import serial
 
 import cable
 from board_link import BoardError, open_port
+from cable_voice import VOICE_MODES, Voice
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "web" / "demos" / "voice" / "data" / "devices.example.json"
@@ -30,7 +34,7 @@ STACK_ENV = ROOT / "stack" / "domotica-voz" / ".env"
 SECRETS = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio"))
 sys.path.insert(0, str(ROOT / "stack" / "domotica-voz" / "setup"))
 GET_EVERY_S = 30
-DISCOVERY_WAIT_S = 3  # Home Assistant creates the stand-in a moment after the announcement  # asks for every state again now and then (a missed line heals itself)
+DISCOVERY_WAIT_S = 3  # Home Assistant creates the stand-in a moment after the announcement
 
 
 def load_device(device_id: str, project: str) -> tuple[dict, dict, str]:
@@ -51,12 +55,17 @@ def stack_port(name: str, default: str) -> str:
     return next((line.split("=", 1)[1].strip() for line in lines if line.startswith(f"{name}=")), default)
 
 
+def ha_access() -> tuple[str, str]:
+    """(Home Assistant URL, token)."""
+    token = json.loads((SECRETS / "ha.json").read_text(encoding="utf-8"))["token"]
+    return os.environ.get("HA_URL", f"http://127.0.0.1:{stack_port('HA_PORT', '8123')}"), token
+
+
 def show_to_voice(device: dict, names: dict, on_cable: bool) -> None:
     """Shows the assistant the set of entities that answers now (cable or Wi-Fi) and hides the other one."""
     from ha_client import HaClient, HaError
     try:
-        token = json.loads((SECRETS / "ha.json").read_text(encoding="utf-8"))["token"]
-        url = os.environ.get("HA_URL", f"http://127.0.0.1:{stack_port('HA_PORT', '8123')}")
+        url, token = ha_access()
         expose = {"type": "homeassistant/expose_entity", "assistants": ["conversation"]}
         commands = [{**expose, "entity_ids": cable.entity_ids(device, via_cable=False), "should_expose": not on_cable}]
         if on_cable:
@@ -90,24 +99,33 @@ def announce(client, base: str, device: dict, names: dict, on_cable: bool) -> No
     print("CABLE: la placa sigue en Home Assistant por el cable" if on_cable else "WIFI: la placa usa su Wi-Fi", flush=True)
 
 
-def run(port: str, device_id: str, project: str) -> None:
+def run(port: str, device_id: str, project: str, voice_mode: str) -> None:
     device, names, base = load_device(device_id, project)
     orders, on_cable, asked = [], None, 0.0
     client = connect_mqtt(base, device, orders)
     with open_port(port) as link:
+        lock = threading.Lock()  # the voice thread writes too
+
+        def send(line: bytes) -> None:
+            with lock:
+                link.write(line)
+        voice = Voice(voice_mode, send, ha_access)
         while True:
             if time.time() - asked > GET_EVERY_S:
-                link.write(cable.GET_LINE)
+                send(cable.GET_LINE)
                 asked = time.time()
             while orders:
                 if line := cable.command_line(base, device, *orders.pop(0)):
-                    link.write(line)
+                    send(line)
             found = cable.parse(link.readline())
-            if found and found["kind"] == "wifi" and on_cable != (not found["online"]):
+            if not found or voice.heard(found):
+                continue
+            if found["kind"] == "wifi" and on_cable != (not found["online"]):
                 on_cable = not found["online"]
                 announce(client, base, device, names, on_cable)
+                voice.cable_changed(on_cable)
                 asked = 0.0  # fresh states for the stand-in
-            elif found and found["kind"] == "state" and on_cable:
+            elif found["kind"] == "state" and on_cable:
                 if message := cable.state_message(base, device, found):
                     client.publish(*message, retain=True)
 
@@ -118,6 +136,7 @@ def main(argv: list) -> int:
     parser.add_argument("--restore", action="store_true")
     parser.add_argument("--device", default="circuito_maestro")
     parser.add_argument("--project", default="domotica-voz")
+    parser.add_argument("--voice", choices=VOICE_MODES, default="laptop")
     args = parser.parse_args(argv)
     try:
         if args.restore:
@@ -129,7 +148,7 @@ def main(argv: list) -> int:
             return 0
         if not args.port:
             raise BoardError("E_NO_PORT", "Falta --port (mira los puertos con: board.py ports).")
-        run(args.port, args.device, args.project)
+        run(args.port, args.device, args.project, args.voice)
     except BoardError as err:
         print(err, flush=True)
         return 1

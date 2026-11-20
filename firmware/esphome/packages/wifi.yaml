@@ -13,8 +13,10 @@ external_components:
 
 # Lines that start with "@" on the «COM» connector: see components/serial_bridge/serial_bridge.h.
 serial_bridge:
+  id: cable
 
 # The bridge talks on the logger's port. The ESP32-S3 defaults to its native USB; UART0 is the «COM» connector
 # (USB-to-serial chip), the one used to install.
 logger:
   hardware_uart: UART0
+  baud_rate: 921600  # fast enough for voice over the cable (≈60 KB/s); the Studio talks at this speed

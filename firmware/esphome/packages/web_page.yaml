@@ -4,5 +4,6 @@ web_server:
   version: 3
   local: true
   auth:
+    type: digest  # the password does not travel in clear text
     username: !secret web_username
     password: !secret web_password

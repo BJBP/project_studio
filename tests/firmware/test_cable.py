@@ -51,3 +51,14 @@ def test_voice_finds_the_stand_in_by_the_chosen_name():
     assert cable.entity_ids(DEVICE, via_cable=False)[0] == "switch.lab_foco"
     assert cable.voice_aliases(DEVICE, {"foco": "Ventilador"})[:2] == [
         ("switch.lab_cable_foco", "Ventilador"), ("button.lab_cable_alarma", "Alarma")]
+
+
+def test_voice_lines_round_trip_audio_and_stay_under_the_board_limit():
+    pcm = bytes(range(256)) * 20
+    lines = cable.speaker_lines(pcm)
+    assert all(len(line) < 4096 for line in lines)
+    back = b"".join(cable.parse(line.replace(b"@spk", b"@mic"))["pcm"] for line in lines)
+    assert back == pcm
+    assert cable.parse(b"@listen\r\n") == {"kind": "listen"}
+    assert cable.parse(b"@mic\tno*base64\r\n") is None
+    assert cable.voice_line(True) == b"@voice\t1\n" and cable.play_line(16000) == b"@play\t16000\n"

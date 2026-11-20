@@ -2,9 +2,15 @@
 # Assistant MQTT messages that stand in for the board while it has no Wi-Fi. No serial port, no network here.
 # Lines: PC -> board "@get" | "@set\tname\tvalue" | "@wifi\tssid\tpassword"; board -> PC "@state\tdomain\tname\tvalue",
 # "@wifi\t1|0\tip", "@error\twhat". Entities: <domain>.<device>_cable_<key>, named as chosen in «Qué hay conectado».
+# Voice: PC -> board "@voice\t1|0", "@stop", "@play\trate", "@spk\tbase64", "@end"; board -> PC "@listen", "@mic\tbase64".
+import base64
 import json
 
 GET_LINE = b"@get\n"
+STOP_LINE = b"@stop\n"
+END_LINE = b"@end\n"
+LISTEN_LINE = b"@listen\n"  # talk now, without the wake word
+SPK_CHUNK = 1536  # PCM bytes per @spk line: 2 KB of base64, under the board's 4 KB line limit
 FORBIDDEN = ("\t", "\n", "\r")
 CABLE_KINDS = ("switch", "button", "text")  # what the bridge can move; sensors (mic level) stay Wi-Fi only
 
@@ -23,6 +29,19 @@ def wifi_line(ssid: str, password: str) -> bytes:
     return _line("@wifi", ssid, password)
 
 
+def voice_line(on: bool) -> bytes:
+    return _line("@voice", "1" if on else "0")
+
+
+def play_line(sample_rate: int) -> bytes:
+    return _line("@play", str(int(sample_rate)))
+
+
+def speaker_lines(pcm: bytes) -> list:
+    """The answer's 16-bit mono PCM as @spk lines."""
+    return [_line("@spk", base64.b64encode(pcm[i:i + SPK_CHUNK]).decode("ascii")) for i in range(0, len(pcm), SPK_CHUNK)]
+
+
 def parse(raw: bytes) -> dict | None:
     """One board line -> {"kind": "state"|"wifi"|"error", ...}; None for normal log lines."""
     line = raw.decode("utf-8", errors="replace").strip("\r\n")
@@ -32,6 +51,13 @@ def parse(raw: bytes) -> dict | None:
         return {"kind": "state", "domain": parts[1], "name": parts[2], "value": parts[3]}
     if parts[:1] == ["@wifi"] and len(parts) == 3:
         return {"kind": "wifi", "online": parts[1] == "1", "ip": parts[2] or None}
+    if parts[:1] == ["@listen"]:
+        return {"kind": "listen"}
+    if parts[:1] == ["@mic"] and len(parts) == 2:
+        try:
+            return {"kind": "mic", "pcm": base64.b64decode(parts[1], validate=True)}
+        except ValueError:
+            return None  # a line broken by a log line in the middle: that bit of audio is lost
     if parts[:1] == ["@error"] and len(parts) >= 2:
         return {"kind": "error", "message": parts[1]}
     return None
