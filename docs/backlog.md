@@ -93,5 +93,7 @@
 - Sistema de módulos: fase 1 casi completa (pestañas y Protocolos como módulos, pantalla «Módulos»). Falta: barra,
   Ayuda y Presentación como módulos, panel de avisos; fase 2 (rutas del servidor por módulo) y fase 3 (servicios Docker
   por módulo, instalar desde carpeta o .zip, ESPConnect como primer módulo externo).
+- Wi-Fi «colgado» (la placa cree tener Wi-Fi, pero no responde): el modo cable ya salta solo a los ~15 s sin que Home
+  Assistant la vea; falta que el modo cable se active sin marcar la casilla (hoy hay que marcar «🔌 Por cable»).
 - Placa con IP nueva del router: Home Assistant en Docker no la descubre solo (sin mDNS). «📶 Ver cómo está la
   placa» la actualiza; mejor reservar la IP de la placa en el router.
