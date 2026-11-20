@@ -10,7 +10,7 @@ STUDIO_PORT="${STUDIO_PORT:-8765}"
 command -v uv >/dev/null || { echo "[E_NO_UV] Falta uv: https://docs.astral.sh/uv/"; exit 1; }
 command -v ollama >/dev/null || { echo "[E_NO_OLLAMA] Falta Ollama: https://ollama.com"; exit 1; }
 docker info >/dev/null 2>&1 || { echo "[E_DOCKER_DOWN] Arranca Docker y repite."; exit 1; }
-uv run "$STACK/setup/ensure_secrets.py"
+uv run "$STACK/setup/ensure_host_paths.py"
 # Linux: Ollama on 127.0.0.1 is not reachable from containers; the ollama-bridge service forwards to it.
 if [ "$(uname -s)" = Linux ]; then
     export COMPOSE_PROFILES=linux

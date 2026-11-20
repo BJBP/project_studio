@@ -19,7 +19,7 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 | Zona | Archivos |
 |---|---|
 | Stack de voz (Docker) | `stack/domotica-voz/docker-compose.yml`, `mosquitto/mosquitto.conf`, `.env.example` |
-| Configuración automática de Home Assistant | `stack/domotica-voz/setup/{setup_ha,flows,agents,ha_client}.py`; `ensure_secrets.py` crea `esphome_secrets.yaml` antes de Docker (`E_SECRETS_IS_DIR`) |
+| Configuración automática de Home Assistant | `stack/domotica-voz/setup/{setup_ha,flows,agents,ha_client}.py`; `ensure_host_paths.py` crea antes de Docker lo que este monta: `esphome_secrets.yaml` y la carpeta de palabras para despertar (`E_SECRETS_IS_DIR`, `E_NOT_WRITABLE`) |
 | IAs disponibles (local y nube) | `stack/domotica-voz/ai_providers.json` (añadir una = añadir una entrada); claves en `~/.agents/secrets/project_studio/ai_keys.json` |
 | Servidor del Estudio | `serve.py` (página, `/config.json`, audio), `serve_ai.py` (lista de IAs y guardar clave), `serve_models.py` (modelos de cada IA y cambio de modelo), `serve_wake.py` (palabra para despertar: elegir e importar), `serve_firmware.py` (compilar), `serve_board.py` (placa por USB: instalar, Wi-Fi, añadir a HA), `serve_jobs.py` (tareas largas) |
 | Placa real por USB (sin navegador) | `uv run firmware/board.py ports` · `flash circuito_maestro --port COM4` · `status --port COM4` · `wifi --port COM4 [--stdin]` (lee `<secretos>/wifi.json`); líneas «@» en `firmware/cable.py`, puerto en `firmware/board_link.py`, firmware en `firmware/esphome/components/serial_bridge/`. Errores: `E_PORT_BUSY`, `E_FLASH`, `E_BOARD_SILENT`, `E_WIFI_FAILED`, `E_NO_WIFI_SECRETS`, `E_WIFI_FORMAT` |
