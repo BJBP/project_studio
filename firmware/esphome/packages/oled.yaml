@@ -26,3 +26,4 @@ display:
     lambda: |-
       it.printf(0, 0, id(font_small), "FOCO:%s  FAN:%s", id(foco).state ? "ON" : "OFF", ${fan_state});
       it.print(0, 18, id(font_small), id(oled_text).state.c_str());
+      if (!esphome::api::global_api_server->is_connected()) it.print(0, 52, id(font_small), "Sin motor");  // no Home Assistant: local rules only

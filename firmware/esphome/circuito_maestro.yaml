@@ -14,3 +14,5 @@ packages:
   relay: !include packages/relay.yaml
   buzzer: !include packages/buzzer.yaml
   voice: !include packages/voice.yaml
+  web_page: !include packages/web_page.yaml       # page for the phone, also with the computer off
+  local_rules: !include packages/local_rules.yaml # button, auto-off and schedule in the board

@@ -24,11 +24,14 @@ def test_creates_secrets_with_32_byte_key_and_private_permissions(tmp_path):
         assert path.stat().st_mode & 0o777 == 0o600
 
 
-def test_keeps_existing_secrets(tmp_path):
+def test_keeps_existing_secrets_and_adds_only_the_missing_ones(tmp_path):
     path = tmp_path / "esphome_secrets.yaml"
     path.write_text("api_encryption_key: \"mine\"\n", encoding="utf-8")
-    assert "ya existe" in hp.ensure_esphome_secrets(path)
-    assert path.read_text(encoding="utf-8") == "api_encryption_key: \"mine\"\n"
+    assert "añadidas ota_password" in hp.ensure_esphome_secrets(path)
+    text = path.read_text(encoding="utf-8")
+    assert text.startswith("api_encryption_key: \"mine\"\n") and text.count("api_encryption_key") == 1
+    assert re.search(r'web_password: ".{12,}"', text) and 'time_zone: "UTC"' in text
+    assert "ya existe." in hp.ensure_esphome_secrets(path)
 
 
 def test_secrets_folder_left_by_docker_is_reported(tmp_path):
