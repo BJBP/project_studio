@@ -51,6 +51,11 @@ def enabled_connections(store: JsonConnectionStore) -> list:
             if c.get("enabled") and c.get("type") in found]
 
 
+def changes(store: JsonConnectionStore) -> tuple:
+    """When the connections and the module choices were last written (installing or turning one on writes it)."""
+    return tuple(path.stat().st_mtime if path.exists() else 0 for path in (store.file, store.modules.state_file))
+
+
 def write_status(store: JsonConnectionStore, status: dict) -> None:
     tmp = store.status_file.with_suffix(".tmp")
     tmp.write_text(json.dumps(status, indent=2), encoding="utf-8")
@@ -58,9 +63,10 @@ def write_status(store: JsonConnectionStore, status: dict) -> None:
 
 
 async def follow(store: JsonConnectionStore) -> None:
-    """One pass: connect everything, then relay until connections.json changes (returns) or Home Assistant drops."""
+    """One pass: connect everything, then relay until the connections or the modules change (returns: a module was
+    installed, turned on or off) or Home Assistant drops."""
     loop, orders, status = asyncio.get_running_loop(), asyncio.Queue(), {}
-    stamp = store.file.stat().st_mtime if store.file.exists() else 0
+    stamp = changes(store)
     links = [Link(conn, folder, loop, orders, status) for conn, folder in enabled_connections(store)]
     url, token = ha_access()
     try:
@@ -84,7 +90,7 @@ async def follow(store: JsonConnectionStore) -> None:
                         next_id += 1
 
             async def keep_alive():
-                while (store.file.stat().st_mtime if store.file.exists() else 0) == stamp:
+                while changes(store) == stamp:
                     beat()
                     write_status(store, status)
                     await asyncio.sleep(BEAT_S)

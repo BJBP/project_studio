@@ -1,4 +1,5 @@
-// The project's tabs, built from the active modules (GET /api/studio/modules), pure: no fetch, no DOM.
+// The project's tabs, built from the active modules (GET /api/studio/modules), and the module tree; pure: no DOM.
+// moduleTree(modules) -> [{ module, depth }]: each module followed by its submodules ("parent"), in order.
 // tabsFromModules(result, view) -> [{ id, order, blocks: [{ entry, export }] }]: only active modules, tabs whose
 // "when" (a path in the project view, e.g. "project.devices") has something, and tabs with at least one block.
 
@@ -19,4 +20,13 @@ export function tabsFromModules(result, view) {
     for (const block of module.adds?.blocks ?? []) tabs.get(block.tab)?.blocks.push({ entry: block.entry, export: block.export });
   }
   return [...tabs.values()].filter((tab) => tab.blocks.length).sort((a, b) => a.order - b.order);
+}
+
+export function moduleTree(modules) {
+  const ids = new Set(modules.map((m) => m.id));
+  const byOrder = (a, b) => (a.order ?? 99) - (b.order ?? 99) || a.id.localeCompare(b.id);
+  const childrenOf = (id) => modules.filter((m) => m.parent === id).sort(byOrder);
+  const walk = (module, depth, seen) => (seen.has(module.id) ? [] : [{ module, depth },
+    ...childrenOf(module.id).flatMap((child) => walk(child, depth + 1, new Set([...seen, module.id])))]);
+  return modules.filter((m) => !m.parent || !ids.has(m.parent)).sort(byOrder).flatMap((m) => walk(m, 0, new Set()));
 }

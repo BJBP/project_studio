@@ -1,5 +1,6 @@
 # JSON API of the Studio page, framework-free so serve.py (standard library) can mount it.
 # route(repo, method, path, body) -> (status, payload). Paths start with /api/studio/.
+import base64
 from urllib.parse import urlparse
 
 from studio.application import connections as conns
@@ -11,6 +12,7 @@ from studio.presentation.messages import describe, t
 from studio.presentation.wiring import build_connections, build_modules
 
 PREFIX = "/api/studio/"
+MAX_ZIP_BASE64 = 3 * 1024 * 1024  # a 2 MB zip in base64, with margin
 
 
 def _with_messages(view: dict) -> dict:
@@ -42,12 +44,29 @@ def _connections(repo, method: str, rest: list, body: dict):
     return {**result, "issues": [describe(i) for i in result["issues"]]}
 
 
+def _zip_bytes(body: dict) -> bytes:
+    """The .zip the page sends as base64 ({"zip": "..."})."""
+    text = str(body.get("zip", ""))
+    if len(text) > MAX_ZIP_BASE64:
+        raise uc.StudioError("E_EXT_TOO_BIG", limit=2)
+    try:
+        return base64.b64decode(text, validate=True)
+    except ValueError:
+        raise uc.StudioError("E_EXT_BAD_ZIP") from None
+
+
 def _routes(repo, method: str, parts: list, body: dict):
     """Returns the payload for one request; raises uc.StudioError or KeyError (unknown route)."""
     if parts[:1] == ["modules"]:
         store = build_modules(repo)
         if method == "GET" and len(parts) == 1:
             return _modules(mods.list_modules(store))
+        if method == "POST" and parts[1:] == ["inspect"]:
+            return mods.inspect_package(store, _zip_bytes(body))
+        if method == "POST" and parts[1:] == ["install"]:
+            return _modules(mods.install_package(store, _zip_bytes(body)))
+        if method == "POST" and len(parts) == 3 and parts[2] == "uninstall":
+            return _modules(mods.uninstall_module(store, parts[1]))
         if method == "POST" and len(parts) == 2:
             return _modules(mods.set_enabled(store, parts[1], bool(body.get("enabled"))))
         raise KeyError("/".join(parts))

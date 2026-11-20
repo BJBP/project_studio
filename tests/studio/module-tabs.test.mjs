@@ -1,7 +1,7 @@
 // Project tabs from the active modules: order, "when", blocks from other modules, and turned-off modules.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { tabsFromModules } from '../../web/studio/js/module-tabs.js';
+import { moduleTree, tabsFromModules } from '../../web/studio/js/module-tabs.js';
 
 const block = (tab, name) => ({ tab, entry: `js/blocks/${name}.js`, export: name });
 const result = {
@@ -22,4 +22,9 @@ test('active modules give their tabs in order, with blocks added by other module
 
 test('a tab whose "when" is empty in the project is left out', () => {
   assert.deepEqual(tabsFromModules(result, { project: { devices: [] } }).map((t) => t.id), ['flow']);
+});
+
+test('the module tree puts submodules under their parent; an orphan stays at the top', () => {
+  const modules = [{ id: 'b', order: 2 }, { id: 'sub', parent: 'a' }, { id: 'a', order: 1 }, { id: 'orphan', parent: 'gone' }];
+  assert.deepEqual(moduleTree(modules).map(({ module, depth }) => `${depth}${module.id}`), ['0a', '1sub', '0b', '0orphan']);
 });

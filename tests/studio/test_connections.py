@@ -1,5 +1,5 @@
-# External connections: connectors found in the data folder, option checks, one commander per device, and saving
-# through the use cases. Uses a neutral test connector (tests/studio/fixtures/connectors/demo_mqtt).
+# External connections: connectors from the active submodules of «conexiones», option checks, one commander per
+# device, and saving through the use cases. Uses a neutral test connector (tests/studio/fixtures/modules/demo_mqtt).
 import json
 import shutil
 from pathlib import Path
@@ -12,7 +12,7 @@ from studio.domain.connections import check_all
 from studio.infrastructure.connection_store import JsonConnectionStore
 
 ROOT = Path(__file__).resolve().parents[2]
-FIXTURE = Path(__file__).resolve().parent / "fixtures" / "connectors"
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "modules"
 LAMP = {"entity_id": "switch.lamp", "remote_id": "lamp-1", "direction": "both"}
 
 
@@ -22,14 +22,19 @@ def conn(cid="panel", **extra):
 
 @pytest.fixture
 def store(tmp_path):
-    shutil.copytree(FIXTURE, tmp_path / "connectors")  # installed in the data folder, as a private one would be
+    shutil.copytree(FIXTURE, tmp_path / "modules")  # installed in the data folder, as a private one would be
     return JsonConnectionStore(ROOT, tmp_path)
 
 
-def test_connectors_installed_in_the_data_folder_are_found_without_their_path(store):
-    assert "demo_mqtt" in store.connectors()
+def test_connectors_come_from_active_submodules_without_their_path(store, tmp_path):
+    assert store.connectors()["demo_mqtt"]["name"] == "MQTT de prueba"
     listed = conns.list_connections(store)["connectors"]
     assert [c["type"] for c in listed] == ["demo_mqtt"] and "_dir" not in listed[0]
+    everything = set(store.modules.manifests())
+    store.modules.save_enabled(everything - {"demo_mqtt"})  # the submodule off: its type is no longer offered
+    assert store.connectors() == {}
+    store.modules.save_enabled(everything - {"conexiones"})  # the parent off: the submodule is inactive too
+    assert store.connectors() == {}
 
 
 def test_save_lists_with_defaults_and_rereads(store):

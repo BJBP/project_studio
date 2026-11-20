@@ -2,7 +2,7 @@
 #   uv run --no-project python -m studio list   <data>
 #   uv run --no-project python -m studio check  <data> <project>
 #   uv run --no-project python -m studio export <data> <project> <output folder>
-#   uv run --no-project python -m studio modules <data> [list | enable <id> | disable <id>]
+#   uv run --no-project python -m studio modules <data> [list | enable <id> | disable <id> | install <zip> | uninstall <id>]
 import argparse
 import sys
 from pathlib import Path
@@ -17,7 +17,16 @@ from studio.presentation.wiring import build_modules, build_repo
 
 def run_modules(repo, action: str, module_id: str | None) -> int:
     store = build_modules(repo)
-    result = mods.list_modules(store) if action == "list" else mods.set_enabled(store, module_id or "", action == "enable")
+    if action == "install":
+        try:
+            data = Path(module_id or "").read_bytes()
+        except OSError:
+            raise uc.StudioError("E_EXT_BAD_ZIP") from None
+        result = mods.install_package(store, data)
+    elif action == "uninstall":
+        result = mods.uninstall_module(store, module_id or "")
+    else:
+        result = mods.list_modules(store) if action == "list" else mods.set_enabled(store, module_id or "", action == "enable")
     for item in result["modules"]:
         print(f"{item['id']}	{item['name']}	{item['version']}	{'activo' if item['active'] else 'apagado'}")
     for issue in result["issues"]:

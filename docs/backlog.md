@@ -103,5 +103,7 @@
   en «Módulos». Decidir si los módulos nuevos se activan solos.
 - Conexiones externas: el Estudio de Docker (8767) aún usa la imagen vieja; al reconstruirla, comprobar que solo uno
   de los dos Estudios lleva el proceso (`connections.lock`) y que llega a la plataforma por `host.docker.internal`.
-- Conexiones externas: instalar un conector desde la pantalla (hoy con el `instalar.bat` de cada conector).
+- Módulos por zip, fase 2: módulos instalados con bloques propios (servir su JavaScript desde `<datos>/modules/`).
+- Módulos por zip: firmar los paquetes (hoy no se sabe quién hizo un zip; solo se avisa de que es código).
+- Módulos por zip: el desinstalar solo se probó con pruebas automáticas, no desde la pantalla.
 - Conexiones externas: el formulario relee toda la lista cada 5 s; con muchos aparatos, actualizar solo el estado.
