@@ -74,9 +74,11 @@
 - Zigbee2MQTT (GPL-3.0, se usa como programa aparte): aparatos Zigbee comerciales sin firmware propio.
 
 ## Funciones en la placa y en el PC (plan `docs/planes/funciones_placa_y_pc.md`)
-- Placa autónoma: compilada, **sin instalar** (la placa desapareció del USB y del Wi-Fi durante la instalación).
-  Conectarla al conector «COM» e instalar; después probar con el PC apagado: botón BOOT, «Apagar en (min)»,
-  horario y la página `http://<IP de la placa>` (usuario y clave en `esphome_secrets.yaml`).
+- Placa autónoma: instalada por Wi-Fi (2026-11-20). Probado: página propia con clave (401 sin clave, 200 con
+  clave) y «Apagar en (min)» (5 min → el relé se apagó solo). Falta probar con la persona usuaria: botón BOOT,
+  horario, «Sin motor» en la pantalla (parar Home Assistant) y la página desde el celular.
+- Las entidades nuevas de la placa salen como `*.taller_circuito_maestro_*` (Home Assistant añade el área): unificar
+  con `device_names.py` si molesta.
 - Sonoff: entrar una vez con la cuenta de eWeLink en Protocolos → Sonoff → «Añadir en Home Assistant».
 - Celular: Home Assistant escucha en la red de casa (`HA_BIND=0.0.0.0`); probar la app en `http://<IP del PC>:8124`.
   Si no llega, el Firewall de Windows puede estar bloqueando el puerto 8124 (lo permite la persona usuaria).
