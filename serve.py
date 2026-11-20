@@ -13,6 +13,7 @@ from pathlib import Path
 
 from serve_ai import public_providers, save_key
 import serve_cable_auto as cable_auto
+import serve_connections
 from serve_bridges import bridge, bridge_status
 from serve_board import (add_to_ha, board_status, cable_status, connect, flash_status, list_ports, start_cable,
                          start_flash, stop_cable, sync_names)
@@ -186,6 +187,7 @@ def main() -> None:
     server = ThreadingHTTPServer((os.environ.get("STUDIO_HOST", "127.0.0.1"), args.port), handler)
     server.repo = build_repo()  # the user's data folder: STUDIO_DATA
     cable_auto.start_watch(default_data_dir())  # a board on the USB cable stays in Home Assistant without Wi-Fi
+    serve_connections.start_watch(default_data_dir())  # shared devices reach their external platforms
     print(f"Estudio en http://127.0.0.1:{args.port}/")
     server.serve_forever()
 
