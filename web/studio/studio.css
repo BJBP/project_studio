@@ -109,6 +109,8 @@ a.blocks-button { text-decoration: none; display: inline-flex; align-items: cent
 .protocol-row { display: grid; grid-template-columns: minmax(140px, 1fr) auto; gap: 4px 12px; align-items: center;
   padding: 8px 10px; border: 1px solid var(--page-border); border-radius: 8px; }
 .protocol-row[data-active="true"] { border-color: var(--page-accent); }
+.protocol-row[data-depth="1"] { margin-left: 24px; }
+.protocol-row[data-depth="2"] { margin-left: 48px; }
 .protocol-row .brain-note, .protocol-row .shop-actions { grid-column: 1 / -1; }
 .protocol-state { font-size: 0.9em; color: var(--page-text-muted); }
 .connection-form:not(:empty) { display: grid; gap: 8px; margin-top: 12px; padding: 12px;

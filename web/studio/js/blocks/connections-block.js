@@ -150,7 +150,8 @@ export function createConnectionsBlock({ t }) {
     render(container) {
       alive = true;  // the block manager calls destroy() before every render
       fill(container, h('div', { class: 'shop-actions' },
-        h('button', { type: 'button', class: 'blocks-button', onclick: add }, t('connAdd'))), list, form, status,
+        h('button', { type: 'button', class: 'blocks-button', onclick: add }, t('connAdd')),
+        h('a', { class: 'blocks-button', href: '#/modulos' }, t('connInstallConnector'))), list, form, status,
       h('p', { class: 'board-status' }, t('connHint')));
       poll();
       loadDevices();
