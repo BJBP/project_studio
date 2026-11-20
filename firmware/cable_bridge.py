@@ -31,9 +31,9 @@ from cable_voice import VOICE_MODES, Voice
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "web" / "demos" / "voice" / "data" / "devices.example.json"
 DATA = Path(os.environ.get("STUDIO_DATA", ROOT.parent / "project_studio_data"))
-STACK_ENV = ROOT / "stack" / "domotica-voz" / ".env"
-SECRETS = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio"))
 sys.path.insert(0, str(ROOT / "stack" / "domotica-voz" / "setup"))
+from local_access import ha_access, stack_port  # noqa: E402 (found through the path above)
+
 GET_EVERY_S = 30
 DISCOVERY_WAIT_S = 3  # Home Assistant creates the stand-in a moment after the announcement
 
@@ -46,20 +46,6 @@ def load_device(device_id: str, project: str) -> tuple[dict, dict, str]:
     state_file = DATA / "projects" / project / "state.json"
     names = json.loads(state_file.read_text(encoding="utf-8")).get("names", {}) if state_file.exists() else {}
     return device, names.get(device_id, {}), catalog["base_topic"]
-
-
-def stack_port(name: str, default: str) -> str:
-    """A port from the environment (the launcher sets it), else from the voice stack's .env, else the default."""
-    if name in os.environ:
-        return os.environ[name]
-    lines = STACK_ENV.read_text(encoding="utf-8").splitlines() if STACK_ENV.exists() else []
-    return next((line.split("=", 1)[1].strip() for line in lines if line.startswith(f"{name}=")), default)
-
-
-def ha_access() -> tuple[str, str]:
-    """(Home Assistant URL, token)."""
-    token = json.loads((SECRETS / "ha.json").read_text(encoding="utf-8"))["token"]
-    return os.environ.get("HA_URL", f"http://127.0.0.1:{stack_port('HA_PORT', '8123')}"), token
 
 
 def show_to_voice(device: dict, names: dict, on_cable: bool) -> None:
