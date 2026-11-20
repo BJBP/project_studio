@@ -1,0 +1,12 @@
+{
+  "_help": "Integraciones de la comunidad que se instalan en Home Assistant (custom_components), con su versión fijada. Añadir una = añadir una entrada. setup/custom_integration.py <id> la instala.",
+  "integrations": [
+    {
+      "id": "sonoff",
+      "name": "SonoffLAN (enchufes y relés Sonoff con eWeLink)",
+      "repo": "AlexxIT/SonoffLAN",
+      "tag": "v3.13.3",
+      "license": "MIT"
+    }
+  ]
+}

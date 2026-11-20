@@ -1,5 +1,6 @@
 # Voice home-automation stack: Home Assistant + MQTT broker + local speech-to-text and text-to-speech.
-# The LLM runs in Ollama on the host (host.docker.internal:11434). All ports bind to 127.0.0.1 only.
+# The LLM runs in Ollama on the host (host.docker.internal:11434). All ports bind to 127.0.0.1 only, except Home
+# Assistant when HA_BIND=0.0.0.0 (phone app on the home network; it has its own login).
 services:
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable
@@ -9,7 +10,7 @@ services:
     volumes:
       - ha_config:/config
     ports:
-      - "127.0.0.1:${HA_PORT:-8123}:8123"
+      - "${HA_BIND:-127.0.0.1}:${HA_PORT:-8123}:8123"  # HA_BIND=0.0.0.0: the phone app reaches it on the home network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on: [mosquitto, whisper, piper, wakeword]

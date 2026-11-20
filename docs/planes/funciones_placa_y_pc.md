@@ -1,7 +1,7 @@
 # Funciones en la placa y en el PC
 
-Estado: **plan aprobado (2026-11-20)**. Fase 0 hecha: la presentación lo cuenta. Las fases 1 a 4 aún no se
-construyen.
+Estado: **aprobado, en construcción (2026-11-20)**. Fase 0 hecha: la presentación lo cuenta. Fases 1 a 4 en
+marcha, en el orden «lo que se ve primero».
 
 ## Idea
 Cada función (relé, temporizador, horario, página del celular, palabra para despertar, entender la frase…) dice en qué
@@ -18,11 +18,13 @@ de Home Assistant. Si el PC se apaga, la placa sigue con lo suyo.
   Matter oficial (noviembre de 2026; solo un componente externo muy temprano).
 - La IA que entiende frases libres no cabe en el ESP32: corre en el PC o en la nube.
 
-## Decisiones pendientes
-- KNX: ¿hay instalación real (router o interfaz KNX IP) o se prepara solo con el simulador KNX Virtual?
-- Matterbridge (Alexa, Google, Apple): necesita la red del equipo; en Windows con Docker Desktop no funciona bien.
-  ¿Esperar a la mini PC con Debian?
-- Separar en un archivo lo que habla con Home Assistant (≈2 h, opcional): solo si algún día se piensa cambiar de centro.
+## Decisiones aprobadas el 2026-11-20
+- KNX: solo con el simulador KNX Virtual (no hay instalación real).
+- Matterbridge (Alexa, Google, Apple): ahora, en Windows, como programa de Node fuera de Docker.
+- Sonoff S40 con SonoffLAN y Home Assistant abierto a la red de casa para la app del celular.
+- Sistema de módulos: es la fase 4 de este plan.
+- Voz por el cable: la persona usuaria elige en el Estudio (voz del portátil, audio por USB o Ethernet W5500).
+- Orden: Sonoff y celular → placa autónoma → Matterbridge → KNX → voz por cable → todo en Docker → módulos.
 
 ## Mockup
 ```
