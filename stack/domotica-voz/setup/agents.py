@@ -53,6 +53,19 @@ def ensure_entry(client: HaClient, provider: dict, key: str | None) -> dict | No
     return next(e for e in client.get("/api/config/config_entries/entry") if e["domain"] == provider["integration"])
 
 
+def run_subentry_flow(client: HaClient, start: dict, options: dict, attempts: int = 3, wait_s: float = 5) -> dict:
+    """Starts the flow and sends the options. Just after a restart HA may drop the flow between both steps while the
+    integration is still loading (404 «Invalid flow specified»): then the whole flow is started again."""
+    for attempt in range(1, attempts + 1):
+        flow = client.post("/api/config/config_entries/subentries/flow", start)
+        try:
+            return client.post(f"/api/config/config_entries/subentries/flow/{flow['flow_id']}", options)
+        except HaError as err:
+            if "Invalid flow specified" not in str(err) or attempt == attempts:
+                raise
+            time.sleep(wait_s)
+
+
 def ensure_agent(client: HaClient, entry: dict, provider: dict, model: str | None = None) -> None:
     """Integrations keep their conversation agents as sub-entries: one with our prompt and control of the house."""
     subs = client.ws({"type": "config_entries/subentries/list", "entry_id": entry["entry_id"]})[0]
@@ -63,8 +76,7 @@ def ensure_agent(client: HaClient, entry: dict, provider: dict, model: str | Non
         start.update({"source": "reconfigure", "subentry_id": current["subentry_id"]})
     else:
         options["name"] = provider["label"]
-    flow = client.post("/api/config/config_entries/subentries/flow", start)
-    flow = client.post(f"/api/config/config_entries/subentries/flow/{flow['flow_id']}", options)
+    flow = run_subentry_flow(client, start, options)
     if flow.get("type") not in ("create_entry", "abort"):
         raise HaError("E_AGENT", f"{provider['label']}: no se configuró el agente ({flow.get('errors') or flow})")
 
