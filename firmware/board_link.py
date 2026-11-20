@@ -6,7 +6,8 @@ import serial
 
 import cable
 
-SAFE_BAUD = 115200
+SAFE_BAUD = 115200  # flashing fallback (board.py)
+LINK_BAUD = 921600  # the logger speed in packages/wifi.yaml (voice over the cable needs it)
 STATUS_TIMEOUT_S, WIFI_TIMEOUT_S = 12, 60
 NO_ANSWER = "La placa no responde. ¿Tiene el firmware del Estudio y el cable en «COM»?"
 
@@ -17,7 +18,7 @@ class BoardError(Exception):
 
 
 def open_port(port: str) -> serial.Serial:
-    link = serial.Serial(baudrate=SAFE_BAUD, timeout=0.2)
+    link = serial.Serial(baudrate=LINK_BAUD, timeout=0.2)
     link.port, link.dtr, link.rts = port, False, False  # low DTR/RTS would reset the board or hold it in boot mode
     try:
         link.open()

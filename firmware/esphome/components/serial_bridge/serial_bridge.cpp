@@ -7,7 +7,7 @@
 
 namespace esphome::serial_bridge {
 
-static const size_t MAX_LINE = 160;
+static const size_t MAX_LINE = 4096;  // a voice line (@spk) carries ~2 KB of base64 audio
 static const uint32_t WIFI_EVERY_MS = 5000;
 
 static std::string clean(std::string text) {
@@ -36,27 +36,31 @@ void SerialBridge::setup() {
     tx->add_on_state_callback([this, tx](const std::string &value) { this->send_state_("text", tx->get_name().str(), value); });
   for (auto *bt : App.get_buttons())
     bt->add_on_press_callback([this, bt]() { this->send_state_("button", bt->get_name().str(), "pressed"); });
+  this->voice_setup_();
 }
 
 void SerialBridge::loop() {
   if (this->uart_num_ < 0) return;
-  size_t available = 0;
-  uart_get_buffered_data_len((uart_port_t) this->uart_num_, &available);
-  while (available-- > 0) {
-    uint8_t byte;
-    if (uart_read_bytes((uart_port_t) this->uart_num_, &byte, 1, 0) != 1) break;
-    if (byte == '\n') {
-      if (!this->buffer_.empty() && this->buffer_[0] == '@') this->handle_line_(this->buffer_);
-      this->buffer_.clear();
-    } else if (byte != '\r' && this->buffer_.size() < MAX_LINE) {
-      this->buffer_ += (char) byte;
+  uint8_t chunk[256];  // read in blocks: voice audio arrives at ~60 KB/s
+  int got;
+  while ((got = uart_read_bytes((uart_port_t) this->uart_num_, chunk, sizeof(chunk), 0)) > 0) {
+    for (int i = 0; i < got; i++) {
+      uint8_t byte = chunk[i];
+      if (byte == '\n') {
+        if (!this->buffer_.empty() && this->buffer_[0] == '@') this->handle_line_(this->buffer_);
+        this->buffer_.clear();
+      } else if (byte != '\r' && this->buffer_.size() < MAX_LINE) {
+        this->buffer_ += (char) byte;
+      }
     }
   }
   if (millis() - this->last_wifi_ > WIFI_EVERY_MS) this->send_wifi_();
+  this->voice_loop_();
 }
 
 void SerialBridge::handle_line_(const std::string &line) {
   auto parts = split_tabs(line);
+  if (this->handle_voice_(parts)) return;
   if (parts[0] == "@get") return this->send_all_();
   if (parts[0] == "@wifi" && parts.size() == 3) {
     wifi::global_wifi_component->save_wifi_sta(parts[1], parts[2]);

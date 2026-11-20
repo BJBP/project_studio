@@ -26,12 +26,29 @@ speaker:
     channel: mono
 
 micro_wake_word:
+  id: wake
   microphone: mic
   models:
     - model: okay_nabu
   on_wake_word_detected:
-    - voice_assistant.start:
-        wake_word: !lambda return wake_word;
+    - if:
+        condition: api.connected
+        then:
+          - voice_assistant.start:
+              wake_word: !lambda return wake_word;
+        else:  # no Home Assistant on Wi-Fi: the Studio runs the voice over the USB cable (cable mode)
+          - lambda: id(cable).listen();
+          - text.set:
+              id: oled_text
+              value: "Escuchando (cable)..."
+
+# Voice over the USB cable when there is no Wi-Fi (merged into wifi.yaml's serial_bridge).
+serial_bridge:
+  microphone:
+    microphone: mic
+    bits_per_sample: 16
+  speaker: voice_speaker
+  micro_wake_word: wake
 
 voice_assistant:
   microphone: mic
