@@ -4,8 +4,9 @@
   `docs/planes/pantalla_placa.md`.
 
 - **Nombres extra por voz**: a mano en Home Assistant (2026-11-20) el relé de la placa tiene el alias «foco» y el
-  enchufe S40TPB «interruptor» y «enchufe»; el reconocimiento oyó mal «apaga» («la bala», «va a pagar»): probar
-  `--hass-token` de wyoming-faster-whisper (sesga hacia los nombres de HA). Además, `stack/domotica-voz/setup/device_names.py` (línea 23) deja como alias solo el nombre elegido y
+  enchufe S40TPB «interruptor» y «enchufe» (Whisper ya se guía por esos nombres: `ha_token`; falta ver con voz real si
+  deja de oír «la bala» por «apaga»). `tests/e2e/voice_pipeline.py` apunta al puerto 8123 por defecto: debería leer
+  `HA_PORT`. Además, `stack/domotica-voz/setup/device_names.py` (línea 23) deja como alias solo el nombre elegido y
   los borra la próxima vez que se ejecute. Lo resuelve el editor de comandos de voz (fase 1: nombres extra que se
   guardan en la carpeta de datos y `device_names.py` respeta; botón «Probar» sin ejecutar nada).
 
