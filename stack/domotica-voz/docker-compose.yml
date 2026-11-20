@@ -29,8 +29,18 @@ services:
     image: rhasspy/wyoming-whisper:latest
     restart: unless-stopped
     command: --model ${WHISPER_MODEL:-small-int8} --language ${VOICE_LANGUAGE:-es}
+    environment:
+      # Biases recognition toward the names of devices and areas exposed in Home Assistant ("apaga el foco").
+      # The token comes from a file (empty until setup fills it = no biasing); restart whisper after the first setup.
+      WYO_WHISPER_HASS_TOKEN_FILE: /run/secrets/ha_token
+      WYO_WHISPER_HASS_API: http://homeassistant:8123/api
     volumes:
       - whisper_data:/data
+      - type: bind  # created first by setup/ensure_host_paths.py
+        source: ${STUDIO_SECRETS_DIR:-~/.agents/secrets/project_studio}/ha_token
+        target: /run/secrets/ha_token
+        read_only: true
+        bind: { create_host_path: false }
 
   piper:
     image: rhasspy/wyoming-piper:latest

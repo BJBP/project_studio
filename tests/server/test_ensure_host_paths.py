@@ -72,3 +72,12 @@ def test_root_compose_folders_default_next_to_the_repo(monkeypatch):
     data = hp.host_path("STUDIO_DATA_DIR", hp.DEFAULT_DATA, hp.REPO_DIR)
     assert data == hp.REPO_DIR.parent / "project_studio_data"
     assert hp.host_path("WAKE_WORDS_DIR", hp.DEFAULT_WAKE_WORDS) == data / "wake_words"
+
+
+def test_token_file_is_created_empty_and_never_overwritten(tmp_path):
+    token = tmp_path / "ha_token"
+    hp.ensure_token_file(tmp_path)
+    assert token.read_text(encoding="utf-8") == ""  # empty = speech-to-text starts without name biasing
+    token.write_text("abc", encoding="utf-8")
+    hp.ensure_token_file(tmp_path)
+    assert token.read_text(encoding="utf-8") == "abc"
