@@ -62,3 +62,10 @@ def test_paths_come_from_env_relative_to_the_stack(monkeypatch, tmp_path):
     monkeypatch.delenv("WAKE_WORDS_DIR", raising=False)
     stack = tmp_path / "repo" / "stack" / "domotica-voz"
     assert hp.host_path("WAKE_WORDS_DIR", hp.DEFAULT_WAKE_WORDS, stack) == (tmp_path / "project_studio_data" / "wake_words").resolve()
+
+
+def test_root_compose_folders_default_next_to_the_repo(monkeypatch):
+    monkeypatch.delenv("STUDIO_DATA_DIR", raising=False)
+    data = hp.host_path("STUDIO_DATA_DIR", hp.DEFAULT_DATA, hp.REPO_DIR)
+    assert data == hp.REPO_DIR.parent / "project_studio_data"
+    assert hp.host_path("WAKE_WORDS_DIR", hp.DEFAULT_WAKE_WORDS) == data / "wake_words"

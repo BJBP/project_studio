@@ -1,9 +1,10 @@
 # /// script
 # requires-python = ">=3.11"
 # ///
-# Creates, before Docker starts, every path of this computer that the voice stack mounts: the wake words folder and
-# esphome_secrets.yaml (random API key and OTA password). A missing path would be created by Docker as a root-owned
-# folder that the Studio cannot write. Reads WAKE_WORDS_DIR and ESPHOME_SECRETS from the environment (as in .env).
+# Creates, before Docker starts, every path of this computer that the two compose files mount: the data folder, the
+# secrets folder, the wake words folder and esphome_secrets.yaml (random API key and OTA password). The compose files
+# refuse to start without them (create_host_path: false) instead of making root-owned folders the Studio cannot write.
+# Reads STUDIO_DATA_DIR, STUDIO_SECRETS_DIR, WAKE_WORDS_DIR and ESPHOME_SECRETS from the environment (as in .env).
 # Exit code 0 = ready; otherwise prints "<CODE>: <what to do>" (E_SECRETS_IS_DIR, E_NOT_WRITABLE).
 import base64
 import os
@@ -11,9 +12,12 @@ import secrets
 import sys
 from pathlib import Path
 
-STACK_DIR = Path(__file__).resolve().parents[1]  # relative paths in .env start at the compose file
+STACK_DIR = Path(__file__).resolve().parents[1]  # relative paths in each .env start at its compose file
+REPO_DIR = STACK_DIR.parents[1]
 DEFAULT_SECRETS = "~/.agents/secrets/project_studio/esphome_secrets.yaml"
 DEFAULT_WAKE_WORDS = "../../../project_studio_data/wake_words"
+DEFAULT_DATA = "../project_studio_data"
+DEFAULT_SECRETS_DIR = "~/.agents/secrets/project_studio"
 
 
 def host_path(name: str, default: str, base: Path = STACK_DIR) -> Path:
@@ -38,8 +42,8 @@ def ensure_esphome_secrets(path: Path) -> str:
     return f"OK: creado {path} con claves nuevas."
 
 
-def ensure_folder(path: Path) -> str:
-    path.mkdir(parents=True, exist_ok=True)
+def ensure_folder(path: Path, mode: int = 0o777) -> str:
+    path.mkdir(parents=True, exist_ok=True, mode=mode)
     if not os.access(path, os.W_OK):
         raise SystemExit(f"E_NOT_WRITABLE: no se puede escribir en {path} (la creó Docker como root). "
                          f"Devuélvela a tu usuario (sudo chown -R $USER {path}) y repite.")
@@ -49,6 +53,8 @@ def ensure_folder(path: Path) -> str:
 def main() -> int:
     print(ensure_esphome_secrets(host_path("ESPHOME_SECRETS", DEFAULT_SECRETS)))
     print(ensure_folder(host_path("WAKE_WORDS_DIR", DEFAULT_WAKE_WORDS)))
+    print(ensure_folder(host_path("STUDIO_DATA_DIR", DEFAULT_DATA, REPO_DIR)))
+    print(ensure_folder(host_path("STUDIO_SECRETS_DIR", DEFAULT_SECRETS_DIR, REPO_DIR), 0o700))
     return 0
 
 
