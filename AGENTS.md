@@ -36,7 +36,7 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 | Proyectos de ejemplo | `examples/projects/*.json` (se copian a la carpeta de datos la primera vez) |
 | Pantallas del Estudio | `web/studio/` (Inicio, pestañas, bloques en `js/blocks/`), recorridos en `presentations/*.json` |
 | Motores comunes | `web/engines/blocks/` (bloques), `web/engines/tour/` (Ayuda y Presentación), `web/shared/` |
-| Pruebas | `tests/`: `node --test tests/*/*.test.mjs`; `uv run --no-project --with pytest pytest tests/server -q`; e2e en `tests/e2e/` |
+| Pruebas | `tests/`: `node --test tests/*/*.test.mjs`; `uv run --no-project --with pytest --with httpx --with websockets pytest tests/server -q`; e2e en `tests/e2e/` |
 
 ## Códigos de error de setup_ha.py
 `E_HA_DOWN`, `E_HA_HTTP`, `E_HA_AUTH`, `E_HA_WS`, `E_HA_ONBOARDED`, `E_FLOW_STEP`, `E_FLOW_ABORT`,

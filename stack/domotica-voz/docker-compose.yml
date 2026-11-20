@@ -68,7 +68,7 @@ services:
   # which containers cannot reach. This forwards the Docker bridge address (host.docker.internal) to it, without
   # exposing Ollama to the local network. Docker Desktop (Windows/macOS) already reaches the host and does not need it.
   ollama-bridge:
-    image: alpine/socat:latest
+    image: alpine/socat:1.8.1.1
     restart: unless-stopped
     profiles: ["linux"]
     network_mode: host
