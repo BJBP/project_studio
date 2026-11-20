@@ -64,11 +64,24 @@ def ensure_folder(path: Path, mode: int = 0o777) -> str:
     return f"OK: carpeta {path} lista."
 
 
+def ensure_token_file(secrets_dir: Path) -> str:
+    """Empty ha_token for the speech-to-text mount; setup_ha.py fills it (empty = no name biasing)."""
+    path = secrets_dir / "ha_token"
+    if path.is_dir():
+        raise SystemExit(f"E_SECRETS_IS_DIR: {path} es una carpeta (la creó Docker). Bórrala y repite.")
+    if not path.exists():
+        path.write_text("", encoding="utf-8")
+        path.chmod(0o600)
+    return f"OK: {path} listo."
+
+
 def main() -> int:
     print(ensure_esphome_secrets(host_path("ESPHOME_SECRETS", DEFAULT_SECRETS)))
     print(ensure_folder(host_path("WAKE_WORDS_DIR", DEFAULT_WAKE_WORDS)))
     print(ensure_folder(host_path("STUDIO_DATA_DIR", DEFAULT_DATA, REPO_DIR)))
-    print(ensure_folder(host_path("STUDIO_SECRETS_DIR", DEFAULT_SECRETS_DIR, REPO_DIR), 0o700))
+    secrets_dir = host_path("STUDIO_SECRETS_DIR", DEFAULT_SECRETS_DIR, REPO_DIR)
+    print(ensure_folder(secrets_dir, 0o700))
+    print(ensure_token_file(secrets_dir))
     return 0
 
 

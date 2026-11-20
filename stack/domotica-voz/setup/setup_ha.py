@@ -21,6 +21,7 @@ from ha_client import HaClient, HaError
 
 BASE_URL = os.environ.get("HA_URL", "http://127.0.0.1:8123")
 SECRETS_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio")) / "ha.json"
+TOKEN_FILE = SECRETS_FILE.with_name("ha_token")
 CLIENT_ID = BASE_URL + "/"
 
 
@@ -57,11 +58,21 @@ def onboard() -> dict:
 
 def load_or_create_secrets() -> dict:
     if SECRETS_FILE.exists():
-        return json.loads(SECRETS_FILE.read_text(encoding="utf-8"))
-    data = onboard()
-    SECRETS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    SECRETS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        data = json.loads(SECRETS_FILE.read_text(encoding="utf-8"))
+    else:
+        data = onboard()
+        SECRETS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        SECRETS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    write_token_file(data["token"])
     return data
+
+
+def write_token_file(token: str) -> None:
+    """The bare token for speech-to-text name biasing (whisper reads it at start; restart it to pick up a new one)."""
+    if TOKEN_FILE.exists() and TOKEN_FILE.read_text(encoding="utf-8").strip() == token:
+        return
+    TOKEN_FILE.write_text(token, encoding="utf-8")
+    TOKEN_FILE.chmod(0o600)
 
 
 def main() -> int:
