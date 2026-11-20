@@ -1,6 +1,6 @@
 # Todo en Docker: el Estudio funciona igual en Windows, Linux y macOS
 
-Estado: **pendiente** (2026-11-20): la persona usuaria lo dejó en espera; faltan las 4 decisiones pendientes.
+Estado: **aprobado** (2026-11-20): las 4 decisiones, con la opción recomendada en cada una. En construcción.
 
 ## Objetivo
 Un solo `docker compose up -d` en la raíz del repositorio arranca todo: el stack de voz, Ollama, la configuración de
@@ -16,7 +16,7 @@ para todos. Hoy, en cambio, hacen falta `uv` y Ollama instalados aparte, y cada 
 - La configuración de Home Assistant (`setup_ha.py`) corre en un contenedor de un solo uso del compose.
 - Los lanzadores `.bat` y `.sh` quedan en lo mínimo: comprobar Docker, `docker compose up -d` y abrir el navegador.
 
-## Decisiones pendientes
+## Decisiones aprobadas (la recomendada en cada punto)
 1. **Modelos de Ollama: volumen propio o los del equipo.** Recomendado: volumen propio (`ollama_data`). Es igual en
    todos los sistemas; coste: el modelo (~3,3 GB) se descarga una vez más si ya estaba en el Ollama del equipo.
 2. **Mac sin GPU en Docker.** Recomendado: Ollama en contenedor por defecto (va lento en Mac, pero funciona) y una
