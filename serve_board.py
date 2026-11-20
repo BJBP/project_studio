@@ -19,10 +19,11 @@ NAME_DEVICES = ROOT / "stack" / "domotica-voz" / "setup" / "device_names.py"
 PROJECT_RE = re.compile(r"^[a-z0-9-]+$")
 PORT_RE = re.compile(r"^(COM\d{1,3}|/dev/tty[\w.-]+|/dev/cu\.[\w.-]+)$")
 NAME_RE = re.compile(r"^[a-z0-9_]+$")
+CABLE_VOICES = ("laptop", "usb", "ethernet")  # cable_bridge.py --voice
 IP_RE = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
 OK_IP = re.compile(r"^OK: placa en (\d+\.\d+\.\d+\.\d+)$")
 WIFI_FILE = "wifi.json"
-_cable_projects: dict = {}  # port -> project, while cable mode is on
+_cable_projects: dict = {}  # port -> (project, voice), while cable mode is on
 
 
 def _board(args: list, stdin: str | None = None, timeout_s: int = 120) -> tuple[int, str]:
@@ -55,17 +56,17 @@ def _cable_key(port: str) -> str:
     return f"cable:{port}"
 
 
-def start_cable(port: str, project: str) -> tuple[int, dict]:
-    if not PORT_RE.match(str(port)) or not PROJECT_RE.match(str(project)):
-        return 400, {"code": "E_BOARD_ARGS", "message": "Puerto o proyecto no válidos."}
-    _cable_projects[port] = project
+def start_cable(port: str, project: str, voice: str = "laptop") -> tuple[int, dict]:
+    if not PORT_RE.match(str(port)) or not PROJECT_RE.match(str(project)) or voice not in CABLE_VOICES:
+        return 400, {"code": "E_BOARD_ARGS", "message": "Puerto, proyecto o voz no válidos."}
+    _cable_projects[port] = (project, voice)
     serve_jobs.start(_cable_key(port), [shutil.which("uv") or "uv", "run", "--quiet", str(CABLE_BRIDGE), "--port", port,
-                                        "--project", project], "Conectando por cable…", live=True)
+                                        "--project", project, "--voice", voice], "Conectando por cable…", live=True)
     return cable_status(port)
 
 
 def stop_cable(port: str) -> tuple[int, dict]:
-    project = _cable_projects.pop(port, None)
+    project, _voice = _cable_projects.pop(port, (None, None))
     if serve_jobs.stop(_cable_key(port)) and project:
         # The bridge is killed without cleaning up: take its stand-in out and show the Wi-Fi entities to the voice.
         subprocess.run([shutil.which("uv") or "uv", "run", "--quiet", str(CABLE_BRIDGE), "--restore", "--project", project],
@@ -79,13 +80,13 @@ def cable_status(port: str) -> tuple[int, dict]:
 
 def _port_free(port: str, action):
     """Runs action() with the cable bridge paused (it holds the port), then resumes it."""
-    project = _cable_projects.get(port)
+    project, voice = _cable_projects.get(port, (None, None))
     paused = serve_jobs.stop(_cable_key(port))
     try:
         return action()
     finally:
         if paused and project:
-            start_cable(port, project)
+            start_cable(port, project, voice)
 
 
 def start_flash(name: str, port: str) -> tuple[int, dict]:

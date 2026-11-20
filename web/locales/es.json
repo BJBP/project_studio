@@ -296,7 +296,7 @@
   "boardScan": "📶 Ver cómo está la placa",
   "boardChecking": "Preguntando a la placa por el cable…",
   "boardNoWifi": "La placa responde por el cable, pero no tiene Wi-Fi. Escribe la red (de 2,4 GHz) y su contraseña, o usa «Por cable».",
-  "boardCable": "🔌 Por cable: sin Wi-Fi, la placa sigue en Home Assistant por este cable (sin voz)",
+  "boardCable": "🔌 Por cable: sin Wi-Fi, la placa sigue en Home Assistant por este cable",
   "boardAdding": "Añadiendo la placa a Home Assistant…",
   "boardWifi": "Wi-Fi de la placa",
   "boardNetwork": "Red",
@@ -351,5 +351,12 @@
   "protoStop": "⏹ Parar",
   "protoPage": "Ver código para emparejar ↗",
   "protoNoHa": "Home Assistant no responde: arranca el stack de voz.",
-  "protoHint": "Home Assistant habla estos protocolos. «Añadir» abre su propia pantalla, donde escribes los datos de tu instalación (por ejemplo, la dirección del router KNX)."
+  "protoHint": "Home Assistant habla estos protocolos. «Añadir» abre su propia pantalla, donde escribes los datos de tu instalación (por ejemplo, la dirección del router KNX).",
+  "boardVoice": "Voz por el cable",
+  "boardVoice.laptop": "💻 Micrófono del portátil",
+  "boardVoice.usb": "🔌 Micrófono y altavoz de la placa (USB)",
+  "boardVoice.ethernet": "🌐 Placa con Ethernet",
+  "boardVoiceHint.laptop": "Sin Wi-Fi, habla al portátil: pestaña Demo → «Mantén para hablar». La placa obedece por el cable.",
+  "boardVoiceHint.usb": "Sin Wi-Fi, di «Okay Nabu» a la placa: su audio viaja por este cable y la respuesta suena en su altavoz.",
+  "boardVoiceHint.ethernet": "Necesita el módulo de red W5500 en la placa. Con Ethernet la placa no usa Wi-Fi (ESPHome usa uno u otro) y la voz va como siempre, por la red."
 }
