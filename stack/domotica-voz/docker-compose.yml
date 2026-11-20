@@ -56,6 +56,15 @@ services:
     volumes:
       - ../../firmware/esphome:/config
       - ${ESPHOME_SECRETS:-~/.agents/secrets/project_studio/esphome_secrets.yaml}:/config/secrets.yaml:ro
+  # Linux only (profile "linux", turned on by iniciar_estudio.sh): Ollama installed as a service listens on 127.0.0.1,
+  # which containers cannot reach. This forwards the Docker bridge address (host.docker.internal) to it, without
+  # exposing Ollama to the local network. Docker Desktop (Windows/macOS) already reaches the host and does not need it.
+  ollama-bridge:
+    image: alpine/socat:latest
+    restart: unless-stopped
+    profiles: ["linux"]
+    network_mode: host
+    command: TCP-LISTEN:11434,bind=${DOCKER_BRIDGE_IP:-172.17.0.1},fork,reuseaddr TCP:127.0.0.1:11434
 
 volumes:
   ha_config:
