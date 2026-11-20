@@ -12,6 +12,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from serve_ai import public_providers, save_key
+import serve_cable_auto as cable_auto
 from serve_bridges import bridge, bridge_status
 from serve_board import (add_to_ha, board_status, cable_status, connect, flash_status, list_ports, start_cable,
                          start_flash, stop_cable, sync_names)
@@ -125,8 +126,11 @@ class StudioHandler(SimpleHTTPRequestHandler):
             self.send_json(*bridge(str(data.get("name", "")), bool(data.get("on"))))
         elif self.path == "/api/board/cable":
             port, project = str(data.get("port", "")), str(data.get("project", ""))
-            voice = str(data.get("voice", "laptop"))
-            self.send_json(*(start_cable(port, project, voice) if data.get("on") else stop_cable(port)))
+            voice, on = str(data.get("voice", "laptop")), bool(data.get("on"))
+            status, payload = start_cable(port, project, voice) if on else stop_cable(port)
+            if status == 200:
+                cable_auto.remember(default_data_dir(), on, project, voice)  # ticked = on its own from now on
+            self.send_json(status, payload)
         elif self.path == "/api/device-names":
             self.send_json(*sync_names(str(data.get("project", ""))))
         elif self.path == "/api/board/ha":
@@ -181,6 +185,7 @@ def main() -> None:
     handler = partial(StudioHandler, directory=str(WEB_DIR))
     server = ThreadingHTTPServer((os.environ.get("STUDIO_HOST", "127.0.0.1"), args.port), handler)
     server.repo = build_repo()  # the user's data folder: STUDIO_DATA
+    cable_auto.start_watch(default_data_dir())  # a board on the USB cable stays in Home Assistant without Wi-Fi
     print(f"Estudio en http://127.0.0.1:{args.port}/")
     server.serve_forever()
 
