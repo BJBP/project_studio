@@ -1,0 +1,48 @@
+# Tests on every push and pull request, in Linux, Windows and macOS: Python and Node tests, the Docker Compose files and
+# the launchers' syntax. Linux also builds the Studio image and runs its first-time step (init) in Docker.
+name: Pruebas
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Python
+        run: uv run --no-project --with pytest --with httpx --with websockets --with pyserial --with paho-mqtt pytest tests -q --ignore=tests/e2e
+      - name: Node
+        shell: bash
+        run: node --test tests/*/*.test.mjs
+      - name: Launcher syntax (.sh)
+        if: runner.os != 'Windows'
+        run: bash -n iniciar_estudio.sh
+      - name: Line endings (LF except .bat)
+        if: runner.os == 'Linux'
+        run: "! git ls-files --eol | grep -v '\\.bat$' | grep 'w/crlf'"
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compose files
+        run: |
+          cp stack/domotica-voz/.env.example stack/domotica-voz/.env
+          cp .env.example .env
+          for profile in cpu gpu ""; do
+            COMPOSE_PROFILES=$profile docker compose --env-file stack/domotica-voz/.env --env-file .env config -q
+          done
+      - name: Studio image and first-time step
+        run: |
+          mkdir -p ../project_studio_data ~/.agents/secrets/project_studio
+          STUDIO_UID=$(id -u) STUDIO_GID=$(id -g) docker compose --env-file stack/domotica-voz/.env --env-file .env run --rm --build init
+          test -f ~/.agents/secrets/project_studio/esphome_secrets.yaml

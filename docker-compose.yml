@@ -1,36 +1,85 @@
-# Studio web page: docker compose up -d  →  http://127.0.0.1:8765/
-# Data folder and secrets stay on this computer (volumes); the voice stack is stack/domotica-voz and must be running:
-# the Studio joins its network and reaches Home Assistant by name, also on Linux where HA listens only on 127.0.0.1.
+# Everything with one command (the launchers do it): the voice stack, Ollama, Home Assistant setup and the Studio.
+#   docker compose --env-file stack/domotica-voz/.env --env-file .env run --rm init   (folders and keys, first time)
+#   docker compose --env-file stack/domotica-voz/.env --env-file .env up -d          →  http://127.0.0.1:8765/studio/
+# The project keeps the stack's name, so its volumes (Home Assistant, models) are the same ones as before.
+name: domotica-voz
+
+include:
+  - path: stack/domotica-voz/docker-compose.yml
+    env_file: stack/domotica-voz/.env
+
+x-studio: &studio
+  build: .
+  image: project-studio:local
+  # Runs as your user so the data it writes stays yours (Linux; set STUDIO_UID/STUDIO_GID if yours is not 1000).
+  user: "${STUDIO_UID:-1000}:${STUDIO_GID:-1000}"
+  # The two folders must exist (the launchers create them); create_host_path: false stops Docker from making them
+  # as root-owned folders.
+  volumes:
+    - type: bind
+      source: ${STUDIO_DATA_DIR:-../project_studio_data}
+      target: /data
+      bind: { create_host_path: false }
+    - type: bind
+      source: ${STUDIO_SECRETS_DIR:-~/.agents/secrets/project_studio}
+      target: /secrets
+      bind: { create_host_path: false }
+  environment: &studio_env
+    HOME: /tmp  # your user has no home in the image; uv keeps its cache there
+    STUDIO_DATA: /data
+    STUDIO_SECRETS: /secrets
+    HA_URL: http://homeassistant:8123
+    OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+    OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3.5:4b}
+
 services:
+  # First run: esphome_secrets.yaml with new keys and the folders the stack mounts (wake words). Ends at once.
+  init:
+    <<: *studio
+    profiles: ["init"]
+    restart: "no"
+    environment:
+      <<: *studio_env
+      ESPHOME_SECRETS: /secrets/esphome_secrets.yaml
+      WAKE_WORDS_DIR: /data/wake_words
+      STUDIO_DATA_DIR: /data
+      STUDIO_SECRETS_DIR: /secrets
+    command: ["python", "stack/domotica-voz/setup/ensure_host_paths.py"]
+
+  # Configures Home Assistant (user, voice, AI agents); waits until it answers. Writes ha.json to the secrets folder.
+  setup:
+    <<: *studio
+    restart: on-failure:5
+    depends_on:
+      homeassistant: { condition: service_started }
+      ollama-pull: { condition: service_completed_successfully, required: false }
+    command: ["uv", "run", "stack/domotica-voz/setup/setup_ha.py"]
+
   studio:
-    build: .
+    <<: *studio
+    restart: unless-stopped
+    depends_on:
+      setup: { condition: service_completed_successfully }
     ports:
       - "127.0.0.1:${STUDIO_PORT:-8765}:8765"
     environment:
-      HA_URL: http://homeassistant:8123  # this server, inside the stack network
-      HA_PUBLIC_URL: ${HA_PUBLIC_URL:-http://127.0.0.1:8123}  # the page, in the browser
-      MQTT_WS_URL: ${MQTT_WS_URL:-ws://127.0.0.1:9001}
-      OLLAMA_HOST_URL: ${OLLAMA_HOST_URL:-http://host.docker.internal:11434}
-      HOME: /tmp  # your user has no home in the image; uv keeps its cache there
-    # Runs as your user so the data it writes stays yours (Linux; set STUDIO_UID/STUDIO_GID if yours is not 1000).
-    user: "${STUDIO_UID:-1000}:${STUDIO_GID:-1000}"
-    # The folders must exist first: uv run stack/domotica-voz/setup/ensure_host_paths.py (the launchers do it).
-    # create_host_path: false stops Docker from making them as root-owned folders.
-    volumes:
-      - type: bind
-        source: ${STUDIO_DATA_DIR:-../project_studio_data}
-        target: /data
-        bind: { create_host_path: false }
-      - type: bind
-        source: ${STUDIO_SECRETS_DIR:-~/.agents/secrets/project_studio}
-        target: /secrets
-        bind: { create_host_path: false }
+      <<: *studio_env
+      HA_PUBLIC_URL: http://127.0.0.1:${HA_PORT:-8123}  # Home Assistant as the browser reaches it
+      MQTT_WS_URL: ws://127.0.0.1:${MQTT_WS_PORT:-9001}
+      OLLAMA_HOST_URL: ${OLLAMA_URL:-http://ollama:11434}
+      DOCKER_HOST: tcp://docker-proxy:2375  # restarts the wake word detector; the proxy refuses anything else
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    networks: [default, stack]
-    restart: unless-stopped
 
-networks:
-  stack:
-    name: domotica-voz_default  # created by stack/domotica-voz (docker compose up -d there first)
-    external: true
+  # Lets the Studio restart (or stop) a container and nothing more: no listing, creating, images, volumes or exec.
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:v0.5.0
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 0  # no listing or creating containers
+      POST: 1  # writes are possible, but only the ALLOW_RESTARTS rule (restart, stop, kill) lets any through
+      ALLOW_RESTARTS: 1
+      ALLOW_START: 0
+      ALLOW_STOP: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

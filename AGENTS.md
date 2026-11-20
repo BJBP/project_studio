@@ -4,11 +4,16 @@ Estudio de proyectos abiertos (domótica con voz local, videoportero, industrial
 `docs/planes/estudio_proyectos.md`. Pendientes: `docs/backlog.md`. Fases 1 a 5 hechas; la 4b espera a la mini PC.
 
 ## Flujo de trabajo
-1. Arrancar el stack: `docker compose -f stack/domotica-voz/docker-compose.yml up -d`.
-2. Configurar Home Assistant (solo la primera vez): `uv run stack/domotica-voz/setup/setup_ha.py`.
-   Devuelve `OK: ...` o `<CÓDIGO>: qué hacer`. El token queda en `~/.agents/secrets/project_studio/ha.json`
-   (fuera del repo; un agente delegado no lo lee).
-3. Abrir el Estudio: `iniciar_estudio.bat` (Windows) o `iniciar_estudio.sh`. Con Docker: `docker compose up -d`, con el stack del paso 1 ya en marcha (se une a su red y llega a Home Assistant por `homeassistant:8123`; la página usa `HA_PUBLIC_URL`).
+1. Arrancar todo (stack de voz, Ollama, configuración de Home Assistant y Estudio), solo con Docker: doble clic en
+   `iniciar_estudio.bat` / `iniciar_estudio.sh`, o en la raíz
+   `docker compose --env-file stack/domotica-voz/.env --env-file .env run --rm init` (la primera vez) y
+   `docker compose --env-file stack/domotica-voz/.env --env-file .env up -d`. La IA local: `COMPOSE_PROFILES` en
+   `stack/domotica-voz/.env` (`cpu`, `gpu` o vacío para el Ollama del equipo con `OLLAMA_URL`).
+2. Ver qué pasó al configurar Home Assistant: `docker compose logs setup` (`OK: ...` o `<CÓDIGO>: qué hacer`). El token
+   queda en `~/.agents/secrets/project_studio/ha.json` (fuera del repo; un agente delegado no lo lee).
+3. Placa por USB, modo cable y compilar firmware: fuera de Docker, con `uv` (`firmware/board.py`, `cable_bridge.py`,
+   `build_firmware.py`); el Estudio en Docker no ve el puerto COM. Solo el stack: `docker compose -f
+   stack/domotica-voz/docker-compose.yml up -d`.
 4. Revisar un proyecto: `uv run --no-project python -m studio check <carpeta de datos> domotica-voz`
    → `OK: ...` o una línea `<CÓDIGO>: mensaje` por problema (salida 1 si hay errores `E_`).
    Exportar documentos: `... -m studio export <datos> <proyecto> <carpeta de salida>`.

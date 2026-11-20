@@ -7,7 +7,7 @@ from pathlib import Path
 
 from ha_client import HaClient, HaError
 
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://host.docker.internal:11434")
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://ollama:11434")  # as Home Assistant reaches it (stack network)
 LANGUAGE = os.environ.get("VOICE_LANGUAGE", "es")
 TIME_ZONE = os.environ.get("HA_TIME_ZONE", "UTC")
 VOICE_FILE = Path(os.environ.get("STUDIO_SECRETS", Path.home() / ".agents" / "secrets" / "project_studio")) / "voice.json"

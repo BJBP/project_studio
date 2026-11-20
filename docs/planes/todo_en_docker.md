@@ -1,6 +1,11 @@
 # Todo en Docker: el Estudio funciona igual en Windows, Linux y macOS
 
-Estado: **aprobado** (2026-11-20): las 4 decisiones, con la opción recomendada en cada una. En construcción.
+Estado: **hecho** (2026-11-20), con las 4 decisiones recomendadas. Probado en Windows: `init` y `up -d` arrancan todo,
+`setup` configura Home Assistant y el Estudio responde; el proxy solo deja reiniciar contenedores (crear, `exec`,
+imágenes y listar dan 403). Pendiente: probar los perfiles `cpu`/`gpu` de Ollama en este equipo (descarga ~3,4 GB de
+imagen y ~3,3 GB de modelo; hoy usa el Ollama del equipo), la prueba de extremo a extremo en GitHub Actions y el doble
+clic en Linux y macOS reales. Compilar el firmware desde el Estudio en Docker sigue fuera (necesitaría crear
+contenedores).
 
 ## Objetivo
 Un solo `docker compose up -d` en la raíz del repositorio arranca todo: el stack de voz, Ollama, la configuración de

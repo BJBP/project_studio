@@ -1,16 +1,15 @@
 @echo off
-rem Starts the Studio with a double click: Docker stack, local AI model, Home Assistant setup, web server and browser.
+rem Starts the Studio with a double click, all in Docker: voice stack, local AI, Home Assistant setup and the Studio.
+rem Needs only Docker Desktop. The first time it downloads several GB and takes a while.
 setlocal EnableDelayedExpansion
 cd /d "%~dp0"
 set "STACK=stack\domotica-voz"
 if not exist "%STACK%\.env" copy "%STACK%\.env.example" "%STACK%\.env" >nul
+if not exist ".env" copy ".env.example" ".env" >nul
 for /f "usebackq eol=# tokens=1,* delims==" %%a in ("%STACK%\.env") do set "%%a=%%b"
-set "HA_URL=http://127.0.0.1:%HA_PORT%"
-set "MQTT_WS_URL=ws://127.0.0.1:%MQTT_WS_PORT%"
+for /f "usebackq eol=# tokens=1,* delims==" %%a in (".env") do set "%%a=%%b"
 if "%STUDIO_PORT%"=="" set "STUDIO_PORT=8765"
-
-where uv >nul 2>nul || (echo [E_NO_UV] Falta uv. Instalalo desde https://docs.astral.sh/uv/ y vuelve a abrir este archivo. & pause & exit /b 1)
-where ollama >nul 2>nul || (echo [E_NO_OLLAMA] Falta Ollama. Instalalo desde https://ollama.com y vuelve a abrir este archivo. & pause & exit /b 1)
+echo Project Studio
 
 docker info >nul 2>nul
 if errorlevel 1 (
@@ -20,15 +19,17 @@ if errorlevel 1 (
   echo [E_DOCKER_DOWN] Docker no arranco en 5 minutos. Abre Docker Desktop a mano y repite. & pause & exit /b 1
 )
 :docker_ok
-uv run "%STACK%\setup\ensure_host_paths.py" || (pause & exit /b 1)
-echo Levantando Home Assistant, MQTT, Whisper y Piper...
-docker compose -f "%STACK%\docker-compose.yml" --env-file "%STACK%\.env" up -d || (echo [E_STACK] No arranco el stack. & pause & exit /b 1)
+echo Docker listo.
+rem The two folders Docker mounts; everything inside them is made by the init service.
+if not exist "..\project_studio_data" mkdir "..\project_studio_data"
+if not exist "%USERPROFILE%\.agents\secrets\project_studio" mkdir "%USERPROFILE%\.agents\secrets\project_studio"
+rem An NVIDIA card runs the local AI much faster: switch the default "cpu" to "gpu".
+if /i "%COMPOSE_PROFILES%"=="cpu" (where nvidia-smi >nul 2>nul && set "COMPOSE_PROFILES=gpu")
 
-ollama list | findstr /b /c:"%OLLAMA_MODEL%" >nul || (echo Descargando el modelo de IA %OLLAMA_MODEL%... & ollama pull %OLLAMA_MODEL%)
-
-echo Configurando Home Assistant (la primera vez tarda unos minutos)...
-uv run "%STACK%\setup\setup_ha.py" || (pause & exit /b 1)
+set "COMPOSE=docker compose --env-file %STACK%\.env --env-file .env"
+%COMPOSE% run --rm --build init || (echo [E_INIT] No se crearon las carpetas y claves. & pause & exit /b 1)
+echo Arrancando (la primera vez descarga varios GB y tarda)...
+%COMPOSE% up -d --build || (echo [E_SETUP] No arranco. Mira: docker compose logs setup & pause & exit /b 1)
 
 echo Abriendo el Estudio en http://127.0.0.1:%STUDIO_PORT%/studio/
 start "" "http://127.0.0.1:%STUDIO_PORT%/studio/"
-uv run --no-project python serve.py --port %STUDIO_PORT%

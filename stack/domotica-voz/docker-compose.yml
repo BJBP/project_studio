@@ -1,5 +1,5 @@
 # Voice home-automation stack: Home Assistant + MQTT broker + local speech-to-text and text-to-speech.
-# The LLM runs in Ollama on the host (host.docker.internal:11434). All ports bind to 127.0.0.1 only, except Home
+# The LLM runs in the ollama service (or the computer's Ollama, see below). All ports bind to 127.0.0.1 only, except Home
 # Assistant when HA_BIND=0.0.0.0 (phone app on the home network; it has its own login).
 services:
   homeassistant:
@@ -65,17 +65,38 @@ services:
         target: /config/secrets.yaml
         read_only: true
         bind: { create_host_path: false }
-  # Linux only (profile "linux", turned on by iniciar_estudio.sh): Ollama installed as a service listens on 127.0.0.1,
-  # which containers cannot reach. This forwards the Docker bridge address (host.docker.internal) to it, without
-  # exposing Ollama to the local network. Docker Desktop (Windows/macOS) already reaches the host and does not need it.
-  ollama-bridge:
-    image: alpine/socat:1.8.1.1
+  # Local AI (Ollama), own volume. Profiles (COMPOSE_PROFILES in .env): "cpu" (default), "gpu" (NVIDIA) or none to use
+  # the Ollama installed on the computer (OLLAMA_URL=http://host.docker.internal:11434, e.g. a Mac with its GPU).
+  # Other containers reach it as "ollama"; this computer, on 127.0.0.1:OLLAMA_PORT.
+  ollama: &ollama
+    image: ollama/ollama:0.40.16
     restart: unless-stopped
-    profiles: ["linux"]
-    network_mode: host
-    command: TCP-LISTEN:11434,bind=${DOCKER_BRIDGE_IP:-172.17.0.1},fork,reuseaddr TCP:127.0.0.1:11434
+    profiles: ["cpu"]
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11435}:11434"  # 11435: the computer's own Ollama may hold 11434
+    networks:
+      default:
+        aliases: [ollama]
+  ollama-gpu:
+    <<: *ollama
+    profiles: ["gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+  # Downloads OLLAMA_MODEL once (later runs find it in the volume and end at once).
+  ollama-pull:
+    image: ollama/ollama:0.40.16
+    profiles: ["cpu", "gpu"]
+    restart: "no"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["sh", "-c", "until ollama list >/dev/null 2>&1; do sleep 2; done; ollama pull ${OLLAMA_MODEL:-qwen3.5:4b}"]
 
 volumes:
+  ollama_data:
   ha_config:
   mosquitto_data:
   whisper_data:

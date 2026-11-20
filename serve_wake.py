@@ -7,6 +7,8 @@ import json
 import os
 import re
 import subprocess
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 from serve_ai import _run_setup
@@ -91,8 +93,14 @@ def import_word(words_dir: Path, config_text: str, model_b64: str) -> tuple[int,
 
 
 def _restart_detector() -> bool:
-    """The detector reads its words only when it starts."""
+    """The detector reads its words only when it starts. In Docker the Studio has no docker command: it asks the
+    restart-only proxy (DOCKER_HOST=tcp://docker-proxy:2375) through the Docker API."""
+    proxy = os.environ.get("DOCKER_HOST", "")
     try:
+        if proxy.startswith("tcp://"):
+            url = f"http://{proxy.removeprefix('tcp://')}/containers/{DETECTOR_CONTAINER}/restart"
+            with urllib.request.urlopen(urllib.request.Request(url, method="POST"), timeout=60) as reply:
+                return reply.status == 204
         return subprocess.run(["docker", "restart", DETECTOR_CONTAINER], capture_output=True, timeout=60).returncode == 0
-    except (OSError, subprocess.TimeoutExpired):
+    except (OSError, subprocess.TimeoutExpired, urllib.error.URLError):
         return False
