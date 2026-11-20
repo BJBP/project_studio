@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from studio.infrastructure.json_repository import JsonRepository
+from studio.infrastructure.module_store import JsonModuleStore
 
 PROGRAM_DIR = Path(__file__).resolve().parents[2]
 
@@ -14,3 +15,7 @@ def default_data_dir() -> Path:
 
 def build_repo(data_dir: str | Path | None = None) -> JsonRepository:
     return JsonRepository(PROGRAM_DIR, Path(data_dir) if data_dir else default_data_dir())
+
+
+def build_modules(repo: JsonRepository) -> JsonModuleStore:
+    return JsonModuleStore(repo.program_dir, repo.data_dir)

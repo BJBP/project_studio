@@ -1,0 +1,30 @@
+{
+  "id": "arquitectura",
+  "name": "Arquitectura",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "🏗",
+  "order": 10,
+  "requires": [],
+  "description": "Pestaña «Arquitectura» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "arquitectura",
+        "order": 10
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "arquitectura",
+        "entry": "js/blocks/diagram-block.js",
+        "export": "createDiagramBlock"
+      },
+      {
+        "tab": "arquitectura",
+        "entry": "js/blocks/slot-block.js",
+        "export": "createSlotBlock"
+      }
+    ]
+  }
+}

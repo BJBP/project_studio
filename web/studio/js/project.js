@@ -1,32 +1,11 @@
-// Project screen: tabs (Arquitectura, Flujo, Compras, Licencias, Equipos, Aparatos, Tutorial, Demo). Each tab is a board of
+// Project screen: one tab per active module (modules/<id>/module.json: Arquitectura, Flujo, Compras…). Each tab is a board of
 // movable blocks; all blocks share one store with the project view from the API.
 import { h } from '../../shared/dom.js';
 import { t, localeTable } from '../../shared/i18n.js';
 import { mountBlocks } from '../../engines/blocks/block-manager.js';
 import { createStorage } from '../../engines/blocks/storage.js';
 import { api } from './api.js';
-import { createDiagramBlock } from './blocks/diagram-block.js';
-import { createSlotBlock } from './blocks/slot-block.js';
-import { createFlowBlock } from './blocks/flow-block.js';
-import { createShoppingBlock } from './blocks/shopping-block.js';
-import { createLicensesBlock, createDocsBlock } from './blocks/licenses-block.js';
-import { createEquipmentBlock } from './blocks/equipment-block.js';
-import { createDemoBlock, createTutorialBlock } from './blocks/demo-block.js';
-import { createHardwareBlock } from './blocks/hardware-block.js';
-import { createVoiceMonitorBlock } from './blocks/voice-monitor-block.js';
-import { createTwinBlock } from './blocks/twin-block.js';
-import { createProtocolsBlock } from './blocks/protocols-block.js';
-
-const TABS = [
-  { id: 'arquitectura', blocks: (ctx) => [createDiagramBlock(ctx), createSlotBlock(ctx)] },
-  { id: 'flujo', blocks: (ctx) => [createFlowBlock(ctx)] },
-  { id: 'compras', blocks: (ctx) => [createShoppingBlock(ctx)] },
-  { id: 'licencias', blocks: (ctx) => [createLicensesBlock(ctx), createDocsBlock(ctx)] },
-  { id: 'equipos', blocks: (ctx) => [createEquipmentBlock(ctx)] },
-  { id: 'aparatos', when: (view) => view.project.devices?.length, blocks: (ctx) => [createTwinBlock(ctx), createHardwareBlock(ctx), createVoiceMonitorBlock(ctx), createProtocolsBlock(ctx)] },
-  { id: 'tutorial', when: (view) => view.project.links?.tutorial, blocks: (ctx) => [createTutorialBlock(ctx)] },
-  { id: 'demo', when: (view) => view.project.links?.demo, blocks: (ctx) => [createDemoBlock(ctx)] },
-];
+import { tabsFromModules } from './module-tabs.js';
 
 function createStore(projectId, view) {
   const listeners = new Set();
@@ -52,8 +31,11 @@ function tabBar(projectId, tabs, active) {
 export async function renderProject(view, projectId, tabId) {
   const data = await api(`projects/${encodeURIComponent(projectId)}`);
   const store = createStore(projectId, data);
-  const tabs = TABS.filter((tab) => !tab.when || tab.when(data));
+  const tabs = tabsFromModules(await api('modules'), data);
   const active = tabs.find((tab) => tab.id === tabId) ?? tabs[0];
+  if (!active) throw { code: 'E_NO_MODULES', message: t('noModules') };
+  // Each block is loaded when its tab opens: a module's files are only fetched when it is shown.
+  const factories = await Promise.all(active.blocks.map(async (b) => (await import(`/studio/${b.entry}`))[b.export]));
   const board = h('div', { class: 'studio-board' });
   const project = data.project;
   view.append(
@@ -63,7 +45,7 @@ export async function renderProject(view, projectId, tabId) {
     tabBar(projectId, tabs, active), board);
 
   const ctx = { t, api, store, projectId };
-  const blocks = active.blocks(ctx);
+  const blocks = factories.map((create) => create(ctx));
   // A tab whose blocks all live in the main column gets no empty side column.
   const columns = [{ id: 'main', title: t('columnMain') }];
   if (blocks.some((block) => block.defaultColumn === 'side')) columns.push({ id: 'side', title: t('columnSide') });

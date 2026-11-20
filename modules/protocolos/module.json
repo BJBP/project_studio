@@ -1,0 +1,21 @@
+{
+  "id": "protocolos",
+  "name": "Protocolos",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "🔗",
+  "order": 65,
+  "requires": [
+    "aparatos"
+  ],
+  "description": "Bloque en Aparatos: lo que habla Home Assistant (KNX, Zigbee, Matter…) y el puente a Alexa y Google.",
+  "adds": {
+    "blocks": [
+      {
+        "tab": "aparatos",
+        "entry": "js/blocks/protocols-block.js",
+        "export": "createProtocolsBlock"
+      }
+    ]
+  }
+}

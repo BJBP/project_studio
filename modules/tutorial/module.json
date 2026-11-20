@@ -1,0 +1,26 @@
+{
+  "id": "tutorial",
+  "name": "Tutorial",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "📘",
+  "order": 70,
+  "requires": [],
+  "description": "Pestaña «Tutorial» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "tutorial",
+        "order": 70,
+        "when": "project.links.tutorial"
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "tutorial",
+        "entry": "js/blocks/demo-block.js",
+        "export": "createTutorialBlock"
+      }
+    ]
+  }
+}

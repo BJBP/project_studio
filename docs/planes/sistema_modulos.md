@@ -1,8 +1,12 @@
 # Sistema de módulos (todo lo visible y cada función se instala y se quita)
 
 ## Estado
-Propuesta (2026-11-19). **Decisión del usuario: pendiente.** Nada construido. Para retomarlo, elegir entre el corte
-pequeño (núcleo + barra + avisos, ~0,5 días) y la fase 1 completa.
+Aprobado (2026-11-20), con el estado de los módulos en la carpeta de datos. **Fase 1 hecha en parte:** manifiestos en
+`modules/<id>/module.json` (las 8 pestañas y el bloque Protocolos), dominio, casos de uso, `modules.json` en la carpeta
+de datos, API `/api/studio/modules`, comando `python -m studio modules <datos> list|enable|disable <id>`, pestañas
+construidas desde los módulos activos (cada bloque se carga con `import()` al abrir su pestaña) y pantalla
+«🧩 Módulos» (#/modulos) con activar y apagar. Probado en el navegador. Falta de la fase 1: la barra, la Ayuda y la
+Presentación como módulos, y el panel de avisos. Fases 2 y 3 pendientes.
 
 ## Qué cambia
 Hoy las pestañas del proyecto están fijas en `web/studio/js/project.js` y la cabecera (Presentación, Ayuda) en

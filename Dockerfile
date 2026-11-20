@@ -5,6 +5,7 @@ COPY serve*.py ./
 COPY studio ./studio
 COPY catalog ./catalog
 COPY examples ./examples
+COPY modules ./modules
 COPY stack ./stack
 COPY web ./web
 ENV STUDIO_HOST=0.0.0.0 STUDIO_DATA=/data STUDIO_SECRETS=/secrets PYTHONUNBUFFERED=1

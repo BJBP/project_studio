@@ -90,6 +90,8 @@
   acepta @listen; el puente tendría que recibir la orden del servidor).
 - Todo en Docker: hecho; falta probar Ollama en contenedor (`cpu`/`gpu`) en este equipo, la prueba de extremo a
   extremo en GitHub Actions y los lanzadores en Linux y macOS reales. El proxy deja también parar y matar contenedores.
-- Sistema de módulos: pendiente.
+- Sistema de módulos: fase 1 casi completa (pestañas y Protocolos como módulos, pantalla «Módulos»). Falta: barra,
+  Ayuda y Presentación como módulos, panel de avisos; fase 2 (rutas del servidor por módulo) y fase 3 (servicios Docker
+  por módulo, instalar desde carpeta o .zip, ESPConnect como primer módulo externo).
 - Placa con IP nueva del router: Home Assistant en Docker no la descubre solo (sin mDNS). «📶 Ver cómo está la
   placa» la actualiza; mejor reservar la IP de la placa en el router.

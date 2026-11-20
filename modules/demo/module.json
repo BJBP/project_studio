@@ -1,0 +1,26 @@
+{
+  "id": "demo",
+  "name": "Demo",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "🎙",
+  "order": 80,
+  "requires": [],
+  "description": "Pestaña «Demo» del proyecto.",
+  "adds": {
+    "tabs": [
+      {
+        "id": "demo",
+        "order": 80,
+        "when": "project.links.demo"
+      }
+    ],
+    "blocks": [
+      {
+        "tab": "demo",
+        "entry": "js/blocks/demo-block.js",
+        "export": "createDemoBlock"
+      }
+    ]
+  }
+}
