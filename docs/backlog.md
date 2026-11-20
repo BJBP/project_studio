@@ -10,7 +10,6 @@
 
 - Mosquitto sin usuario ni clave (solo 127.0.0.1): añadir usuarios antes de usarlo en una red de cliente.
 - Ollama escucha en 0.0.0.0 en esta laptop (ajuste previo del equipo): visible en la red local.
-- `ollama-bridge`: en Windows/macOS sigue haciendo falta que Ollama escuche en 0.0.0.0; probar si Docker Desktop llega a 127.0.0.1 sin ese ajuste.
 - Revisar la licencia de la voz de Piper `es_ES-davefx-medium` y de `qwen3.5:4b` antes de ofrecerlo a clientes.
 - IA en la nube: probada solo con una clave falsa (se rechaza y no se guarda). Falta probar Claude, OpenAI y Gemini con una clave real.
 - IA en la nube: botón para quitar una clave (hoy hay que borrarla de `ai_keys.json` y de Home Assistant).
@@ -86,7 +85,11 @@
   entidades se lee al arrancar: tras cambiar qué ve el asistente, parar y arrancar. No arranca solo con el Estudio.
 - KNX: falta KNX Virtual (cuenta gratuita en knx.org y descarga, las hace la persona usuaria); después Protocolos →
   KNX → «Añadir», con la dirección del simulador (túnel, puerto 3671), y probar «apaga la luz del salón».
-- Voz por el cable con selector, todo en Docker y sistema de módulos: pendientes (varios días; esperan el visto bueno
-  de la estimación).
+- Voz por el cable (USB): probado con la placa el transporte (escucha, audio a Home Assistant, fin de frase, respuesta
+  en el altavoz). Falta: una persona diciendo «Okay Nabu» sin Wi-Fi, y un botón «Hablar» en el Estudio (la placa ya
+  acepta @listen; el puente tendría que recibir la orden del servidor).
+- Todo en Docker: hecho; falta probar Ollama en contenedor (`cpu`/`gpu`) en este equipo, la prueba de extremo a
+  extremo en GitHub Actions y los lanzadores en Linux y macOS reales. El proxy deja también parar y matar contenedores.
+- Sistema de módulos: pendiente.
 - Placa con IP nueva del router: Home Assistant en Docker no la descubre solo (sin mDNS). «📶 Ver cómo está la
   placa» la actualiza; mejor reservar la IP de la placa en el router.

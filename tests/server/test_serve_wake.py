@@ -48,3 +48,18 @@ def test_choosing_a_word_runs_setup_and_keeps_the_old_one_on_failure(tmp_path, m
     assert status == 400 and result["current"] == "hey_jarvis"
     assert serve_wake.list_words(tmp_path, tmp_path)[1]["current"] == "hey_jarvis"
     assert serve_wake.set_word(tmp_path, tmp_path, "nope")[1]["code"] == "E_WAKE_WORD"
+
+
+def test_in_docker_the_detector_restarts_through_the_proxy(monkeypatch):
+    import serve_wake
+    calls = []
+
+    class Reply:
+        status = 204
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    monkeypatch.setenv("DOCKER_HOST", "tcp://docker-proxy:2375")
+    monkeypatch.setattr(serve_wake.urllib.request, "urlopen", lambda req, timeout: calls.append((req.full_url, req.method)) or Reply())
+    assert serve_wake._restart_detector()
+    assert calls == [("http://docker-proxy:2375/containers/domotica-voz-wakeword-1/restart", "POST")]

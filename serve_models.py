@@ -11,7 +11,7 @@ from pathlib import Path
 from serve_ai import _providers, _run_setup
 
 ROOT = Path(__file__).resolve().parent
-OLLAMA_URL = os.environ.get("OLLAMA_HOST_URL", "http://127.0.0.1:11434")
+OLLAMA_URL = os.environ.get("OLLAMA_HOST_URL", "http://127.0.0.1:11435")  # the stack's Ollama, published port
 DEFAULT_LOCAL_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3.5:4b")
 EQUIPMENT_FILE = ROOT / "catalog" / "equipment" / f"{os.environ.get('STUDIO_EQUIPMENT', 'laptop-demo')}.json"
 MODELS_FILE = "ai_models.json"  # in the secrets folder, next to ai_keys.json: setup_ha.py reads it there

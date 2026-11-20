@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# Starts the Studio: Docker stack, local AI model, Home Assistant setup, web server and browser (Linux/macOS).
+# Starts the Studio, all in Docker (Linux/macOS): voice stack, local AI, Home Assistant setup and the Studio.
+# Needs only Docker. The first time it downloads several GB and takes a while.
 set -euo pipefail
 cd "$(dirname "$0")"
 STACK=stack/domotica-voz
 [ -f "$STACK/.env" ] || cp "$STACK/.env.example" "$STACK/.env"
-set -a; . "$STACK/.env"; set +a
-export HA_URL="http://127.0.0.1:${HA_PORT}" MQTT_WS_URL="ws://127.0.0.1:${MQTT_WS_PORT}"
+[ -f .env ] || cp .env.example .env
+set -a; . "$STACK/.env"; . ./.env; set +a
 STUDIO_PORT="${STUDIO_PORT:-8765}"
-command -v uv >/dev/null || { echo "[E_NO_UV] Falta uv: https://docs.astral.sh/uv/"; exit 1; }
-command -v ollama >/dev/null || { echo "[E_NO_OLLAMA] Falta Ollama: https://ollama.com"; exit 1; }
+echo "Project Studio"
 docker info >/dev/null 2>&1 || { echo "[E_DOCKER_DOWN] Arranca Docker y repite."; exit 1; }
-uv run "$STACK/setup/ensure_host_paths.py"
-# Linux: Ollama on 127.0.0.1 is not reachable from containers; the ollama-bridge service forwards to it.
-if [ "$(uname -s)" = Linux ]; then
-    export COMPOSE_PROFILES=linux
-    DOCKER_BRIDGE_IP=$(docker network inspect bridge -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
-    export DOCKER_BRIDGE_IP="${DOCKER_BRIDGE_IP:-172.17.0.1}"
-fi
-docker compose -f "$STACK/docker-compose.yml" --env-file "$STACK/.env" up -d
-ollama list | grep -q "^${OLLAMA_MODEL}" || ollama pull "$OLLAMA_MODEL"
-uv run "$STACK/setup/setup_ha.py"
+echo "Docker listo."
+# The two folders Docker mounts, as your user; everything inside them is made by the init service.
+mkdir -p ../project_studio_data "$HOME/.agents/secrets/project_studio"
+export STUDIO_UID="${STUDIO_UID:-$(id -u)}" STUDIO_GID="${STUDIO_GID:-$(id -g)}"
+# An NVIDIA card runs the local AI much faster: switch the default "cpu" to "gpu".
+if [ "${COMPOSE_PROFILES:-}" = cpu ] && command -v nvidia-smi >/dev/null; then export COMPOSE_PROFILES=gpu; fi
+COMPOSE=(docker compose --env-file "$STACK/.env" --env-file .env)
+"${COMPOSE[@]}" run --rm --build init || { echo "[E_INIT] No se crearon las carpetas y claves."; exit 1; }
+echo "Arrancando (la primera vez descarga varios GB y tarda)..."
+"${COMPOSE[@]}" up -d --build || { echo "[E_SETUP] No arrancó. Mira: docker compose logs setup"; exit 1; }
 URL="http://127.0.0.1:${STUDIO_PORT}/studio/"
+echo "Abriendo el Estudio en $URL"
 (command -v xdg-open >/dev/null && xdg-open "$URL" || open "$URL") >/dev/null 2>&1 &
-uv run --no-project python serve.py --port "$STUDIO_PORT"
