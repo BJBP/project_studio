@@ -3,6 +3,7 @@
 - Probar la voz real con el micrófono del navegador (solo se probó la orden escrita en la página y la voz con `tests/e2e/voice_pipeline.py`).
 - El indicador «Micrófono» dice «Sin conexión» hasta la primera vez que se pulsa «Mantén para hablar»: mejor «Sin usar».
 - Probar `iniciar_estudio.bat` de principio a fin en una máquina limpia.
+- `setup_ha.py` justo tras reiniciar el stack falló una vez con `E_HA_HTTP ... subentries/flow/... -> 404 Invalid flow specified`; repetirlo pasó. Reintentar ese paso una vez ante ese 404.
 - La orden de pruebas de `tests/server` del `AGENTS.md` falla al cargar 2 archivos (falta `httpx`): añadir `--with httpx --with websockets`.
 - Antes de una demo, hacer una pregunta de calentamiento: la GPU de 4 GB va justa y la primera respuesta de la IA puede fallar.
 - `web/demos/voice/js/infrastructure/ha-assist.js` tiene 176 líneas: separar `request()` (peticiones sueltas) de las ejecuciones de voz.
