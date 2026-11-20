@@ -20,6 +20,7 @@ if errorlevel 1 (
   echo [E_DOCKER_DOWN] Docker no arranco en 5 minutos. Abre Docker Desktop a mano y repite. & pause & exit /b 1
 )
 :docker_ok
+uv run "%STACK%\setup\ensure_secrets.py" || (pause & exit /b 1)
 echo Levantando Home Assistant, MQTT, Whisper y Piper...
 docker compose -f "%STACK%\docker-compose.yml" --env-file "%STACK%\.env" up -d || (echo [E_STACK] No arranco el stack. & pause & exit /b 1)
 
