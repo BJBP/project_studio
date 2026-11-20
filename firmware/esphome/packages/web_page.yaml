@@ -1,0 +1,8 @@
+# The board's own page for the phone (http://<board IP>), with user and password from the secrets. Works with the
+# computer off: its files are stored in the board (local: true), not taken from the internet.
+web_server:
+  version: 3
+  local: true
+  auth:
+    username: !secret web_username
+    password: !secret web_password

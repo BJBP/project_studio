@@ -1,0 +1,75 @@
+# Rules that run in the board, also with the computer off: the BOOT button toggles the relay, "Apagar en (min)"
+# turns it off after a while, and a daily schedule turns it on and off (time from the internet, SNTP).
+# Needs relay.yaml (id foco). The values are kept in the board's memory across restarts.
+time:
+  - platform: sntp
+    id: board_time
+    timezone: !secret time_zone
+
+binary_sensor:
+  - platform: gpio
+    name: "Botón"
+    pin: { number: GPIO0, inverted: true, mode: { input: true, pullup: true } }
+    on_press:
+      - switch.toggle: foco
+
+number:
+  - platform: template
+    name: "Apagar en (min)"
+    id: auto_off_minutes
+    min_value: 0
+    max_value: 240
+    step: 5
+    initial_value: 0
+    restore_value: true
+    optimistic: true
+    entity_category: config
+
+switch:
+  - platform: template
+    name: "Horario"
+    id: schedule_on
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+  - id: !extend foco
+    on_turn_on:
+      - script.execute: auto_off
+    on_turn_off:
+      - script.stop: auto_off
+
+datetime:
+  - platform: template
+    name: "Encender a las"
+    type: time
+    time_id: board_time
+    optimistic: true
+    restore_value: true
+    initial_value: "19:00:00"
+    entity_category: config
+    on_time:
+      - if:
+          condition: { switch.is_on: schedule_on }
+          then: [ switch.turn_on: foco ]
+  - platform: template
+    name: "Apagar a las"
+    type: time
+    time_id: board_time
+    optimistic: true
+    restore_value: true
+    initial_value: "23:00:00"
+    entity_category: config
+    on_time:
+      - if:
+          condition: { switch.is_on: schedule_on }
+          then: [ switch.turn_off: foco ]
+
+script:
+  - id: auto_off
+    mode: restart
+    then:
+      - if:
+          condition: { lambda: 'return id(auto_off_minutes).state > 0;' }
+          then:
+            - delay: !lambda 'return (uint32_t) (id(auto_off_minutes).state * 60000);'
+            - switch.turn_off: foco

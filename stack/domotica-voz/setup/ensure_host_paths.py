@@ -25,9 +25,17 @@ def host_path(name: str, default: str, base: Path = STACK_DIR) -> Path:
     return path if path.is_absolute() else (base / path).resolve()
 
 
-def new_esphome_secrets() -> str:
-    key = base64.b64encode(secrets.token_bytes(32)).decode()
-    return f'api_encryption_key: "{key}"\nota_password: "{secrets.token_hex(16)}"\n'
+def new_esphome_secrets() -> dict:
+    """Every secret the firmware packages read; a new key here reaches existing files too (ensure_esphome_secrets)."""
+    return {"api_encryption_key": base64.b64encode(secrets.token_bytes(32)).decode(),
+            "ota_password": secrets.token_hex(16),
+            "web_username": "studio",  # the board's own page (packages/web_page.yaml)
+            "web_password": secrets.token_urlsafe(12),
+            "time_zone": "UTC"}  # schedules in the board (packages/local_rules.yaml); change it to your zone
+
+
+def as_yaml(values: dict) -> str:
+    return "".join(f'{key}: "{value}"\n' for key, value in values.items())
 
 
 def ensure_esphome_secrets(path: Path) -> str:
@@ -35,9 +43,15 @@ def ensure_esphome_secrets(path: Path) -> str:
         raise SystemExit(f"E_SECRETS_IS_DIR: {path} es una carpeta (la creó Docker). "
                          "Bórrala (si es de root: sudo rm -r) y repite.")
     if path.exists():
-        return f"OK: {path} ya existe."
+        text = path.read_text(encoding="utf-8")
+        present = {line.partition(":")[0].strip() for line in text.splitlines()}
+        missing = {k: v for k, v in new_esphome_secrets().items() if k not in present}
+        if not missing:
+            return f"OK: {path} ya existe."
+        path.write_text(text.rstrip("\n") + "\n" + as_yaml(missing), encoding="utf-8")
+        return f"OK: {path} ya existe; añadidas {', '.join(missing)}."
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    path.write_text(new_esphome_secrets(), encoding="utf-8")
+    path.write_text(as_yaml(new_esphome_secrets()), encoding="utf-8")
     path.chmod(0o600)
     return f"OK: creado {path} con claves nuevas."
 
