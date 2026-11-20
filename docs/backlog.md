@@ -1,5 +1,8 @@
 # Backlog
 
+- **Administrador de la pantalla de la placa y pantalla virtual**: plan propuesto, pendiente de aprobar, en
+  `docs/planes/pantalla_placa.md`.
+
 - **Nombres extra por voz**: el interruptor de la placa tiene a mano los alias «foco» e «interruptor» en Home Assistant
   (2026-11-20), pero `stack/domotica-voz/setup/device_names.py` (línea 23) deja como alias solo el nombre elegido y
   los borra la próxima vez que se ejecute. Lo resuelve el editor de comandos de voz (fase 1: nombres extra que se
