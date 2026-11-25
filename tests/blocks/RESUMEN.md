@@ -44,7 +44,7 @@ con Node v22.23.2 — el runner ya no acepta un directorio como argumento posici
 y lo trata como un módulo que no existe:
 
 ```
-# Error: Cannot find module 'C:\ruta\a\Downloads\proyectos\project_studio\tests\blocks'
+# Error: Cannot find module 'C:\ruta\a\project_studio\tests\blocks'
 #   code: 'MODULE_NOT_FOUND'
 ```
 

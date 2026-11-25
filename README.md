@@ -64,3 +64,7 @@ ninguna capa interior importe una exterior.
 
 ## Idioma
 La interfaz está en español por defecto; los textos salen de `web/locales/<idioma>.json`. El código está en inglés.
+
+## Licencia
+
+MIT. Ver [LICENSE](LICENSE). Las librerías de `web/vendor/` conservan su propia licencia, junto a ellas.
