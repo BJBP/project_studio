@@ -1,0 +1,11 @@
+# Optional: the board also publishes to an MQTT broker and announces each entity with Home Assistant discovery
+# messages, so any program that reads them (Home Assistant, Node-RED, an edge…) finds it and can send it orders.
+# The Home Assistant API stays on, so voice keeps working. Broker address in the secrets (mqtt_broker).
+mqtt:
+  broker: !secret mqtt_broker
+  port: 1883
+  discovery: true
+  discovery_prefix: homeassistant
+  discovery_retain: true
+  topic_prefix: ${name}
+  reboot_timeout: 0s  # if the broker is down the board keeps running (voice, schedules) instead of restarting

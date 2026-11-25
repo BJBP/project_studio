@@ -1,0 +1,5 @@
+# The tutorial circuit plus MQTT (packages/mqtt.yaml): same board, same names, also visible to MQTT platforms.
+# Build: uv run --no-project python firmware/build_firmware.py circuito_maestro_mqtt
+packages:
+  board: !include circuito_maestro.yaml
+  mqtt: !include packages/mqtt.yaml
